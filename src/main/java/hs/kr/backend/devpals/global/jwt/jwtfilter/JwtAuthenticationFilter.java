@@ -5,10 +5,10 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
+import hs.kr.backend.devpals.global.exception.CustomException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -22,26 +22,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenValidator jwtValidator;
 
+    @Autowired
     public JwtAuthenticationFilter(JwtTokenValidator jwtValidator) {
         this.jwtValidator = jwtValidator;
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+
         String token = resolveToken(request);
-
-        if (token != null && jwtValidator.validateJwtToken(token)) {
-            Authentication authentication = jwtValidator.getAuthentication(token);
-
-            if (authentication != null) {
-                SecurityContext securityContext = new SecurityContextImpl(authentication);
-                SecurityContextHolder.setContext(securityContext);
+        if (token != null) {
+            try {
+                jwtValidator.validateJwtToken(token);
+                Authentication auth = jwtValidator.getAuthentication(token);
+                SecurityContextHolder.getContext().setAuthentication(auth);
+            } catch (CustomException e) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("{\"message\": \"Access Token이 만료되었습니다.\", \"code\": \"TOKEN_EXPIRED\"}");
+                response.getWriter().flush();
+                return;
             }
         }
-
-        chain.doFilter(request, response);
+        filterChain.doFilter(request, response);
     }
+
 
     /**
      * 요청 헤더에서 JWT 토큰을 추출하는 메서드

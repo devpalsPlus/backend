@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
+import java.util.Date;
 
 @Service
 public class JwtTokenValidator {
@@ -57,7 +58,7 @@ public class JwtTokenValidator {
     }
 
     /**
-     * JWT 토큰 검증
+     * Access Token 검증
      */
     public boolean validateJwtToken(String jwtToken) {
         try {
@@ -65,6 +66,9 @@ public class JwtTokenValidator {
                     .setSigningKey(getSigningKey())
                     .build()
                     .parseClaimsJws(jwtToken);
+
+            Date expiration = claimsJws.getBody().getExpiration();
+            System.out.println("토큰 만료 시간 (서버 기준): " + expiration);
             return true;
         } catch (ExpiredJwtException e) {
             logger.error("JWT 토큰이 만료되었습니다: {}", e.getMessage());
@@ -78,6 +82,25 @@ public class JwtTokenValidator {
         } catch (IllegalArgumentException e) {
             logger.error("JWT 클레임 문자열이 비어 있습니다: {}", e.getMessage());
             throw new CustomException(ErrorException.INVALID_PASSWORD);
+        }
+    }
+
+    /**
+     * Refresh Token 검증
+     */
+    public boolean validateRefreshToken(String refreshToken) {
+        try {
+            // 받은 Refresh Token을 로그로 출력
+            System.out.println("Received Refresh Token: " + refreshToken);
+
+            Jws<Claims> claimsJws = Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey()) // Refresh Token도 동일한 키 사용
+                    .build()
+                    .parseClaimsJws(refreshToken);
+            return true;
+        } catch (ExpiredJwtException e) {
+            logger.error("JWT 토큰이 만료되었습니다: {}", e.getMessage());
+            throw new CustomException(ErrorException.TOKEN_EXPIRED);
         }
     }
 

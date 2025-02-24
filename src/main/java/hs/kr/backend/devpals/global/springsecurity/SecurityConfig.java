@@ -43,6 +43,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/public/**",
                                         "/api/auth/login",
+                                        "/api/auth/refresh",
                                         "/api/user/me").permitAll() // 공개 API 엔드포인트
                         .anyRequest().authenticated() // 그 외 모든 요청은 인증 필요
                 )

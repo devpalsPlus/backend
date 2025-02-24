@@ -34,7 +34,7 @@ public class UserEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private UserLevel userLevel = UserLevel.BEGINNER;
+    private UserLevel userLevel = UserLevel.Beginner;
 
     @Column(length = 255)
     private String github;
