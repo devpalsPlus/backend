@@ -23,6 +23,7 @@ dependencies {
 	implementation 'mysql:mysql-connector-java:8.0.33' // MYSQL
 	implementation 'org.springframework.boot:spring-boot-starter-security' // Spring Security
 	compileOnly 'org.projectlombok:lombok' // lombok
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-mail', version: '3.4.3'// Mail
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
