@@ -1,5 +1,6 @@
 package hs.kr.backend.devpals.global.exception;
 
+import hs.kr.backend.devpals.global.facade.FacadeResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,15 +16,9 @@ public class GlobalExceptionHandler {
      * CustomException 예외 처리
      */
     @ExceptionHandler(CustomException.class)
-    public ResponseEntity<Map<String, Object>> handleCustomException(CustomException exception) {
-        Map<String, Object> errorResponse = new HashMap<>();
-        errorResponse.put("errorCode", exception.getCode());
-        errorResponse.put("errorMessage", exception.getMessage());
-        errorResponse.put("statusCode", exception.getStatusCode());
-
-        return ResponseEntity
-                .status(exception.getStatusCode())
-                .body(errorResponse);
+    public ResponseEntity<FacadeResponse<Object>> handleCustomException(CustomException ex) {
+        FacadeResponse<Object> response = new FacadeResponse<>(false, ex.getMessage(), null);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     /**

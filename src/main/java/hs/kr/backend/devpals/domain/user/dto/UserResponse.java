@@ -22,6 +22,8 @@ public class UserResponse {
     private String career;
     private LocalDateTime createdAt;
 
+
+
     public static UserResponse fromEntity(UserEntity user) {
         return UserResponse.builder()
                 .id(user.getId())
