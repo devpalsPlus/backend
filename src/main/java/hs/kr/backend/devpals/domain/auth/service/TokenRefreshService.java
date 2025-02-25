@@ -1,5 +1,6 @@
 package hs.kr.backend.devpals.domain.auth.service;
 
+import hs.kr.backend.devpals.domain.auth.dto.TokenDataResponse;
 import hs.kr.backend.devpals.domain.auth.dto.TokenRefreshRequest;
 import hs.kr.backend.devpals.domain.auth.entity.SessionEntity;
 import hs.kr.backend.devpals.domain.auth.repository.SessionRepository;
@@ -13,11 +14,7 @@ import hs.kr.backend.devpals.global.jwt.JwtTokenValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -28,8 +25,7 @@ public class TokenRefreshService {
     private final SessionRepository sessionRepository;
     private final UserRepository userRepository;
 
-    @Transactional
-    public ResponseEntity<Map<String, Object>> tokenRefreshRequest(TokenRefreshRequest request) {
+    public ResponseEntity<FacadeResponse<TokenDataResponse>> tokenRefreshRequest(TokenRefreshRequest request) {
         String refreshToken = request.getRefreshToken();
 
         // DB에서 Refresh Token 조회
@@ -51,28 +47,23 @@ public class TokenRefreshService {
 
         // Refresh Token 갱신이 필요한 경우 새로 발급
         String newRefreshToken = refreshToken;
+        LocalDateTime newExpiresAt = session.getExpiresAt();
         if (session.getExpiresAt().isBefore(LocalDateTime.now().plusDays(3))) { // 만료 3일 전이면 갱신
             newRefreshToken = jwtTokenProvider.generateRefreshToken(user.getId());
-            session.setRefreshToken(newRefreshToken);
-            session.setExpiresAt(LocalDateTime.now().plusDays(14)); // 14일 연장
+            newExpiresAt = LocalDateTime.now().plusDays(14);
         }
 
-        // 세션 정보 업데이트
-        session.setAccessToken(newAccessToken);
-        sessionRepository.save(session);
+        // 세션 정보 업데이트 (기존 객체를 수정하지 않고 새로운 객체 생성)
+        SessionEntity updatedSession = session.updateTokens(newAccessToken, newRefreshToken, newExpiresAt);
+        sessionRepository.save(updatedSession);
 
+        TokenDataResponse responseDto = new TokenDataResponse(newAccessToken, newRefreshToken);
 
-        // 응답 데이터 구성
-        Map<String, Object> tokenData = new LinkedHashMap<>();
-        tokenData.put("accessToken", newAccessToken);
-        tokenData.put("refreshToken", newRefreshToken);
-
-        FacadeResponse<Map<String, Object>> facadeResponse = new FacadeResponse<>(true, "토큰 갱신 성공", tokenData);
-
-        Map<String, Object> finalResponse = new LinkedHashMap<>();
-        finalResponse.put("success", facadeResponse.isSuccess());
-        finalResponse.put("message", facadeResponse.getMessage());
-        finalResponse.put("data", facadeResponse.getData());
+        FacadeResponse<TokenDataResponse> finalResponse = new FacadeResponse<>(
+                true,
+                "토큰 갱신 성공",
+                responseDto
+        );
 
         return ResponseEntity.ok(finalResponse);
     }

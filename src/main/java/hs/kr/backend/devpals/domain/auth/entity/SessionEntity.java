@@ -5,10 +5,12 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
+@Builder
 @Entity
 @Table(name = "session") // ✅ 기존 테이블명 유지
 @Getter
-@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class SessionEntity {
 
     @Id
@@ -25,6 +27,15 @@ public class SessionEntity {
     private String refreshToken;
 
     @Column(name = "expiresAt", nullable = false)
-    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime expiresAt;
+
+    public SessionEntity updateTokens(String newAccessToken, String newRefreshToken, LocalDateTime newExpiresAt) {
+        return SessionEntity.builder()
+                .id(this.id)
+                .userId(this.userId)
+                .accessToken(newAccessToken)
+                .refreshToken(newRefreshToken)
+                .expiresAt(newExpiresAt)
+                .build();
+    }
 }

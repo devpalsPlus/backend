@@ -41,10 +41,10 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 설정
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // JWT 사용 시 STATELESS 모드
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/public/**",
-                                        "/api/auth/login",
-                                        "/api/auth/refresh",
-                                        "/api/user/me").permitAll() // 공개 API 엔드포인트
+                        .requestMatchers("/public/**",
+                                        "/auth/login",
+                                        "/auth/refresh",
+                                        "/user/me").permitAll() // 공개 API 엔드포인트
                         .anyRequest().authenticated() // 그 외 모든 요청은 인증 필요
                 )
                 .httpBasic(httpBasic -> httpBasic.disable()) // 기본 로그인 비활성화

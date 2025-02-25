@@ -10,7 +10,6 @@ import java.util.List;
 @Entity
 @Table(name = "user")
 @Getter
-@Setter
 public class UserEntity {
 
     @Id
@@ -67,4 +66,10 @@ public class UserEntity {
     @OneToMany(mappedBy = "user")
     private List<UserSkillTag> userSkillTags;
      */
+
+    public UserEntity(String email, String password, String nickname) {
+        this.email = email;
+        this.password = password;
+        this.nickname = nickname;
+    }
 }
