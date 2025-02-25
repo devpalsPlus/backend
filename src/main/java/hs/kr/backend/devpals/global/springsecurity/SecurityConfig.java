@@ -44,6 +44,9 @@ public class SecurityConfig {
                         .requestMatchers("/public/**",
                                         "/auth/login",
                                         "/auth/refresh",
+                                        "/auth/send",
+                                        "/auth/verify",
+                                        "/auth/sign-up",
                                         "/user/me").permitAll() // 공개 API 엔드포인트
                         .anyRequest().authenticated() // 그 외 모든 요청은 인증 필요
                 )

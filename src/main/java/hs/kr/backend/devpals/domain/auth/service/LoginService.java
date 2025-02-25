@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -28,6 +29,7 @@ public class LoginService {
     private final JwtTokenProvider jwtTokenProvider;
     private final SessionRepository sessionRepository;
 
+    @Transactional
     public ResponseEntity<FacadeResponse<LoginFinalResponse>> login(LoginRequest request) {
         // 이메일로 유저 조회
         UserEntity user = userRepository.findByEmail(request.getEmail())

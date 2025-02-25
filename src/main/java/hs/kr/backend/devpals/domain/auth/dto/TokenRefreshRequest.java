@@ -8,5 +8,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TokenRefreshRequest {
-    private String refreshToken;
+    private String refreshToken; // request 하나인건 param으로 바꾸는게 좋지 않나..?
 }
