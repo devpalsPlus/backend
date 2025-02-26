@@ -53,7 +53,8 @@ public class JwtTokenValidator {
     /**
      * JWT 토큰에서 userId(PK) 추출
      */
-    public Integer getUserIdFromToken(String token) {
+    public Integer getUserId(String jwt) {
+        String token = jwt.replace("Bearer ", "");
         return Integer.parseInt(extractClaims(token).getSubject()); //  subject에서 userId(PK) 가져옴
     }
 
