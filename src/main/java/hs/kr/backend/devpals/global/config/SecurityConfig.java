@@ -1,4 +1,4 @@
-package hs.kr.backend.devpals.global.springsecurity;
+package hs.kr.backend.devpals.global.config;
 
 import hs.kr.backend.devpals.domain.user.principal.CustomUserDetailsService;
 import hs.kr.backend.devpals.global.jwt.jwtfilter.JwtAuthenticationFilter;

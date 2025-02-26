@@ -10,7 +10,7 @@ import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
-import hs.kr.backend.devpals.global.facade.FacadeResponse;
+import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +30,7 @@ public class LoginService {
     private final SessionRepository sessionRepository;
 
     @Transactional
-    public ResponseEntity<FacadeResponse<LoginFinalResponse>> login(LoginRequest request) {
+    public ResponseEntity<ApiResponse<LoginFinalResponse>> login(LoginRequest request) {
         // 이메일로 유저 조회
         UserEntity user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
@@ -64,7 +64,7 @@ public class LoginService {
 
         LoginFinalResponse responseDto = new LoginFinalResponse(tokenData, userDto);
 
-        FacadeResponse<LoginFinalResponse> finalResponse = new FacadeResponse<>(
+        ApiResponse<LoginFinalResponse> finalResponse = new ApiResponse<>(
                 true,
                 "로그인 되었습니다.",
                 responseDto

@@ -6,7 +6,7 @@ import hs.kr.backend.devpals.domain.auth.entity.EmailVertificationEntity;
 import hs.kr.backend.devpals.domain.auth.repository.AuthenticodeRepository;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
-import hs.kr.backend.devpals.global.facade.FacadeResponse;
+import hs.kr.backend.devpals.global.common.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
@@ -25,7 +25,7 @@ public class EmailService {
     private final AuthenticodeRepository authenticodeRepository;
 
     @Transactional
-    public ResponseEntity<FacadeResponse<String>> emailSend(EmailRequest request) {
+    public ResponseEntity<ApiResponse<String>> emailSend(EmailRequest request) {
         String email = request.getEmail();
 
         // 기존 인증 코드 삭제 (중복 방지)
@@ -46,10 +46,10 @@ public class EmailService {
             throw new CustomException(ErrorException.EMAIL_SEND_FAILED);
         }
 
-        return ResponseEntity.ok(new FacadeResponse<>(true, "인증 코드가 이메일로 전송되었습니다.", null));
+        return ResponseEntity.ok(new ApiResponse<>(true, "인증 코드가 이메일로 전송되었습니다.", null));
     }
 
-    public ResponseEntity<FacadeResponse<String>> sendEmailVerification(EmailVertificationRequest request){
+    public ResponseEntity<ApiResponse<String>> sendEmailVerification(EmailVertificationRequest request){
         String email = request.getEmail();
         String code = request.getCode();
 
@@ -70,7 +70,7 @@ public class EmailService {
         authCode.useCode();
         authenticodeRepository.save(authCode);
 
-        return ResponseEntity.ok(new FacadeResponse<>(true, "이메일 인증 성공", null));
+        return ResponseEntity.ok(new ApiResponse<>(true, "이메일 인증 성공", null));
     }
 
 

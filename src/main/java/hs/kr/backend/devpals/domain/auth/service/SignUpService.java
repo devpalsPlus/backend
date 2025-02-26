@@ -9,7 +9,7 @@ import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
-import hs.kr.backend.devpals.global.facade.FacadeResponse;
+import hs.kr.backend.devpals.global.common.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +27,7 @@ public class SignUpService {
     private final PasswordEncoder passwordEncoder;
     private static final Logger logger = LoggerFactory.getLogger(SignUpService.class);
 
-    public ResponseEntity<FacadeResponse<LoginUserResponse>> signUp(SignUpRequest request) {
+    public ResponseEntity<ApiResponse<LoginUserResponse>> signUp(SignUpRequest request) {
         String email = request.getEmail();
         String nickname = request.getNickname();
         String password = request.getPassword();
@@ -68,7 +68,7 @@ public class SignUpService {
 
         LoginUserResponse userDto = LoginUserResponse.fromEntity(user);
 
-        FacadeResponse<LoginUserResponse> response = new FacadeResponse<>(
+        ApiResponse<LoginUserResponse> response = new ApiResponse<>(
                 true,
                 "회원가입이 완료되었습니다.",
                 userDto

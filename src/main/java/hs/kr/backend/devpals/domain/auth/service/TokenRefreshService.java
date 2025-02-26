@@ -8,7 +8,7 @@ import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
-import hs.kr.backend.devpals.global.facade.FacadeResponse;
+import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.jwt.JwtTokenProvider;
 import hs.kr.backend.devpals.global.jwt.JwtTokenValidator;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ public class TokenRefreshService {
     private final SessionRepository sessionRepository;
     private final UserRepository userRepository;
 
-    public ResponseEntity<FacadeResponse<TokenDataResponse>> tokenRefreshRequest(TokenRefreshRequest request) {
+    public ResponseEntity<ApiResponse<TokenDataResponse>> tokenRefreshRequest(TokenRefreshRequest request) {
         String refreshToken = request.getRefreshToken();
 
         // DB에서 Refresh Token 조회
@@ -59,7 +59,7 @@ public class TokenRefreshService {
 
         TokenDataResponse responseDto = new TokenDataResponse(newAccessToken, newRefreshToken);
 
-        FacadeResponse<TokenDataResponse> finalResponse = new FacadeResponse<>(
+        ApiResponse<TokenDataResponse> finalResponse = new ApiResponse<>(
                 true,
                 "토큰 갱신 성공",
                 responseDto
