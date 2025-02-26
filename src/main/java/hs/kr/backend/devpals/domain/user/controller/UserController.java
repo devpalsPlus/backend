@@ -20,8 +20,7 @@ public class UserController {
 
     @GetMapping()
     public UserResponse getUserProfile(@RequestHeader("Authorization") String token) {
-        String jwt = token.substring(7); // "Bearer " 제거
-        Integer userId = jwtTokenValidator.getUserIdFromToken(jwt); //  JWT에서 userId(PK) 추출
+        Integer userId = jwtTokenValidator.getUserId(token);
         return userService.getUserById(userId);
     }
 }
