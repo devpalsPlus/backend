@@ -42,12 +42,12 @@ public class AuthController {
         return tokenRefreshService.tokenRefreshRequest(request);
     }
 
-    @PostMapping("/send")
+    @PostMapping("/email-send")
     public ResponseEntity<ApiResponse<String>> emailSend(@RequestBody EmailRequest request){
         return emailService.emailSend(request);
     }
 
-    @PostMapping("/verify")
+    @PostMapping("/email-verify")
     public ResponseEntity<ApiResponse<String>> emailVerify(@RequestBody EmailVertificationRequest request){
         return emailService.sendEmailVerification(request);
     }
