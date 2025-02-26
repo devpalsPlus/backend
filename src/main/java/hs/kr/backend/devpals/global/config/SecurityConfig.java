@@ -2,6 +2,7 @@ package hs.kr.backend.devpals.global.config;
 
 import hs.kr.backend.devpals.domain.user.principal.CustomUserDetailsService;
 import hs.kr.backend.devpals.global.jwt.jwtfilter.JwtAuthenticationFilter;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,23 +38,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // CSRF 보호 비활성화
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 설정
+                .csrf(AbstractHttpConfigurer::disable) // CSRF 보호 비활성화
+                .cors(AbstractHttpConfigurer::disable) // CORS 설정
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // JWT 사용 시 STATELESS 모드
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/public/**",
-                                        "/auth/login",
-                                        "/auth/refresh",
-                                        "/auth/send",
-                                        "/auth/verify",
-                                        "/auth/sign-up",
-                                        "/user/me").permitAll() // 공개 API 엔드포인트
-                        .anyRequest().authenticated() // 그 외 모든 요청은 인증 필요
-                )
-                .httpBasic(httpBasic -> httpBasic.disable()) // 기본 로그인 비활성화
-                .formLogin(formLogin -> formLogin.disable()) // 폼 로그인 비활성화
-                .logout(logout -> logout.disable()) // 로그아웃 비활성화
-                .anonymous(anonymous -> anonymous.disable()) // 익명 사용자 비활성화
+                .httpBasic(AbstractHttpConfigurer::disable) // 기본 로그인 비활성화
+                .formLogin(AbstractHttpConfigurer::disable) // 폼 로그인 비활성화
+                .logout(AbstractHttpConfigurer::disable) // 로그아웃 비활성화
+                .anonymous(AbstractHttpConfigurer::disable) // 익명 사용자 비활성화
                 .authenticationProvider(authenticationProvider()) // 커스텀 인증 제공자 추가
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // JWT 필터 추가
 
@@ -80,21 +71,6 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    /*
-     * CORS 정책
-     */
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000", "https://mydomain.com")); // 허용할 도메인 설정
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        configuration.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
 }
 
 
