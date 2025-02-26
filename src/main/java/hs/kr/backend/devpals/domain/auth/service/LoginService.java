@@ -7,7 +7,7 @@ import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
-import hs.kr.backend.devpals.global.facade.FacadeResponse;
+import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.jwt.JwtTokenProvider;
 import hs.kr.backend.devpals.global.jwt.JwtTokenValidator;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class LoginService {
     private final JwtTokenValidator jwtTokenValidator;
 
     @Transactional
-    public ResponseEntity<FacadeResponse<TokenDataResponse>> login(LoginRequest request) {
+    public ResponseEntity<ApiResponse<TokenDataResponse>> login(LoginRequest request) {
         // 이메일로 유저 조회
         UserEntity user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
@@ -53,7 +53,7 @@ public class LoginService {
         TokenDataResponse tokenData = new TokenDataResponse(accessToken, refreshToken);
         LoginUserResponse userDto = LoginUserResponse.fromEntity(user);
 
-        FacadeResponse<TokenDataResponse> finalResponse = new FacadeResponse<>(
+        ApiResponse<TokenDataResponse> finalResponse = new ApiResponse<>(
                 true,
                 "로그인 되었습니다.",
                 tokenData,

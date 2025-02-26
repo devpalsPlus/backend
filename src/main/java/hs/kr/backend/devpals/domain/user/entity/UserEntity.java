@@ -1,6 +1,6 @@
 package hs.kr.backend.devpals.domain.user.entity;
 
-import hs.kr.backend.devpals.global.enums.UserLevel;
+import hs.kr.backend.devpals.global.common.enums.UserLevel;
 import jakarta.persistence.*;
 import lombok.*;
 

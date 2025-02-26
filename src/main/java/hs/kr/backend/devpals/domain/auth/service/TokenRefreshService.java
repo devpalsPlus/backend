@@ -6,7 +6,7 @@ import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
-import hs.kr.backend.devpals.global.facade.FacadeResponse;
+import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.jwt.JwtTokenProvider;
 import hs.kr.backend.devpals.global.jwt.JwtTokenValidator;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ public class TokenRefreshService {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
 
-    public ResponseEntity<FacadeResponse<TokenDataResponse>> tokenRefreshRequest(TokenRefreshRequest request) {
+    public ResponseEntity<ApiResponse<TokenDataResponse>> tokenRefreshRequest(TokenRefreshRequest request) {
         String refreshToken = request.getRefreshToken();
 
         // 유효성 검사: 리프레시 토큰이 만료되었거나 올바르지 않다면 예외 발생
@@ -55,7 +55,7 @@ public class TokenRefreshService {
 
         TokenDataResponse responseDto = new TokenDataResponse(newAccessToken, newRefreshToken);
 
-        return ResponseEntity.ok(new FacadeResponse<>(
+        return ResponseEntity.ok(new ApiResponse<>(
                 true,
                 "토큰 갱신 성공",
                 responseDto

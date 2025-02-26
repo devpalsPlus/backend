@@ -1,4 +1,4 @@
-package hs.kr.backend.devpals.infra.email;
+package hs.kr.backend.devpals.global.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

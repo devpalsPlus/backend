@@ -9,7 +9,7 @@ import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
-import hs.kr.backend.devpals.global.facade.FacadeResponse;
+import hs.kr.backend.devpals.global.common.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,7 +24,7 @@ public class SignUpService {
     private final AuthenticodeRepository authenticodeRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public ResponseEntity<FacadeResponse<LoginUserResponse>> signUp(SignUpRequest request) {
+    public ResponseEntity<ApiResponse<LoginUserResponse>> signUp(SignUpRequest request) {
         String email = request.getEmail();
         String nickname = request.getNickname();
         String password = request.getPassword();
@@ -53,8 +53,7 @@ public class SignUpService {
 
         LoginUserResponse userDto = LoginUserResponse.fromEntity(user);
 
-
-        return ResponseEntity.ok(new FacadeResponse<>(
+        ApiResponse<LoginUserResponse> response = new ApiResponse<>(
                 true,
                 "회원가입이 완료되었습니다.",
                 userDto
