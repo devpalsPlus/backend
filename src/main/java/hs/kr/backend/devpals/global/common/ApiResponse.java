@@ -1,4 +1,4 @@
-package hs.kr.backend.devpals.global.facade;
+package hs.kr.backend.devpals.global.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,13 +7,13 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class FacadeResponse<T> {
+public class ApiResponse<T> {
     private boolean success;
     private String message;
     private T data;
     private Object user;
 
-    public FacadeResponse(Boolean success, String message, T data) {
+    public ApiResponse(Boolean success, String message, T data) {
         this.success = success;
         this.message = message;
         this.data = data;

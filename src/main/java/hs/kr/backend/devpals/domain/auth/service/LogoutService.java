@@ -1,5 +1,6 @@
 package hs.kr.backend.devpals.domain.auth.service;
 
+import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
 import hs.kr.backend.devpals.global.facade.FacadeResponse;
@@ -14,7 +15,7 @@ public class LogoutService {
 
     private final JwtTokenValidator jwtTokenValidator;
 
-    public ResponseEntity<FacadeResponse<String>> logout(String token) {
+    public ResponseEntity<ApiResponse<String>> logout(String token) {
         if (token.startsWith("Bearer ")) {
             token = token.substring(7); // "Bearer " 제거
         }
@@ -22,7 +23,7 @@ public class LogoutService {
         try {
             jwtTokenValidator.invalidateToken(token); // 토큰 무효화 처리
 
-            return ResponseEntity.ok(new FacadeResponse<>(
+            return ResponseEntity.ok(new ApiResponse<>(
                     true,
                     "로그아웃 되었습니다.",
                     null

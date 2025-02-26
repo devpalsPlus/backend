@@ -1,7 +1,7 @@
 package hs.kr.backend.devpals.domain.user.dto;
 
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
-import hs.kr.backend.devpals.global.enums.UserLevel;
+import hs.kr.backend.devpals.global.common.enums.UserLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
