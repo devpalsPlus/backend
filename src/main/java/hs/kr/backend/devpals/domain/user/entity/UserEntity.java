@@ -5,11 +5,11 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "user")
 @Getter
+@NoArgsConstructor
 public class UserEntity {
 
     @Id
@@ -46,6 +46,10 @@ public class UserEntity {
 
     private LocalDateTime updatedAt = LocalDateTime.now();
 
+    @Column(columnDefinition = "TEXT")
+    private String refreshToken;
+
+
     /*
     @ManyToOne
     @JoinColumn(name = "positionTagId", referencedColumnName = "id")
@@ -66,6 +70,10 @@ public class UserEntity {
     @OneToMany(mappedBy = "user")
     private List<UserSkillTag> userSkillTags;
      */
+
+    public void updateRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
 
     public UserEntity(String email, String password, String nickname) {
         this.email = email;

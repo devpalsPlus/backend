@@ -1,18 +1,12 @@
 package hs.kr.backend.devpals.domain.auth.controller;
 
 import hs.kr.backend.devpals.domain.auth.dto.*;
-import hs.kr.backend.devpals.domain.auth.service.EmailService;
-import hs.kr.backend.devpals.domain.auth.service.SignUpService;
-import hs.kr.backend.devpals.domain.auth.service.LoginService;
-import hs.kr.backend.devpals.domain.auth.service.TokenRefreshService;
+import hs.kr.backend.devpals.domain.auth.service.*;
 import hs.kr.backend.devpals.domain.user.dto.LoginUserResponse;
 import hs.kr.backend.devpals.global.facade.FacadeResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -21,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final LoginService loginService;
+    private final LogoutService logoutService;
     private final SignUpService signUpService;
     private final TokenRefreshService tokenRefreshService;
     private final EmailService emailService;
@@ -32,7 +27,7 @@ public class AuthController {
     }
     //  로그인 API (JWT 반환)
     @PostMapping("/login")
-    public ResponseEntity<FacadeResponse<LoginFinalResponse>> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<FacadeResponse<TokenDataResponse>> login(@RequestBody LoginRequest request) {
         return loginService.login(request);
     }
 
@@ -50,5 +45,10 @@ public class AuthController {
     @PostMapping("/verify")
     public ResponseEntity<FacadeResponse<String>> emailVerify(@RequestBody EmailVertificationRequest request){
         return emailService.sendEmailVerification(request);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<FacadeResponse<String>> logout(@RequestHeader("Authorization") String token){
+        return logoutService.logout(token);
     }
 }

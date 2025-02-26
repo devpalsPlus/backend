@@ -2,8 +2,6 @@ package hs.kr.backend.devpals.domain.auth.service;
 
 import hs.kr.backend.devpals.domain.auth.dto.TokenDataResponse;
 import hs.kr.backend.devpals.domain.auth.dto.TokenRefreshRequest;
-import hs.kr.backend.devpals.domain.auth.entity.SessionEntity;
-import hs.kr.backend.devpals.domain.auth.repository.SessionRepository;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.exception.CustomException;
@@ -22,50 +20,46 @@ public class TokenRefreshService {
 
     private final JwtTokenValidator jwtTokenValidator;
     private final JwtTokenProvider jwtTokenProvider;
-    private final SessionRepository sessionRepository;
     private final UserRepository userRepository;
 
     public ResponseEntity<FacadeResponse<TokenDataResponse>> tokenRefreshRequest(TokenRefreshRequest request) {
         String refreshToken = request.getRefreshToken();
 
-        // DB에서 Refresh Token 조회
-        SessionEntity session = sessionRepository.findByRefreshToken(refreshToken)
-                .orElseThrow(() -> new CustomException(ErrorException.UNAUTHORIZED));
-
-        // 사용자 정보 조회
-        UserEntity user = userRepository.findById(session.getUserId())
-                .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
-
-        // Refresh Token 검증
+        // 유효성 검사: 리프레시 토큰이 만료되었거나 올바르지 않다면 예외 발생
         if (!jwtTokenValidator.validateRefreshToken(refreshToken)) {
-            sessionRepository.delete(session); // 만료된 Refresh Token 제거
             throw new CustomException(ErrorException.TOKEN_EXPIRED);
         }
 
-        // 새로운 Access Token 생성
-        String newAccessToken = jwtTokenProvider.generateToken(user.getId());
+        // 리프레시 토큰에서 사용자 ID 추출
+        Integer userId = jwtTokenValidator.getUserIdFromToken(refreshToken);
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
-        // Refresh Token 갱신이 필요한 경우 새로 발급
-        String newRefreshToken = refreshToken;
-        LocalDateTime newExpiresAt = session.getExpiresAt();
-        if (session.getExpiresAt().isBefore(LocalDateTime.now().plusDays(3))) { // 만료 3일 전이면 갱신
-            newRefreshToken = jwtTokenProvider.generateRefreshToken(user.getId());
-            newExpiresAt = LocalDateTime.now().plusDays(14);
+        // 사용자의 기존 리프레시 토큰과 요청된 토큰이 일치하는지 확인
+        if (!refreshToken.equals(user.getRefreshToken())) {
+            throw new CustomException(ErrorException.UNAUTHORIZED); // 다른 기기에서 로그인한 경우
         }
 
-        // 세션 정보 업데이트 (기존 객체를 수정하지 않고 새로운 객체 생성)
-        SessionEntity updatedSession = session.updateTokens(newAccessToken, newRefreshToken, newExpiresAt);
-        sessionRepository.save(updatedSession);
+        //  새로운 Access Token 발급
+        String newAccessToken = jwtTokenProvider.generateToken(userId);
+
+        //  기존 리프레시 토큰이 유효하면 변경하지 않음
+        boolean isValidRefreshToken = jwtTokenValidator.validateRefreshToken(user.getRefreshToken());
+        String newRefreshToken = isValidRefreshToken ? user.getRefreshToken() : jwtTokenProvider.generateRefreshToken(userId);
+
+        //  리프레시 토큰이 변경되었다면 UserEntity 업데이트
+        if (!isValidRefreshToken) {
+            user.updateRefreshToken(newRefreshToken);
+            userRepository.save(user);
+        }
 
         TokenDataResponse responseDto = new TokenDataResponse(newAccessToken, newRefreshToken);
 
-        FacadeResponse<TokenDataResponse> finalResponse = new FacadeResponse<>(
+        return ResponseEntity.ok(new FacadeResponse<>(
                 true,
                 "토큰 갱신 성공",
                 responseDto
-        );
-
-        return ResponseEntity.ok(finalResponse);
+        ));
     }
 }
 

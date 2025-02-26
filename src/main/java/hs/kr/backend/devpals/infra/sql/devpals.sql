@@ -23,6 +23,7 @@ CREATE TABLE `devpals`.`User` (
                                   github VARCHAR(255),
                                   career JSON,
                                   positionTagId INT,
+                                  refreshToken TEXT NOT NULL,
                                   createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                   updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                                   CONSTRAINT fk_User_positionTag FOREIGN KEY (positionTagId) REFERENCES PositionTag(id)
@@ -112,11 +113,3 @@ CREATE TABLE `devpals`.`Authenticode` (
                                           isUsed BOOLEAN DEFAULT FALSE
 );
 
-CREATE TABLE `devpals`.`Session` (
-                                     id INT AUTO_INCREMENT PRIMARY KEY,
-                                     userId INT UNIQUE NOT NULL,
-                                     accessToken TEXT NOT NULL,
-                                     refreshToken TEXT NOT NULL,
-                                     expiresAt TIMESTAMP NOT NULL,
-                                     FOREIGN KEY (userId) REFERENCES User(id) ON DELETE CASCADE
-);
