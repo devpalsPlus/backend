@@ -54,11 +54,11 @@ public class EmailService {
         String code = request.getCode();
 
         EmailVertificationEntity authCode = authenticodeRepository.findTopByUserEmailOrderByExpiresAtDesc(email)
-                .orElseThrow(() -> new CustomException(ErrorException.INVALID_CODE));
+                .orElseThrow(() -> new CustomException(ErrorException.EMAIL_SEND_FAILED));
 
         // 만료 시간 확인
         if (authCode.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new CustomException(ErrorException.TOKEN_EXPIRED);
+            throw new CustomException(ErrorException.EMAIL_CODE_EXPIRED);
         }
 
         // 코드 검증
@@ -70,7 +70,7 @@ public class EmailService {
         authCode.useCode();
         authenticodeRepository.save(authCode);
 
-        return ResponseEntity.ok(new FacadeResponse<>(true, "이메일 인증 성공", null));
+        return ResponseEntity.ok(new FacadeResponse<>(true, "이메일 인증에 성공하셨습니다.", null));
     }
 
 

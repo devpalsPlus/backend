@@ -130,4 +130,16 @@ public class JwtTokenValidator {
         UserDetails userDetails = customUserDetailsService.findById(memberId);
         return new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities());
     }
+
+    /**
+     * 특정 JWT 토큰을 무효화하는 메서드 -
+     */
+    public void invalidateToken(String token) {
+        try {
+            Claims claims = extractClaims(token);
+            claims.setExpiration(new Date(System.currentTimeMillis() - 1000)); // 1초 전으로 만료 처리
+        } catch (Exception e) {
+            throw new CustomException(ErrorException.TOKEN_EXPIRED);
+        }
+    }
 }

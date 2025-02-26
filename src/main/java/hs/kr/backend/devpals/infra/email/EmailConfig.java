@@ -37,7 +37,7 @@ public class EmailConfig {
         properties.setProperty("mail.smtp.connectiontimeout", "5000");
         properties.setProperty("mail.smtp.timeout", "5000");
         properties.setProperty("mail.smtp.writetimeout", "5000");
-        properties.setProperty("mail.debug", "false"); 
+        properties.setProperty("mail.debug", "false");
 
         mailSender.setJavaMailProperties(properties);
 
