@@ -53,10 +53,8 @@ public class SignUpService {
 
         LoginUserResponse userDto = LoginUserResponse.fromEntity(user);
 
-        return ResponseEntity.ok(new ApiResponse<>(
-                true,
-                "회원가입이 완료되었습니다.",
-                userDto
-        ));
+        ApiResponse<LoginUserResponse> response = new ApiResponse<>(true,"회원가입이 완료되었습니다.", userDto);
+
+        return ResponseEntity.ok(response);
     }
 }

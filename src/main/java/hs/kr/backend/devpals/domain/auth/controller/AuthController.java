@@ -4,6 +4,7 @@ import hs.kr.backend.devpals.domain.auth.dto.*;
 import hs.kr.backend.devpals.domain.auth.service.*;
 import hs.kr.backend.devpals.domain.user.dto.LoginUserResponse;
 import hs.kr.backend.devpals.global.common.ApiResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,13 +28,13 @@ public class AuthController {
     }
     //  로그인 API (JWT 반환)
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<TokenDataResponse>> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<LoginResponse<TokenResponse>> login(@RequestBody LoginRequest request) {
         return loginService.login(request);
     }
 
     // Refresh Token API
     @PostMapping("/refresh")
-    public ResponseEntity<ApiResponse<TokenDataResponse>> tokenRefresh(@RequestBody TokenRefreshRequest request) {
+    public ResponseEntity<ApiResponse<TokenResponse>> tokenRefresh(HttpServletRequest request) {
         return tokenRefreshService.tokenRefreshRequest(request);
     }
 

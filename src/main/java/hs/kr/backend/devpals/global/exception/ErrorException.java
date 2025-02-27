@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum ErrorException {
+    ACCESS_TOKEN_NOT_EXPIRED("액세스 토큰이 아직 만료되지 않았습니다."),
     INVALID_PASSWORD("비밀번호가 올바르지 않습니다."),
     SERVER_ERROR("서버 오류가 발생했습니다."),
     UNAUTHORIZED("인증 권한이 없습니다."),
