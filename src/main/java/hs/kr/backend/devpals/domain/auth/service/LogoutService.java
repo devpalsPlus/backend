@@ -3,7 +3,6 @@ package hs.kr.backend.devpals.domain.auth.service;
 import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
-import hs.kr.backend.devpals.global.facade.FacadeResponse;
 import hs.kr.backend.devpals.global.jwt.JwtTokenValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
