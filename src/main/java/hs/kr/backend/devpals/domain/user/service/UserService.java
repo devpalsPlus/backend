@@ -3,6 +3,8 @@ package hs.kr.backend.devpals.domain.user.service;
 import hs.kr.backend.devpals.domain.user.dto.UserResponse;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
+import hs.kr.backend.devpals.global.exception.CustomException;
+import hs.kr.backend.devpals.global.exception.ErrorException;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,7 +18,7 @@ public class UserService {
 
     public UserResponse getUserById(Integer userId) {
         UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
         return UserResponse.fromEntity(user);
     }
 }

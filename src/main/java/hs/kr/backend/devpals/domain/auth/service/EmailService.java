@@ -46,7 +46,9 @@ public class EmailService {
             throw new CustomException(ErrorException.EMAIL_SEND_FAILED);
         }
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "인증 코드가 이메일로 전송되었습니다.", null));
+        ApiResponse<String> apiResponse = new ApiResponse<>(true, "인증 코드가 이메일로 전송되었습니다.", null);
+
+        return ResponseEntity.ok(apiResponse);
     }
 
     public ResponseEntity<ApiResponse<String>> sendEmailVerification(EmailVertificationRequest request){
@@ -70,7 +72,9 @@ public class EmailService {
         authCode.useCode();
         authenticodeRepository.save(authCode);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "이메일 인증 성공", null));
+        ApiResponse<String> apiResponse = new ApiResponse<>(true, "이메일 인증 성공", null);
+
+        return ResponseEntity.ok(apiResponse);
     }
 
 

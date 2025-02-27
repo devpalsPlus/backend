@@ -1,7 +1,8 @@
 package hs.kr.backend.devpals.domain.auth.service;
 
-import hs.kr.backend.devpals.domain.auth.dto.TokenDataResponse;
-import hs.kr.backend.devpals.domain.auth.dto.TokenRefreshRequest;
+import hs.kr.backend.devpals.domain.auth.dto.TokenResponse;
+import hs.kr.backend.devpals.domain.auth.util.CookieUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.exception.CustomException;
@@ -10,9 +11,9 @@ import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.jwt.JwtTokenProvider;
 import hs.kr.backend.devpals.global.jwt.JwtTokenValidator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -22,44 +23,48 @@ public class TokenRefreshService {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
 
-    public ResponseEntity<ApiResponse<TokenDataResponse>> tokenRefreshRequest(TokenRefreshRequest request) {
-        String refreshToken = request.getRefreshToken();
+    public ResponseEntity<ApiResponse<TokenResponse>> tokenRefreshRequest(HttpServletRequest request) {
+        // 쿠키에서 RefreshToken 가져오기
+        String refreshToken = CookieUtil.getCookie(request, "refreshToken")
+                .orElseThrow(() -> new CustomException(ErrorException.TOKEN_EXPIRED));
 
-        // 유효성 검사: 리프레시 토큰이 만료되었거나 올바르지 않다면 예외 발생
-        if (!jwtTokenValidator.validateRefreshToken(refreshToken)) {
-            throw new CustomException(ErrorException.TOKEN_EXPIRED);
-        }
-
-        // 리프레시 토큰에서 사용자 ID 추출
-        Integer userId = jwtTokenValidator.getUserId(refreshToken);
-        UserEntity user = userRepository.findById(userId)
+        // DB에서 RefreshToken 검증 (유저 조회)
+        UserEntity user = userRepository.findByRefreshToken(refreshToken)
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
-        // 사용자의 기존 리프레시 토큰과 요청된 토큰이 일치하는지 확인
-        if (!refreshToken.equals(user.getRefreshToken())) {
-            throw new CustomException(ErrorException.UNAUTHORIZED); // 다른 기기에서 로그인한 경우
+        // AccessToken이 아직 유효한지 확인
+        String currentAccessToken = request.getHeader("Authorization"); // 요청 헤더에서 AccessToken 가져오기
+        if (currentAccessToken != null && currentAccessToken.startsWith("Bearer ")) {
+            currentAccessToken = currentAccessToken.substring(7);
+            boolean isAccessTokenValid = jwtTokenValidator.validateJwtToken(currentAccessToken);
+
+            if (isAccessTokenValid) {
+                throw new CustomException(ErrorException.ACCESS_TOKEN_NOT_EXPIRED); // AccessToken이 유효하면 예외 발생
+            }
         }
 
-        //  새로운 Access Token 발급
-        String newAccessToken = jwtTokenProvider.generateToken(userId);
+        // 새로운 AccessToken & RefreshToken 발급
+        String newAccessToken = jwtTokenProvider.generateToken(user.getId());
+        String newRefreshToken = jwtTokenProvider.generateRefreshToken(user.getId());
 
-        //  기존 리프레시 토큰이 유효하면 변경하지 않음
-        boolean isValidRefreshToken = jwtTokenValidator.validateRefreshToken(user.getRefreshToken());
-        String newRefreshToken = isValidRefreshToken ? user.getRefreshToken() : jwtTokenProvider.generateRefreshToken(userId);
+        // RefreshToken을 DB에 업데이트 (덮어쓰기)
+        user.updateRefreshToken(newRefreshToken);
+        userRepository.save(user);
 
-        //  리프레시 토큰이 변경되었다면 UserEntity 업데이트
-        if (!isValidRefreshToken) {
-            user.updateRefreshToken(newRefreshToken);
-            userRepository.save(user);
-        }
+        // 새로운 RefreshToken을 HttpOnly 쿠키에 저장
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", newRefreshToken)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(14 * 24 * 60 * 60) // 14일 유지
+                .build();
 
-        TokenDataResponse responseDto = new TokenDataResponse(newAccessToken, newRefreshToken);
+        TokenResponse tokenData = new TokenResponse(newAccessToken);
 
-        return ResponseEntity.ok(new ApiResponse<>(
-                true,
-                "토큰 갱신 성공",
-                responseDto
-        ));
+        ApiResponse<TokenResponse> response = new ApiResponse<>(true, "토큰 갱신 성공", tokenData);
+
+        return ResponseEntity.ok()
+                .header("Set-Cookie", refreshCookie.toString())
+                .body(response);
     }
 }
-
