@@ -21,6 +21,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa' // JPA
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'mysql:mysql-connector-java:8.0.33' // MYSQL
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
 	implementation 'org.springframework.boot:spring-boot-starter-security' // Spring Security
 	compileOnly 'org.projectlombok:lombok' // lombok
 	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-mail', version: '3.4.3'// Mail
