@@ -64,6 +64,8 @@ public class LoginService {
                 userDto
         );
 
-        return ResponseEntity.ok(finalResponse);
+        return ResponseEntity.ok()
+                .header("Set-Cookie", refreshCookie.toString())
+                .body(finalResponse);
     }
 }
