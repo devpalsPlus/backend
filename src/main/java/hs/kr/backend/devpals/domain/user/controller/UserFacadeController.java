@@ -1,15 +1,11 @@
 package hs.kr.backend.devpals.domain.user.controller;
 
-import hs.kr.backend.devpals.domain.user.dto.UserResponse;
 import hs.kr.backend.devpals.domain.user.entity.PositionTagEntity;
 import hs.kr.backend.devpals.domain.user.facade.UserFacade;
-import hs.kr.backend.devpals.domain.user.service.UserService;
 import hs.kr.backend.devpals.global.common.ApiResponse;
-import hs.kr.backend.devpals.global.jwt.JwtTokenValidator;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,13 +13,13 @@ import java.util.List;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/user")
-public class UserController {
+@RequestMapping
+public class UserFacadeController {
 
-    private final UserService userService;
+    private final UserFacade userFacade;
 
-    @GetMapping()
-    public ResponseEntity<ApiResponse<UserResponse>> getUser(@RequestHeader("Authorization") String token) {
-        return userService.getUserInfo(token);
+    @GetMapping("/position-tag")
+    public ResponseEntity<ApiResponse<List<PositionTagEntity>>> getPositionTag(){
+        return userFacade.getPositionTag();
     }
 }

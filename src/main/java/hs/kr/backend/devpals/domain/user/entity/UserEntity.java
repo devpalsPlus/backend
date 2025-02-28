@@ -32,7 +32,7 @@ public class UserEntity {
     private String profileImg;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column
     private UserLevel userLevel = UserLevel.Beginner;
 
     @Column(length = 255)
@@ -49,12 +49,11 @@ public class UserEntity {
     @Column(columnDefinition = "TEXT")
     private String refreshToken;
 
+    @ManyToOne(fetch = FetchType.LAZY) //
+    @JoinColumn(name = "positionTagId", referencedColumnName = "id")
+    private PositionTagEntity positionTag;
 
     /*
-    @ManyToOne
-    @JoinColumn(name = "positionTagId", referencedColumnName = "id")
-    private PositionTag positionTag;
-
     @OneToMany(mappedBy = "user")
     private List<Applicant> applicants;
 
@@ -73,6 +72,10 @@ public class UserEntity {
 
     public void updateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
+    }
+
+    public void updatePassword(String newPassword) {
+        this.password = newPassword;
     }
 
     public UserEntity(String email, String password, String nickname) {

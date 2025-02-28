@@ -1,5 +1,6 @@
 package hs.kr.backend.devpals.domain.user.dto;
 
+import hs.kr.backend.devpals.domain.user.entity.PositionTagEntity;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.global.common.enums.UserLevel;
 import lombok.AllArgsConstructor;
@@ -21,8 +22,7 @@ public class UserResponse {
     private String github;
     private String career;
     private LocalDateTime createdAt;
-
-
+    private String positionTag;
 
     public static UserResponse fromEntity(UserEntity user) {
         return UserResponse.builder()
@@ -33,7 +33,7 @@ public class UserResponse {
                 .profileImg(user.getProfileImg())
                 .userLevel(user.getUserLevel())
                 .github(user.getGithub())
-                .career(user.getCareer())
+                .positionTag(user.getPositionTag() != null ? user.getPositionTag().getName() : "null") 
                 .createdAt(user.getCreatedAt())
                 .build();
     }
