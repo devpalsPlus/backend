@@ -48,6 +48,11 @@ public class AuthController {
         return emailService.sendEmailVerification(request);
     }
 
+    @PostMapping("/password/reset")
+    public ResponseEntity<ApiResponse<String>> resetPassword(@RequestBody ResetPasswordRequest request){
+        return emailService.resetPassword(request);
+    }
+
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<String>> logout(@RequestHeader("Authorization") String token){
         return logoutService.logout(token);

@@ -2,8 +2,11 @@ package hs.kr.backend.devpals.domain.auth.service;
 
 import hs.kr.backend.devpals.domain.auth.dto.EmailRequest;
 import hs.kr.backend.devpals.domain.auth.dto.EmailVertificationRequest;
+import hs.kr.backend.devpals.domain.auth.dto.ResetPasswordRequest;
 import hs.kr.backend.devpals.domain.auth.entity.EmailVertificationEntity;
 import hs.kr.backend.devpals.domain.auth.repository.AuthenticodeRepository;
+import hs.kr.backend.devpals.domain.user.entity.UserEntity;
+import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
 import hs.kr.backend.devpals.global.common.ApiResponse;
@@ -11,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +27,8 @@ public class EmailService {
 
     private final JavaMailSender javaMailSender;
     private final AuthenticodeRepository authenticodeRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public ResponseEntity<ApiResponse<String>> emailSend(EmailRequest request) {
@@ -76,6 +82,44 @@ public class EmailService {
 
         return ResponseEntity.ok(apiResponse);
     }
+
+    @Transactional
+    public ResponseEntity<ApiResponse<String>> resetPassword(ResetPasswordRequest request) {
+        String email = request.getEmail();
+        String code = request.getCode();
+        String newPassword = request.getNewPassword();
+
+        // 인증 코드 확인
+        EmailVertificationEntity authCode = authenticodeRepository.findTopByUserEmailOrderByExpiresAtDesc(email)
+                .orElseThrow(() -> new CustomException(ErrorException.INVALID_CODE));
+
+        // 입력된 코드가 저장된 코드와 일치하는지 확인
+        if (!authCode.getCode().equals(code)) {
+            throw new CustomException(ErrorException.INVALID_CODE);
+        }
+
+        // 인증 코드 만료 확인
+        if (authCode.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new CustomException(ErrorException.EMAIL_CODE_EXPIRED);
+        }
+
+        // 인증 성공 → 비밀번호 변경
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
+
+        // 비밀번호 변경 (암호화 필요)
+        user.updatePassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        // 인증 코드 사용 처리
+        authCode.useCode();
+        authenticodeRepository.save(authCode);
+
+        ApiResponse<String> apiResponse = new ApiResponse<>(true, "비밀번호가 성공적으로 변경되었습니다.", null);
+
+        return ResponseEntity.ok(apiResponse);
+    }
+
 
 
     private void sendEmail(String to, String verificationCode) {
