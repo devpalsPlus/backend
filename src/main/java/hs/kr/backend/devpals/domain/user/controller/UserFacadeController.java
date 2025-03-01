@@ -1,6 +1,7 @@
 package hs.kr.backend.devpals.domain.user.controller;
 
 import hs.kr.backend.devpals.domain.user.entity.PositionTagEntity;
+import hs.kr.backend.devpals.domain.user.entity.SkillTagEntity;
 import hs.kr.backend.devpals.domain.user.facade.UserFacade;
 import hs.kr.backend.devpals.global.common.ApiResponse;
 import lombok.AllArgsConstructor;
@@ -21,5 +22,10 @@ public class UserFacadeController {
     @GetMapping("/position-tag")
     public ResponseEntity<ApiResponse<List<PositionTagEntity>>> getPositionTag(){
         return userFacade.getPositionTag();
+    }
+
+    @GetMapping("/skill-tag")
+    public ResponseEntity<ApiResponse<List<SkillTagEntity>>> getSkillTag(){
+        return userFacade.getSkillTags();
     }
 }
