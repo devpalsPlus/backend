@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor
 @Entity
-@Table(name = "authenticode")
+@Table(name = "AuthentiCode")
 public class EmailVertificationEntity {
 
     @Id

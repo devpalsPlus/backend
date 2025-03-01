@@ -1,6 +1,5 @@
 package hs.kr.backend.devpals.domain.user.dto;
 
-import hs.kr.backend.devpals.domain.user.entity.PositionTagEntity;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.global.common.enums.UserLevel;
 import lombok.AllArgsConstructor;
@@ -8,6 +7,9 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Getter
 @AllArgsConstructor
@@ -20,9 +22,10 @@ public class UserResponse {
     private String profileImg;
     private UserLevel userLevel;
     private String github;
-    private String career;
-    private LocalDateTime createdAt;
     private String positionTag;
+    private List<SkillTagResponse> skills;
+    private List<Map<String, Object>> career;
+    private LocalDateTime createdAt;
 
     public static UserResponse fromEntity(UserEntity user) {
         return UserResponse.builder()
@@ -33,7 +36,11 @@ public class UserResponse {
                 .profileImg(user.getProfileImg())
                 .userLevel(user.getUserLevel())
                 .github(user.getGithub())
-                .positionTag(user.getPositionTag() != null ? user.getPositionTag().getName() : "null") 
+                .positionTag(user.getPositionTag() != null ? user.getPositionTag().getName() : "null")
+                .career(user.getCareerAsList())
+                .skills(user.getSkills().stream()
+                        .map(SkillTagResponse::fromEntity) // DTO로 변환하여 리스트 반환
+                        .collect(Collectors.toList()))
                 .createdAt(user.getCreatedAt())
                 .build();
     }
