@@ -22,7 +22,7 @@ public class UserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(nullable = false, unique = true, length = 255)
     private String nickname;
@@ -80,14 +80,25 @@ public class UserEntity {
     private List<Project> projects;
     */
 
-    //스킬 추가
-    public void addSkill(SkillTagEntity skill) {
-        this.skills.add(skill);
-    }
-
-    //스킬 삭제
-    public void removeSkill(SkillTagEntity skill) {
-        this.skills.remove(skill);
+    // 유저 업데이트
+    public void updateUserInfo(String nickname, String bio, String github, PositionTagEntity positionTag, List<SkillTagEntity> skills, List<Map<String, Object>> career) {
+        if (nickname != null) {this.nickname = nickname;}
+        if (bio != null) {this.bio = bio;}
+        if (github != null) {this.github = github;}
+        if (positionTag != null) {this.positionTag = positionTag;}
+        if (skills != null) {
+            this.skills.clear();
+            this.skills.addAll(skills);
+        }
+        if (career != null) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            try {
+                this.career = objectMapper.writeValueAsString(career);
+            } catch (JsonProcessingException e) {
+                throw new CustomException(ErrorException.FAIL_JSONPROCESSING);
+            }
+        }
+        this.updatedAt = LocalDateTime.now();
     }
 
     // Career 객체 생성

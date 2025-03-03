@@ -1,6 +1,7 @@
 package hs.kr.backend.devpals.domain.user.controller;
 
 import hs.kr.backend.devpals.domain.user.dto.UserResponse;
+import hs.kr.backend.devpals.domain.user.dto.UserUpdateRequest;
 import hs.kr.backend.devpals.domain.user.entity.PositionTagEntity;
 import hs.kr.backend.devpals.domain.user.facade.UserFacade;
 import hs.kr.backend.devpals.domain.user.service.UserService;
@@ -8,10 +9,7 @@ import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.jwt.JwtTokenValidator;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -25,5 +23,12 @@ public class UserController {
     @GetMapping()
     public ResponseEntity<ApiResponse<UserResponse>> getUser(@RequestHeader("Authorization") String token) {
         return userService.getUserInfo(token);
+    }
+
+    @PutMapping()
+    public ResponseEntity<ApiResponse<UserResponse>> updateUser(
+            @RequestHeader("Authorization") String token,
+            @RequestBody UserUpdateRequest request) {
+        return userService.userUpdateInfo(token, request);
     }
 }
