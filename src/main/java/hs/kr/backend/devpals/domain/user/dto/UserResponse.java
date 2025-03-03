@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Builder
 public class UserResponse {
-    private Integer id;
+    private Long id;
     private String nickname;
     private String email;
     private String bio;

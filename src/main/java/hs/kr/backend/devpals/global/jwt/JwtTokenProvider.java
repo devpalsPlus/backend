@@ -29,7 +29,7 @@ public class JwtTokenProvider {
     /**
      * JWT 생성 (userId 포함)
      */
-    public String generateToken(Integer userId) {
+    public String generateToken(Long userId) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId); // `userId`를 claims에 추가
 
@@ -46,7 +46,7 @@ public class JwtTokenProvider {
     /**
      * RefreshToken 생성
      */
-    public String generateRefreshToken(Integer userId) {
+    public String generateRefreshToken(Long userId) {
 
         return Jwts.builder()
                 .setSubject(String.valueOf(userId))

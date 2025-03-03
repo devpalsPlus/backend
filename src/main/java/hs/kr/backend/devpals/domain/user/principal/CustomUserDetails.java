@@ -33,7 +33,7 @@ public class CustomUserDetails implements UserDetails {
         return userEntity.getEmail();
     }
 
-    public Integer getId() {
+    public Long getId() {
         return userEntity.getId();
     }
 

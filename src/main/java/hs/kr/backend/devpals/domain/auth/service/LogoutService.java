@@ -25,8 +25,8 @@ public class LogoutService {
         try {
             jwtTokenValidator.invalidateToken(token); // AccessToken 무효화
 
-            // ✅ RefreshToken 삭제 (DB에서 지우기)
-            Integer userId = jwtTokenValidator.getUserId(token);
+            //  RefreshToken 삭제 (DB에서 지우기)
+            Long userId = jwtTokenValidator.getUserId(token);
             UserEntity user = userRepository.findById(userId)
                     .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
             user.updateRefreshToken(null); // RefreshToken 제거
