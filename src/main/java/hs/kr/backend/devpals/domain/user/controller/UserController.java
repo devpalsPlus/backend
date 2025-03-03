@@ -10,6 +10,7 @@ import hs.kr.backend.devpals.global.jwt.JwtTokenValidator;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -37,5 +38,12 @@ public class UserController {
             @RequestHeader("Authorization") String token,
             @RequestBody UserUpdateRequest request) {
         return userService.userUpdateInfo(token, request);
+    }
+
+    @PostMapping("/profile-img")
+    public ResponseEntity<ApiResponse<String>> updateProfileImg(
+            @RequestHeader("Authorization") String token,
+            @RequestParam("file") MultipartFile file){
+        return userService.updateProfileImage(token, file);
     }
 }

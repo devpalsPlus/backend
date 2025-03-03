@@ -20,7 +20,11 @@ public enum ErrorException {
     INVALID_CODE("이메일 인증코드를 다시 확인해주세요."),
     EMAIL_NOT_VERIFIED("이메일 인증코드를 입력해주세요."),
     FAIL_JSONPROCESSING("Json 형식을 변환하지 못했습니다."),
-    POSITION_NOT_FOUND("포지션 태그를 찾을 수 없습니다.");
+    POSITION_NOT_FOUND("포지션 태그를 찾을 수 없습니다."),
+    FILE_EMPTY("파일이 비어있습니다."),
+    FAIL_UPLOAD("파일 업로드에 실패했습니다."),
+    FILE_NOT_SEARCH("파일을 찾을 수 없습니다."),
+    INVALID_FILE_TYPE("파일 타입을 확인해주세요.");
 
     private final String message;
 

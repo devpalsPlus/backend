@@ -124,6 +124,11 @@ public class UserEntity {
         this.password = newPassword;
     }
 
+    //이미지 업데이트
+    public void updateProfileImage(String profileImg) {
+        this.profileImg = profileImg;
+    }
+
     //회원가입 유저 정보 저장
     public UserEntity(String email, String password, String nickname) {
         this.email = email;
