@@ -32,7 +32,7 @@ public class UserService {
 
     public ResponseEntity<ApiResponse<UserResponse>> getUserInfo(String token) {
         if (token.startsWith("Bearer ")) {
-            token = token.substring(7); // "Bearer " 제거
+            token = token.substring(7);
         }
 
         Long userId = jwtTokenValidator.getUserId(token);
@@ -42,6 +42,26 @@ public class UserService {
 
         UserResponse userResponse = UserResponse.fromEntity(user);
         ApiResponse<UserResponse> response = new ApiResponse<>(true, "사용자의 정보입니다.", userResponse);
+
+        return ResponseEntity.ok(response);
+    }
+
+    public ResponseEntity<ApiResponse<UserResponse>> getUserInfoById(String token, Long id) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7); // "Bearer " 제거
+        }
+
+        Long requesterId = jwtTokenValidator.getUserId(token);
+
+        if (requesterId.equals(id)) {
+            throw new CustomException(ErrorException.UNAUTHORIZED); // 자신의 정보만 조회 가능하도록 제한
+        }
+
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
+
+        UserResponse userResponse = UserResponse.fromEntity(user);
+        ApiResponse<UserResponse> response = new ApiResponse<>(true, "사용자 정보를 조회했습니다.", userResponse);
 
         return ResponseEntity.ok(response);
     }

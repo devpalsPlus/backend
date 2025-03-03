@@ -25,6 +25,13 @@ public class UserController {
         return userService.getUserInfo(token);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<UserResponse>> getUserById(
+            @RequestHeader("Authorization") String token,
+            @PathVariable Long id) {
+        return userService.getUserInfoById(token, id);
+    }
+
     @PutMapping()
     public ResponseEntity<ApiResponse<UserResponse>> updateUser(
             @RequestHeader("Authorization") String token,
