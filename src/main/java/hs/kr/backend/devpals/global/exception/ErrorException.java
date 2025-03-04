@@ -24,7 +24,9 @@ public enum ErrorException {
     FILE_EMPTY("파일이 비어있습니다."),
     FAIL_UPLOAD("파일 업로드에 실패했습니다."),
     FILE_NOT_SEARCH("파일을 찾을 수 없습니다."),
-    INVALID_FILE_TYPE("파일 타입을 확인해주세요.");
+    INVALID_FILE_TYPE("파일 타입을 확인해주세요."),
+    SKILL_NOT_FOUND("스킬 태그를 찾을 수 없습니다."),
+    INVALID_METHOD_TYPE("잘못된 방식입니다. (온라인, 오프라인, 온/오프라인만 허용)");
 
     private final String message;
 
