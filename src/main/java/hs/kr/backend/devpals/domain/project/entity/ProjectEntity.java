@@ -1,24 +1,24 @@
 package hs.kr.backend.devpals.domain.project.entity;
 
-import hs.kr.backend.devpals.domain.user.entity.PositionTagEntity;
-import hs.kr.backend.devpals.domain.user.entity.SkillTagEntity;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import hs.kr.backend.devpals.global.common.enums.MethodType;
+import hs.kr.backend.devpals.global.exception.CustomException;
+import hs.kr.backend.devpals.global.exception.ErrorException;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.*;
+
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "Project")  // DB 테이블명 지정
+@Table(name = "Projects")
 public class ProjectEntity {
 
     @Id
@@ -69,12 +69,47 @@ public class ProjectEntity {
     @Builder.Default
     private LocalDateTime updatedAt = LocalDateTime.now();
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private Set<ProjectPositionTagEntity> positionTags = new HashSet<>();
+    //
+    @Column(columnDefinition = "JSON", nullable = false)
+    private String positionTags;
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private Set<ProjectSkillTagEntity> skillTags = new HashSet<>();
+    @Column(columnDefinition = "JSON", nullable = false)
+    private String skillTags;
 
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    // Getter: JSON → List<String> 변환
+    public List<String> getPositionTags() {
+        try {
+            return objectMapper.readValue(positionTags, new TypeReference<List<String>>() {});
+        } catch (IOException e) {
+            throw new RuntimeException("JSON 변환 오류", e);
+        }
+    }
+
+    public List<String> getSkillTags() {
+        try {
+            return objectMapper.readValue(skillTags, new TypeReference<List<String>>() {});
+        } catch (IOException e) {
+            throw new RuntimeException("JSON 변환 오류", e);
+        }
+    }
+
+    // Setter: List<String> → JSON 문자열 변환 후 저장
+    public void setPositionTags(List<String> positionTags) {
+        try {
+            this.positionTags = objectMapper.writeValueAsString(positionTags);
+        } catch (IOException e) {
+            throw new RuntimeException("JSON 변환 오류", e);
+        }
+    }
+
+    public void setSkillTags(List<String> skillTags) {
+        try {
+            this.skillTags = objectMapper.writeValueAsString(skillTags);
+        } catch (IOException e) {
+            throw new RuntimeException("JSON 변환 오류", e);
+        }
+    }
 }
+

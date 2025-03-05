@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.Set;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -22,6 +22,6 @@ public class ProjectRequest {
     private LocalDate recruitmentStartDate;
     private LocalDate recruitmentEndDate;
     private Long authorId;
-    private Set<Long> positionTagIds;
-    private Set<Long> skillTagIds;
+    private List<Long> positionTagIds;
+    private List<Long> skillTagIds;
 }
