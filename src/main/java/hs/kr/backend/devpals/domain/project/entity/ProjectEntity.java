@@ -2,9 +2,8 @@ package hs.kr.backend.devpals.domain.project.entity;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hs.kr.backend.devpals.domain.project.dto.ProjectRequest;
 import hs.kr.backend.devpals.global.common.enums.MethodType;
-import hs.kr.backend.devpals.global.exception.CustomException;
-import hs.kr.backend.devpals.global.exception.ErrorException;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -78,6 +77,48 @@ public class ProjectEntity {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
+    // 프로젝트 빌더 메소드
+    public static ProjectEntity fromRequest(ProjectRequest request, List<String> positionTags, List<String> skillTags) {
+        ProjectEntity project = ProjectEntity.builder()
+                .title(request.getTitle())
+                .description(request.getDescription())
+                .totalMember(request.getTotalMember())
+                .startDate(request.getStartDate())
+                .estimatedPeriod(request.getEstimatedPeriod())
+                .method(request.getMethodType())
+                .authorId(request.getAuthorId())
+                .isBeginner(request.getIsBeginner() != null ? request.getIsBeginner() : false)
+                .isDone(request.getIsDone() != null ? request.getIsDone() : false)
+                .recruitmentStartDate(request.getRecruitmentStartDate())
+                .recruitmentEndDate(request.getRecruitmentEndDate())
+                .views(0)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+
+        project.setPositionTags(positionTags);
+        project.setSkillTags(skillTags);
+
+        return project;
+    }
+
+    // 프로젝트 업데이트
+    public void updateProject(ProjectRequest request, List<String> positionTags, List<String> skillTags) {
+        this.title = request.getTitle();
+        this.description = request.getDescription();
+        this.totalMember = request.getTotalMember();
+        this.startDate = request.getStartDate();
+        this.estimatedPeriod = request.getEstimatedPeriod();
+        this.method = request.getMethodType();
+        this.isBeginner = request.getIsBeginner() != null ? request.getIsBeginner() : false;
+        this.isDone = request.getIsDone() != null ? request.getIsDone() : false;
+        this.recruitmentStartDate = request.getRecruitmentStartDate();
+        this.recruitmentEndDate = request.getRecruitmentEndDate();
+        this.updatedAt = LocalDateTime.now();
+        setPositionTags(positionTags);
+        setSkillTags(skillTags);
+    }
+
     // Getter: JSON → List<String> 변환
     public List<String> getPositionTags() {
         try {
@@ -111,5 +152,6 @@ public class ProjectEntity {
             throw new RuntimeException("JSON 변환 오류", e);
         }
     }
+
 }
 
