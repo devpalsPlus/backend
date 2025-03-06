@@ -1,6 +1,8 @@
 package hs.kr.backend.devpals.domain.project.service;
 
-import hs.kr.backend.devpals.domain.project.dto.ProjectRequest;
+import hs.kr.backend.devpals.domain.project.dto.ProjectDetailResponse;
+import hs.kr.backend.devpals.domain.project.dto.ProjectAllRequest;
+import hs.kr.backend.devpals.domain.project.dto.ProjectMainRequest;
 import hs.kr.backend.devpals.domain.project.dto.ProjectMainResponse;
 import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
 import hs.kr.backend.devpals.domain.project.repository.ProjectRepository;
@@ -35,7 +37,7 @@ public class ProjectService {
     private final UserRepository userRepository;
 
     @Transactional
-    public ResponseEntity<ApiResponse<Long>> projectSignup(ProjectRequest request) {
+    public ResponseEntity<ApiResponse<Long>> projectSignup(ProjectAllRequest request) {
 
         List<String> positionTagNames = convertPositionTagIdsToNames(request.getPositionTagIds());
         List<String> skillTagNames = convertSkillTagIdsToNames(request.getSkillTagIds());
@@ -48,7 +50,7 @@ public class ProjectService {
     }
 
     @Transactional
-    public ResponseEntity<ApiResponse<String>> updateProject(Long projectId, String token, ProjectRequest request) {
+    public ResponseEntity<ApiResponse<String>> updateProject(Long projectId, String token, ProjectAllRequest request) {
 
         Long userId = jwtTokenValidator.getUserId(token);
 
@@ -97,6 +99,20 @@ public class ProjectService {
         ApiResponse<List<ProjectMainResponse>> response = new ApiResponse<>(true, "프로젝트 목록 가져오기 성공", projectList);
         return ResponseEntity.ok(response);
     }
+
+    public ResponseEntity<ApiResponse<ProjectDetailResponse>> getProjectDetail(Long projectId, ProjectMainRequest projectMain) {
+        ProjectEntity project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new CustomException(ErrorException.PROJECT_NOT_FOUND));
+
+        if (projectMain == null){
+            throw new CustomException(ErrorException.PROJECT_NOT_FOUND);
+        }
+
+        ProjectDetailResponse projectDetail = ProjectDetailResponse.fromSummary(projectMain, project);
+        ApiResponse<ProjectDetailResponse> response = new ApiResponse<>(true, "프로젝트 상세 정보 가져오기 성공", projectDetail);
+        return ResponseEntity.ok(response);
+    }
+
 
 
     // SkillTag 변환 작업을 수행하는 메서드

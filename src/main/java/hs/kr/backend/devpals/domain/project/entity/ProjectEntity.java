@@ -2,7 +2,7 @@ package hs.kr.backend.devpals.domain.project.entity;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hs.kr.backend.devpals.domain.project.dto.ProjectRequest;
+import hs.kr.backend.devpals.domain.project.dto.ProjectAllRequest;
 import hs.kr.backend.devpals.global.common.enums.MethodType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -78,7 +78,7 @@ public class ProjectEntity {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     // 프로젝트 빌더 메소드
-    public static ProjectEntity fromRequest(ProjectRequest request, List<String> positionTags, List<String> skillTags) {
+    public static ProjectEntity fromRequest(ProjectAllRequest request, List<String> positionTags, List<String> skillTags) {
         ProjectEntity project = ProjectEntity.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
@@ -103,7 +103,7 @@ public class ProjectEntity {
     }
 
     // 프로젝트 업데이트
-    public void updateProject(ProjectRequest request, List<String> positionTags, List<String> skillTags) {
+    public void updateProject(ProjectAllRequest request, List<String> positionTags, List<String> skillTags) {
         this.title = request.getTitle();
         this.description = request.getDescription();
         this.totalMember = request.getTotalMember();

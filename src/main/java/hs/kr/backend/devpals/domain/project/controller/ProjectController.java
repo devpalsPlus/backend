@@ -1,6 +1,8 @@
 package hs.kr.backend.devpals.domain.project.controller;
 
-import hs.kr.backend.devpals.domain.project.dto.ProjectRequest;
+import hs.kr.backend.devpals.domain.project.dto.ProjectDetailResponse;
+import hs.kr.backend.devpals.domain.project.dto.ProjectAllRequest;
+import hs.kr.backend.devpals.domain.project.dto.ProjectMainRequest;
 import hs.kr.backend.devpals.domain.project.dto.ProjectMainResponse;
 import hs.kr.backend.devpals.domain.project.service.ProjectService;
 import hs.kr.backend.devpals.global.common.ApiResponse;
@@ -19,7 +21,7 @@ public class ProjectController {
     private final ProjectService projectService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Long>> createProject(@RequestBody ProjectRequest request) {
+    public ResponseEntity<ApiResponse<Long>> createProject(@RequestBody ProjectAllRequest request) {
         return projectService.projectSignup(request);
     }
 
@@ -28,12 +30,18 @@ public class ProjectController {
         return projectService.getProjectList();
     }
 
+    @GetMapping("/{projectId}")
+    public ResponseEntity<ApiResponse<ProjectDetailResponse>> getProjectDetail(
+            @PathVariable Long projectId,
+            @RequestBody ProjectMainRequest projectMain){
+        return projectService.getProjectDetail(projectId, projectMain);
+    }
 
     @PutMapping("/{projectId}")
     public ResponseEntity<ApiResponse<String>> updateProject(
             @PathVariable Long projectId,
             @RequestHeader("Authorization")  String token,
-            @RequestBody ProjectRequest request) {
+            @RequestBody ProjectAllRequest request) {
         return projectService.updateProject(projectId, token, request);
     }
 }

@@ -9,7 +9,7 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor
-public class ProjectRequest {
+public class ProjectAllRequest {
 
     private String title;
     private String description;
