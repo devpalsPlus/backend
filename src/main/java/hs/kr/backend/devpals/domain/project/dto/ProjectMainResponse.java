@@ -13,6 +13,7 @@ import java.util.List;
 public class ProjectMainResponse {
     private Long projectId;
     private String title;
+    private boolean isDone;
     private LocalDate recruitmentEndDate;
     private List<SkillTagResponse> skills;
     private List<String> positions;
@@ -23,6 +24,7 @@ public class ProjectMainResponse {
         return new ProjectMainResponse(
                 project.getId(),
                 project.getTitle(),
+                project.isDone(),
                 project.getRecruitmentEndDate(),
                 skills,
                 project.getPositionTags(),

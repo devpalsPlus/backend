@@ -13,6 +13,7 @@ import java.util.List;
 public class ProjectMainRequest {
     private String title;
     private LocalDate recruitmentEndDate;
+    private boolean isDone;
     private List<SkillTagResponse> skills;
     private List<String> positions;
     private String authorNickname;

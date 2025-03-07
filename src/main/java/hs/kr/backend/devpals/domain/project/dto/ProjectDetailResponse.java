@@ -37,7 +37,7 @@ public class ProjectDetailResponse {
                 project.getEstimatedPeriod(),
                 project.getMethod(),
                 project.isBeginner(),
-                project.isDone(),
+                projectMain.isDone(),
                 project.getRecruitmentStartDate(),
                 project.getRecruitmentEndDate(),
                 projectMain.getAuthorNickname(),
