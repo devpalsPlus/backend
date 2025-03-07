@@ -1,11 +1,9 @@
 package hs.kr.backend.devpals.domain.project.controller;
 
-import hs.kr.backend.devpals.domain.project.dto.ProjectDetailResponse;
-import hs.kr.backend.devpals.domain.project.dto.ProjectAllRequest;
-import hs.kr.backend.devpals.domain.project.dto.ProjectMainRequest;
-import hs.kr.backend.devpals.domain.project.dto.ProjectMainResponse;
+import hs.kr.backend.devpals.domain.project.dto.*;
 import hs.kr.backend.devpals.domain.project.service.ProjectService;
 import hs.kr.backend.devpals.global.common.ApiResponse;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -44,4 +42,13 @@ public class ProjectController {
             @RequestBody ProjectAllRequest request) {
         return projectService.updateProject(projectId, token, request);
     }
+
+    @GetMapping("/count")
+    public ResponseEntity<ApiResponse<ProjectCountResponse>> getProjectCount(){
+        return projectService.getProjectCount();
+    }
+
+    @GetMapping("/my")
+    public ResponseEntity<ApiResponse<List<ProjectMainResponse>>> getMyProjectList(){}
+
 }

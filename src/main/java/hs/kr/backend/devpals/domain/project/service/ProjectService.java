@@ -1,9 +1,6 @@
 package hs.kr.backend.devpals.domain.project.service;
 
-import hs.kr.backend.devpals.domain.project.dto.ProjectDetailResponse;
-import hs.kr.backend.devpals.domain.project.dto.ProjectAllRequest;
-import hs.kr.backend.devpals.domain.project.dto.ProjectMainRequest;
-import hs.kr.backend.devpals.domain.project.dto.ProjectMainResponse;
+import hs.kr.backend.devpals.domain.project.dto.*;
 import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
 import hs.kr.backend.devpals.domain.project.repository.ProjectRepository;
 import hs.kr.backend.devpals.domain.user.dto.SkillTagResponse;
@@ -113,7 +110,17 @@ public class ProjectService {
         return ResponseEntity.ok(response);
     }
 
+    public ResponseEntity<ApiResponse<ProjectCountResponse>> getProjectCount() {
 
+        long totalProjectCount = projectRepository.count();
+        long ongoingProjectCount = projectRepository.countByIsDoneFalse();
+        long endProjectCount = totalProjectCount - ongoingProjectCount;
+
+        ProjectCountResponse responseData = new ProjectCountResponse(totalProjectCount, ongoingProjectCount, endProjectCount);
+
+        ApiResponse<ProjectCountResponse> response = new ApiResponse<>(true, "프로젝트 개수 입니다.", responseData);
+        return ResponseEntity.ok(response);
+    }
 
     // SkillTag 변환 작업을 수행하는 메서드
     private List<SkillTagResponse> getSkillTagResponses(List<String> skillTagNames, Map<String, String> skillImgMap) {
