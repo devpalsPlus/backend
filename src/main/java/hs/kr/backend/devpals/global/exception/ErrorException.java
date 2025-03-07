@@ -28,7 +28,8 @@ public enum ErrorException {
     SKILL_NOT_FOUND("스킬 태그를 찾을 수 없습니다."),
     INVALID_METHOD_TYPE("잘못된 방식입니다. (온라인, 오프라인, 온/오프라인만 허용)"),
     PROJECT_NOT_FOUND("해당 프로젝트를 찾을 수 없습니다."),
-    FAIL_PROJECT_UPDATE("작성자만 수정 가능합니다.");
+    FAIL_PROJECT_UPDATE("작성자만 수정 가능합니다."),
+    ALREADY_APPLIED("해당 프로젝트에 이미 지원하셨습니다.");
 
     private final String message;
 

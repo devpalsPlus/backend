@@ -8,7 +8,6 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Getter
@@ -24,7 +23,7 @@ public class UserResponse {
     private String github;
     private String positionTag;
     private List<SkillTagResponse> skills;
-    private List<CareerResponse> career;
+    private List<CareerDto> career;
     private LocalDateTime createdAt;
 
     public static UserResponse fromEntity(UserEntity user) {
@@ -37,7 +36,7 @@ public class UserResponse {
                 .userLevel(user.getUserLevel())
                 .github(user.getGithub())
                 .positionTag(user.getPositionTag() != null ? user.getPositionTag().getName() : "null")
-                .career(user.getCareerResponses())
+                .career(user.getCareer())
                 .skills(user.getSkills().stream()
                         .map(SkillTagResponse::fromEntity) // DTO로 변환하여 리스트 반환
                         .collect(Collectors.toList()))

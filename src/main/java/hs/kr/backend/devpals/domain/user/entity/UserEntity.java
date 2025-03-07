@@ -2,7 +2,7 @@ package hs.kr.backend.devpals.domain.user.entity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hs.kr.backend.devpals.domain.user.dto.CareerResponse;
+import hs.kr.backend.devpals.domain.user.dto.CareerDto;
 import hs.kr.backend.devpals.global.common.enums.UserLevel;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
@@ -102,8 +102,8 @@ public class UserEntity {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public List<CareerResponse> getCareerResponses() {
-        return CareerResponse.fromJson(this.career);
+    public List<CareerDto> getCareer() {
+        return CareerDto.fromJson(this.career);
     }
 
     // 리프레시 토큰 업데이트
