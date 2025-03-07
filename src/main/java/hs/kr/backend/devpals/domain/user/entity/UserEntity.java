@@ -2,6 +2,7 @@ package hs.kr.backend.devpals.domain.user.entity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hs.kr.backend.devpals.domain.user.dto.CareerResponse;
 import hs.kr.backend.devpals.global.common.enums.UserLevel;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
@@ -101,17 +102,8 @@ public class UserEntity {
         this.updatedAt = LocalDateTime.now();
     }
 
-    // Career 객체 생성
-    public List<Map<String, Object>> getCareerAsList() {
-        if (this.career == null) {
-            return null;
-        }
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            return objectMapper.readValue(this.career, List.class); // JSON -> List 변환
-        } catch (JsonProcessingException e) {
-            throw new CustomException(ErrorException.FAIL_JSONPROCESSING);
-        }
+    public List<CareerResponse> getCareerResponses() {
+        return CareerResponse.fromJson(this.career);
     }
 
     // 리프레시 토큰 업데이트
