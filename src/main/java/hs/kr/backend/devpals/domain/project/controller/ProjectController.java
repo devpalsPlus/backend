@@ -48,7 +48,10 @@ public class ProjectController {
         return projectService.getProjectCount();
     }
 
+    /*
     @GetMapping("/my")
-    public ResponseEntity<ApiResponse<List<ProjectMainResponse>>> getMyProjectList(){}
+    public ResponseEntity<ApiResponse<List<ProjectMainResponse>>> getMyProjectList(){
 
+    }
+    */
 }
