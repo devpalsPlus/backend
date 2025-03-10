@@ -4,10 +4,8 @@ import hs.kr.backend.devpals.domain.project.dto.*;
 import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
 import hs.kr.backend.devpals.domain.project.repository.ProjectRepository;
 import hs.kr.backend.devpals.domain.user.dto.SkillTagResponse;
-import hs.kr.backend.devpals.domain.user.entity.PositionTagEntity;
 import hs.kr.backend.devpals.domain.user.entity.SkillTagEntity;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
-import hs.kr.backend.devpals.domain.user.repository.PositionTagRepository;
 import hs.kr.backend.devpals.domain.user.repository.SkillTagRepository;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.common.ApiResponse;
@@ -19,8 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,29 +25,56 @@ import java.util.stream.Collectors;
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
-    private final PositionTagRepository positionTagRepository;
     private final SkillTagRepository skillTagRepository;
     private final JwtTokenValidator jwtTokenValidator;
     private final UserRepository userRepository;
 
-    @Transactional
-    public ResponseEntity<ApiResponse<Long>> projectSignup(ProjectAllRequest request) {
+    private final Map<Long, ProjectMainResponse> projectMainCache = new HashMap<>();
 
-        List<String> positionTagNames = convertPositionTagIdsToNames(request.getPositionTagIds());
-        List<String> skillTagNames = convertSkillTagIdsToNames(request.getSkillTagIds());
+    public ResponseEntity<ApiResponse<List<ProjectAllDto>>> getProjectAll() {
+        projectMainCache.clear();
 
-        ProjectEntity project = ProjectEntity.fromRequest(request, positionTagNames, skillTagNames);
+        List<ProjectEntity> projects = projectRepository.findAll();
 
-        ProjectEntity savedProject = projectRepository.save(project);
-        ApiResponse<Long> response = new ApiResponse<>(true, "프로젝트 등록 완료", savedProject.getId());
-        return ResponseEntity.ok(response);
+        List<ProjectAllDto> projectList = projects.stream()
+                .map(project -> {
+                    UserEntity user = userRepository.findById(project.getAuthorId())
+                            .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
+
+                    List<SkillTagResponse> skillResponses = getSkillTagResponses(project.getSkillTagsAsList());
+
+                    ProjectAllDto response = ProjectAllDto.fromEntity(
+                            project, user.getNickname(), user.getProfileImg(), skillResponses
+                    );
+
+                    ProjectMainResponse mainResponse = ProjectMainResponse.fromEntity(
+                            project, user, skillResponses
+                    );
+
+                    projectMainCache.put(project.getId(), mainResponse);
+
+                    return response;
+                })
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 목록 조회 성공", projectList));
     }
 
+
+    // 프로젝트 개수
+    public ResponseEntity<ApiResponse<ProjectCountResponse>> getProjectCount() {
+        long totalProjectCount = projectRepository.count();
+        long ongoingProjectCount = projectRepository.countByIsDoneFalse();
+        long endProjectCount = totalProjectCount - ongoingProjectCount;
+
+        ProjectCountResponse responseData = new ProjectCountResponse(totalProjectCount, ongoingProjectCount, endProjectCount);
+        return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 개수 조회 성공", responseData));
+    }
+
+    // 프로젝트 업데이트
     @Transactional
-    public ResponseEntity<ApiResponse<String>> updateProject(Long projectId, String token, ProjectAllRequest request) {
-
+    public ResponseEntity<ApiResponse<ProjectAllDto>> updateProject(Long projectId, String token, ProjectAllDto request) {
         Long userId = jwtTokenValidator.getUserId(token);
-
         ProjectEntity project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new CustomException(ErrorException.PROJECT_NOT_FOUND));
 
@@ -58,92 +82,112 @@ public class ProjectService {
             throw new CustomException(ErrorException.FAIL_PROJECT_UPDATE);
         }
 
-        List<String> positionTagNames = convertPositionTagIdsToNames(request.getPositionTagIds());
-        List<String> skillTagNames = convertSkillTagIdsToNames(request.getSkillTagIds());
+        // 스킬 존재 여부 검증
+        validateSkillsExistence(request.getSkills());
 
-        project.updateProject(request, positionTagNames, skillTagNames);
+        // 스킬 변환
+        List<SkillTagResponse> skillResponses = getSkillTagResponses(request.getSkills());
 
+        // 프로젝트 업데이트
+        project.updateProject(request, request.getPositions(), skillResponses);
         projectRepository.save(project);
-        ApiResponse<String> response = new ApiResponse<>(true, "프로젝트 업데이트 완료", null);
-        return ResponseEntity.ok(response);
+
+        // `ProjectAllDto` 생성 (응답용)
+        ProjectAllDto updatedProject = ProjectAllDto.fromEntity(
+                project, request.getAuthorNickname(), request.getAuthorImage(), skillResponses
+        );
+
+        // `ProjectMainResponse` 생성 (캐싱용)
+        ProjectMainResponse mainResponse = ProjectMainResponse.fromEntity(
+                project, userRepository.findById(userId)
+                        .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND)),
+                skillResponses
+        );
+
+        projectMainCache.remove(projectId);
+        projectMainCache.put(projectId, mainResponse);
+
+
+        return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 업데이트 완료", updatedProject));
     }
 
-    //프로젝트 목록 리스트 가져오기
-    public ResponseEntity<ApiResponse<List<ProjectMainResponse>>> getProjectList() {
-        List<ProjectEntity> projects = projectRepository.findAll();
 
-        // 모든 프로젝트에서 skillTags JSON 값 추출 후 DB에서 SkillTagEntity 조회
-        List<String> skillNames = projects.stream()
-                .flatMap(project -> project.getSkillTags().stream())
-                .distinct()
-                .collect(Collectors.toList());
+    // 프로젝트 등록
+    @Transactional
+    public ResponseEntity<ApiResponse<Long>> projectSignup(ProjectAllDto request) {
 
-        // 데이터베이스에서 스킬 이름으로 이미지 조회
-        Map<String, String> skillImgMap = skillTagRepository.findByNameIn(skillNames).stream()
-                .collect(Collectors.toMap(SkillTagEntity::getName, SkillTagEntity::getImg));
+        validateSkillsExistence(request.getSkills());
 
-        List<ProjectMainResponse> projectList = projects.stream()
-                .map(project -> {
-                    UserEntity user = userRepository.findById(project.getAuthorId())
-                            .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
-
-                    // Service에서 조회한 이미지 정보를 `fromEntity()`에 전달
-                    List<SkillTagResponse> skillResponses = getSkillTagResponses(project.getSkillTags(), skillImgMap);
-
-                    return ProjectMainResponse.fromEntity(project, user, skillResponses);
-                })
-                .collect(Collectors.toList());
-        ApiResponse<List<ProjectMainResponse>> response = new ApiResponse<>(true, "프로젝트 목록 가져오기 성공", projectList);
-        return ResponseEntity.ok(response);
+        List<SkillTagResponse> skillResponses = getSkillTagResponses(request.getSkills());
+        ProjectEntity project = ProjectEntity.fromRequest(request, request.getPositions(), skillResponses);
+        ProjectEntity savedProject = projectRepository.save(project);
+        return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 등록 완료", savedProject.getId()));
     }
 
-    public ResponseEntity<ApiResponse<ProjectDetailResponse>> getProjectDetail(Long projectId, ProjectMainRequest projectMain) {
-        ProjectEntity project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new CustomException(ErrorException.PROJECT_NOT_FOUND));
 
-        if (projectMain == null){
+    // 프로젝트 목록 조회
+    public ResponseEntity<ApiResponse<ProjectMainResponse>> getProjectList(Long projectId) {
+        ProjectMainResponse project = projectMainCache.get(projectId);
+
+        if (project == null) {
             throw new CustomException(ErrorException.PROJECT_NOT_FOUND);
         }
 
-        ProjectDetailResponse projectDetail = ProjectDetailResponse.fromSummary(projectMain, project);
-        ApiResponse<ProjectDetailResponse> response = new ApiResponse<>(true, "프로젝트 상세 정보 가져오기 성공", projectDetail);
+        return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 조회 성공", project));
+    }
+
+    public ResponseEntity<ApiResponse<ProjectMineResponse>> getMyProject(String token){
+
+
+
+        ApiResponse<ProjectMineResponse> response = new ApiResponse<>(true, "내 프로젝트 조회 성공" , null);
         return ResponseEntity.ok(response);
     }
 
-    public ResponseEntity<ApiResponse<ProjectCountResponse>> getProjectCount() {
-
-        long totalProjectCount = projectRepository.count();
-        long ongoingProjectCount = projectRepository.countByIsDoneFalse();
-        long endProjectCount = totalProjectCount - ongoingProjectCount;
-
-        ProjectCountResponse responseData = new ProjectCountResponse(totalProjectCount, ongoingProjectCount, endProjectCount);
-
-        ApiResponse<ProjectCountResponse> response = new ApiResponse<>(true, "프로젝트 개수 입니다.", responseData);
-        return ResponseEntity.ok(response);
-    }
-
-    // SkillTag 변환 작업을 수행하는 메서드
-    private List<SkillTagResponse> getSkillTagResponses(List<String> skillTagNames, Map<String, String> skillImgMap) {
-        return skillTagNames.stream()
-                .map(name -> new SkillTagResponse(name, skillImgMap.getOrDefault(name, "default-img-url")))
+    private void validateSkillsExistence(List<SkillTagResponse> skills) {
+        List<String> skillNames = skills.stream()
+                .map(SkillTagResponse::getSkillName)
+                .distinct()
                 .collect(Collectors.toList());
+
+        List<SkillTagEntity> skillEntities = skillTagRepository.findByNameIn(skillNames);
+
+        if (skillEntities.size() != skillNames.size()) {
+            throw new CustomException(ErrorException.SKILL_NOT_FOUND);
+        }
     }
 
-    // positionTagIds를 태그 이름으로 변환
-    private List<String> convertPositionTagIdsToNames(List<Long> positionTagIds) {
-        return positionTagIds.stream()
-                .map(id -> positionTagRepository.findById(id)
-                        .map(PositionTagEntity::getName)
-                        .orElseThrow(() -> new CustomException(ErrorException.POSITION_NOT_FOUND)))
+    /**
+     * 📌 스킬 태그를 DB에서 조회하여 매핑
+     */
+    private Map<String, String> getSkillImageMap(List<String> skillNames) {
+        List<SkillTagEntity> skillTagEntities = skillTagRepository.findByNameIn(skillNames);
+
+        if (skillTagEntities.size() != skillNames.size()) {
+            throw new CustomException(ErrorException.SKILL_NOT_FOUND);
+        }
+
+        return skillTagEntities.stream()
+                .collect(Collectors.toMap(SkillTagEntity::getName, SkillTagEntity::getImg));
+    }
+
+    /**
+     * 📌 스킬 태그 변환 (스킬 목록을 `List<SkillTagResponse>`로 변환)
+     */
+    private List<SkillTagResponse> getSkillTagResponses(List<SkillTagResponse> skills) {
+        if (skills == null || skills.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<String> skillNames = skills.stream()
+                .map(SkillTagResponse::getSkillName)
                 .collect(Collectors.toList());
-    }
 
-    // skillTagIds를 태그 이름으로 변환
-    private List<String> convertSkillTagIdsToNames(List<Long> skillTagIds) {
-        return skillTagIds.stream()
-                .map(id -> skillTagRepository.findById(id)
-                        .map(SkillTagEntity::getName)
-                        .orElseThrow(() -> new CustomException(ErrorException.SKILL_NOT_FOUND)))
+        Map<String, String> skillImgMap = getSkillImageMap(skillNames);
+
+        return skills.stream()
+                .map(skill -> new SkillTagResponse(skill.getSkillName(),
+                        skillImgMap.getOrDefault(skill.getSkillName(), "default-img.png")))
                 .collect(Collectors.toList());
     }
 }

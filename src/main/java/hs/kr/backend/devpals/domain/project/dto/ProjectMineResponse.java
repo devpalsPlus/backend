@@ -5,31 +5,24 @@ import hs.kr.backend.devpals.domain.user.dto.SkillTagResponse;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
 import java.time.LocalDate;
 import java.util.List;
 
 @Getter
 @AllArgsConstructor
-public class ProjectMainResponse {
-    private Long projectId;
+public class ProjectMineResponse {
     private String title;
-    private boolean isDone;
     private LocalDate recruitmentEndDate;
+    private int totalMember;
     private List<SkillTagResponse> skills;
-    private List<String> positions;
-    private String authorNickname;
-    private int views;
 
-    public static ProjectMainResponse fromEntity(ProjectEntity project, UserEntity user, List<SkillTagResponse> skills) {
-        return new ProjectMainResponse(
-                project.getId(),
+    public static ProjectMineResponse fromEntity(ProjectEntity project, List<SkillTagResponse> skills) {
+        return new ProjectMineResponse(
                 project.getTitle(),
-                project.isDone(),
                 project.getRecruitmentEndDate(),
-                skills,
-                project.getPositionTagsAsList(),
-                user.getNickname(),
-                project.getViews()
+                project.getTotalMember(),
+                skills
         );
     }
 }

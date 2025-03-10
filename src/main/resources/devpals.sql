@@ -38,11 +38,6 @@ CREATE TABLE `devpals`.`UserSkillTag` (
                                           FOREIGN KEY (skillTagId) REFERENCES SkillTag(id) ON DELETE CASCADE
 );
 
-CREATE TABLE `devpals`.`Method` (
-                                    id INT AUTO_INCREMENT PRIMARY KEY,
-                                    name VARCHAR(50) UNIQUE NOT NULL,
-                                    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
 
 CREATE TABLE `devpals`.`Project` (
                                      id INT AUTO_INCREMENT PRIMARY KEY,
@@ -87,23 +82,6 @@ CREATE TABLE `devpals`.`Notification` (
                                           FOREIGN KEY (userId) REFERENCES User(id) ON DELETE CASCADE
 );
 
-
-
-CREATE TABLE `devpals`.`ProjectSkillTag` (
-                                             projectId INT NOT NULL,
-                                             skillTagId INT NOT NULL,
-                                             PRIMARY KEY (projectId, skillTagId),
-                                             FOREIGN KEY (projectId) REFERENCES Project(id) ON DELETE CASCADE,
-                                             FOREIGN KEY (skillTagId) REFERENCES SkillTag(id) ON DELETE CASCADE
-);
-
-CREATE TABLE `devpals`.`ProjectPositionTag` (
-                                                projectId INT NOT NULL,
-                                                positionTagId INT NOT NULL,
-                                                PRIMARY KEY (projectId, positionTagId),
-                                                FOREIGN KEY (projectId) REFERENCES Project(id) ON DELETE CASCADE,
-                                                FOREIGN KEY (positionTagId) REFERENCES PositionTag(id) ON DELETE CASCADE
-);
 
 CREATE TABLE `devpals`.`Authenticode` (
                                           id INT AUTO_INCREMENT PRIMARY KEY,
