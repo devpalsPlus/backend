@@ -1,7 +1,6 @@
 package hs.kr.backend.devpals.domain.project.service;
 
 import hs.kr.backend.devpals.domain.project.dto.*;
-import hs.kr.backend.devpals.domain.project.entity.ApplicantEntity;
 import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
 import hs.kr.backend.devpals.domain.project.repository.ApplicantRepository;
 import hs.kr.backend.devpals.domain.project.repository.ProjectRepository;
@@ -33,7 +32,6 @@ public class ProjectService {
     private final ApplicantRepository applicantRepository;
 
     private final Map<Long, ProjectMainResponse> projectMainCache = new HashMap<>();
-    private final Map<Long, ProjectMineResponse> projectMyCache = new HashMap<>();
 
     public ResponseEntity<ApiResponse<List<ProjectAllDto>>> getProjectAll() {
 
@@ -90,7 +88,6 @@ public class ProjectService {
         ProjectAllDto updatedProject = ProjectAllDto.fromEntity(project, request.getAuthorNickname(), request.getAuthorImage(), skillResponses);
 
         projectMainCache.clear();
-        projectMyCache.clear();
 
         ApiResponse<ProjectAllDto> response = new ApiResponse<>(true, "프로젝트 업데이트 완료", updatedProject);
         return ResponseEntity.ok(response);
@@ -123,7 +120,7 @@ public class ProjectService {
         ApiResponse<ProjectMainResponse> response = new ApiResponse<>(true, "프로젝트 조회 성공", project);
         return ResponseEntity.ok(response);
     }
-
+/*
     @Transactional
     public ResponseEntity<ApiResponse<List<ProjectMineResponse>>> getMyProject(String token) {
 
@@ -152,7 +149,7 @@ public class ProjectService {
         ApiResponse<List<ProjectMineResponse>> response = new ApiResponse<>(true, "내가 지원한 프로젝트 조회 성공", myProjects);
         return ResponseEntity.ok(response);
     }
-
+*/
 
     private void validateSkillsExistence(List<SkillTagResponse> skills) {
         List<String> skillNames = skills.stream()

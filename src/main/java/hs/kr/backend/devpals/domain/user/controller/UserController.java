@@ -1,18 +1,17 @@
 package hs.kr.backend.devpals.domain.user.controller;
 
+import hs.kr.backend.devpals.domain.project.dto.ProjectMineResponse;
 import hs.kr.backend.devpals.domain.user.dto.UserResponse;
 import hs.kr.backend.devpals.domain.user.dto.UserUpdateRequest;
-import hs.kr.backend.devpals.domain.user.entity.PositionTagEntity;
-import hs.kr.backend.devpals.domain.user.facade.UserFacade;
 import hs.kr.backend.devpals.domain.user.service.UserService;
 import hs.kr.backend.devpals.global.common.ApiResponse;
-import hs.kr.backend.devpals.global.jwt.JwtTokenValidator;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+
 
 @AllArgsConstructor
 @RestController
@@ -45,5 +44,10 @@ public class UserController {
             @RequestHeader("Authorization") String token,
             @RequestParam("file") MultipartFile file){
         return userService.updateProfileImage(token, file);
+    }
+
+    @GetMapping("/project")
+    public ResponseEntity<ApiResponse<List<ProjectMineResponse>>> getMyProjects(@RequestHeader("Authorization") String token) {
+        return userService.getMyProject(token);
     }
 }

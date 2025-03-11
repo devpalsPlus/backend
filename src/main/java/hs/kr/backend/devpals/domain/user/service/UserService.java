@@ -1,5 +1,10 @@
 package hs.kr.backend.devpals.domain.user.service;
 
+import hs.kr.backend.devpals.domain.project.dto.ProjectMineResponse;
+import hs.kr.backend.devpals.domain.project.entity.ApplicantEntity;
+import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
+import hs.kr.backend.devpals.domain.project.repository.ApplicantRepository;
+import hs.kr.backend.devpals.domain.user.dto.SkillTagResponse;
 import hs.kr.backend.devpals.domain.user.dto.UserResponse;
 import hs.kr.backend.devpals.domain.user.dto.UserUpdateRequest;
 import hs.kr.backend.devpals.domain.user.entity.PositionTagEntity;
@@ -14,14 +19,13 @@ import hs.kr.backend.devpals.global.exception.ErrorException;
 import hs.kr.backend.devpals.global.jwt.JwtTokenValidator;
 import hs.kr.backend.devpals.infra.Aws.AwsS3Client;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -32,6 +36,9 @@ public class UserService {
     private final SkillTagRepository skillTagRepository;
     private final JwtTokenValidator jwtTokenValidator;
     private final AwsS3Client awsS3Client;
+    private final ApplicantRepository applicantRepository;
+
+    private final Map<Long, ProjectMineResponse> projectMyCache = new HashMap<>();
 
     //개인 정보 가져오기
     public ResponseEntity<ApiResponse<UserResponse>> getUserInfo(String token) {
@@ -151,12 +158,75 @@ public class UserService {
         return ResponseEntity.ok(response);
     }
 
+    @Transactional
+    public ResponseEntity<ApiResponse<List<ProjectMineResponse>>> getMyProject(String token) {
+
+        Long userId = jwtTokenValidator.getUserId(token);
+
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
+
+        List<ApplicantEntity> applications = applicantRepository.findByUser(user);
+
+        if (applications.isEmpty()) {
+            throw new CustomException(ErrorException.PROJECT_NOT_FOUND);
+        }
+
+        List<ProjectMineResponse> myProjects = applications.stream()
+                .map(application -> {
+                    ProjectEntity project = application.getProject();
+                    List<SkillTagResponse> skillResponses = getSkillTagResponses(project.getSkillTagsAsList());
+                    ProjectMineResponse response = ProjectMineResponse.fromEntity(project, skillResponses);
+
+                    projectMyCache.put(project.getId(), response);
+                    return response;
+                })
+                .collect(Collectors.toList());
+
+        ApiResponse<List<ProjectMineResponse>> response = new ApiResponse<>(true, "내가 참여한 프로젝트 조회 성공", myProjects);
+        return ResponseEntity.ok(response);
+    }
+
     // 파일 타입 검증
     private boolean isValidImageFile(String fileName) {
         String lowerCaseFileName = fileName.toLowerCase();
         return lowerCaseFileName.endsWith(".jpg") ||
                 lowerCaseFileName.endsWith(".jpeg") ||
                 lowerCaseFileName.endsWith(".png");
+    }
+
+    /**
+     * 📌 스킬 태그를 DB에서 조회하여 매핑
+     */
+    private Map<String, String> getSkillImageMap(List<String> skillNames) {
+        List<SkillTagEntity> skillTagEntities = skillTagRepository.findByNameIn(skillNames);
+
+        if (skillTagEntities.size() != skillNames.size()) {
+            throw new CustomException(ErrorException.SKILL_NOT_FOUND);
+        }
+
+        return skillTagEntities.stream()
+                .collect(Collectors.toMap(SkillTagEntity::getName, SkillTagEntity::getImg));
+    }
+
+    /**
+     * 📌 스킬 태그 변환 (스킬 목록을 `List<SkillTagResponse>`로 변환)
+     */
+    private List<SkillTagResponse> getSkillTagResponses(List<SkillTagResponse> skills) {
+        if (skills == null || skills.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<String> skillNames = skills.stream()
+                .map(SkillTagResponse::getSkillName)
+                .collect(Collectors.toList());
+
+        Map<String, String> skillImgMap = getSkillImageMap(skillNames);
+
+        return skills.stream()
+                .map(skill -> new SkillTagResponse(skill.getSkillName(),
+                        skillImgMap.getOrDefault(skill.getSkillName(), "default-img.png")))
+                .collect(Collectors.toList());
     }
 
 }

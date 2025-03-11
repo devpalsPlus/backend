@@ -46,10 +46,10 @@ public class ProjectController {
             @PathVariable Long projectId){
         return projectService.getProjectList(projectId);
     }
-
+    /*
     @GetMapping("/my")
     public ResponseEntity<ApiResponse<List<ProjectMineResponse>>> getMyProjectList(@RequestHeader("Authorization")  String token){
         return projectService.getMyProject(token);
     }
-
+    */
 }
