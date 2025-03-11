@@ -48,7 +48,7 @@ public class ProjectController {
     }
 
     @GetMapping("/my")
-    public ResponseEntity<ApiResponse<ProjectMineResponse>> getMyProjectList(@RequestHeader("Authorization")  String token){
+    public ResponseEntity<ApiResponse<List<ProjectMineResponse>>> getMyProjectList(@RequestHeader("Authorization")  String token){
         return projectService.getMyProject(token);
     }
 

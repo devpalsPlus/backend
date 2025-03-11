@@ -1,7 +1,9 @@
 package hs.kr.backend.devpals.domain.project.service;
 
 import hs.kr.backend.devpals.domain.project.dto.*;
+import hs.kr.backend.devpals.domain.project.entity.ApplicantEntity;
 import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
+import hs.kr.backend.devpals.domain.project.repository.ApplicantRepository;
 import hs.kr.backend.devpals.domain.project.repository.ProjectRepository;
 import hs.kr.backend.devpals.domain.user.dto.SkillTagResponse;
 import hs.kr.backend.devpals.domain.user.entity.SkillTagEntity;
@@ -28,11 +30,12 @@ public class ProjectService {
     private final SkillTagRepository skillTagRepository;
     private final JwtTokenValidator jwtTokenValidator;
     private final UserRepository userRepository;
+    private final ApplicantRepository applicantRepository;
 
     private final Map<Long, ProjectMainResponse> projectMainCache = new HashMap<>();
+    private final Map<Long, ProjectMineResponse> projectMyCache = new HashMap<>();
 
     public ResponseEntity<ApiResponse<List<ProjectAllDto>>> getProjectAll() {
-        projectMainCache.clear();
 
         List<ProjectEntity> projects = projectRepository.findAll();
 
@@ -42,22 +45,16 @@ public class ProjectService {
                             .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
                     List<SkillTagResponse> skillResponses = getSkillTagResponses(project.getSkillTagsAsList());
-
-                    ProjectAllDto response = ProjectAllDto.fromEntity(
-                            project, user.getNickname(), user.getProfileImg(), skillResponses
-                    );
-
-                    ProjectMainResponse mainResponse = ProjectMainResponse.fromEntity(
-                            project, user, skillResponses
-                    );
-
+                    ProjectAllDto response = ProjectAllDto.fromEntity(project, user.getNickname(), user.getProfileImg(), skillResponses);
+                    ProjectMainResponse mainResponse = ProjectMainResponse.fromEntity(project, user, skillResponses);
                     projectMainCache.put(project.getId(), mainResponse);
 
                     return response;
                 })
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 목록 조회 성공", projectList));
+        ApiResponse<List<ProjectAllDto>> response = new ApiResponse<>(true, "프로젝트 목록 조회 성공", projectList);
+        return ResponseEntity.ok(response);
     }
 
 
@@ -68,13 +65,16 @@ public class ProjectService {
         long endProjectCount = totalProjectCount - ongoingProjectCount;
 
         ProjectCountResponse responseData = new ProjectCountResponse(totalProjectCount, ongoingProjectCount, endProjectCount);
-        return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 개수 조회 성공", responseData));
+
+        ApiResponse<ProjectCountResponse> response = new ApiResponse<>(true, "프로젝트 개수 조회 성공", responseData);
+        return ResponseEntity.ok(response);
     }
 
     // 프로젝트 업데이트
     @Transactional
     public ResponseEntity<ApiResponse<ProjectAllDto>> updateProject(Long projectId, String token, ProjectAllDto request) {
         Long userId = jwtTokenValidator.getUserId(token);
+
         ProjectEntity project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new CustomException(ErrorException.PROJECT_NOT_FOUND));
 
@@ -82,33 +82,18 @@ public class ProjectService {
             throw new CustomException(ErrorException.FAIL_PROJECT_UPDATE);
         }
 
-        // 스킬 존재 여부 검증
-        validateSkillsExistence(request.getSkills());
-
-        // 스킬 변환
+        validateSkillsExistence(request.getSkills()); // 스킬 검증
         List<SkillTagResponse> skillResponses = getSkillTagResponses(request.getSkills());
-
-        // 프로젝트 업데이트
         project.updateProject(request, request.getPositions(), skillResponses);
         projectRepository.save(project);
 
-        // `ProjectAllDto` 생성 (응답용)
-        ProjectAllDto updatedProject = ProjectAllDto.fromEntity(
-                project, request.getAuthorNickname(), request.getAuthorImage(), skillResponses
-        );
+        ProjectAllDto updatedProject = ProjectAllDto.fromEntity(project, request.getAuthorNickname(), request.getAuthorImage(), skillResponses);
 
-        // `ProjectMainResponse` 생성 (캐싱용)
-        ProjectMainResponse mainResponse = ProjectMainResponse.fromEntity(
-                project, userRepository.findById(userId)
-                        .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND)),
-                skillResponses
-        );
+        projectMainCache.clear();
+        projectMyCache.clear();
 
-        projectMainCache.remove(projectId);
-        projectMainCache.put(projectId, mainResponse);
-
-
-        return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 업데이트 완료", updatedProject));
+        ApiResponse<ProjectAllDto> response = new ApiResponse<>(true, "프로젝트 업데이트 완료", updatedProject);
+        return ResponseEntity.ok(response);
     }
 
 
@@ -121,7 +106,9 @@ public class ProjectService {
         List<SkillTagResponse> skillResponses = getSkillTagResponses(request.getSkills());
         ProjectEntity project = ProjectEntity.fromRequest(request, request.getPositions(), skillResponses);
         ProjectEntity savedProject = projectRepository.save(project);
-        return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 등록 완료", savedProject.getId()));
+
+        ApiResponse<Long> response = new ApiResponse<>(true, "프로젝트 등록 완료", savedProject.getId());
+        return ResponseEntity.ok(response);
     }
 
 
@@ -133,16 +120,39 @@ public class ProjectService {
             throw new CustomException(ErrorException.PROJECT_NOT_FOUND);
         }
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 조회 성공", project));
-    }
-
-    public ResponseEntity<ApiResponse<ProjectMineResponse>> getMyProject(String token){
-
-
-
-        ApiResponse<ProjectMineResponse> response = new ApiResponse<>(true, "내 프로젝트 조회 성공" , null);
+        ApiResponse<ProjectMainResponse> response = new ApiResponse<>(true, "프로젝트 조회 성공", project);
         return ResponseEntity.ok(response);
     }
+
+    @Transactional
+    public ResponseEntity<ApiResponse<List<ProjectMineResponse>>> getMyProject(String token) {
+
+        Long userId = jwtTokenValidator.getUserId(token);
+
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
+
+        List<ApplicantEntity> applications = applicantRepository.findByUser(user);
+
+        if (applications.isEmpty()) {
+            throw new CustomException(ErrorException.PROJECT_NOT_FOUND);
+        }
+
+        List<ProjectMineResponse> myProjects = applications.stream()
+                .map(application -> {
+                    ProjectEntity project = application.getProject();
+                    List<SkillTagResponse> skillResponses = getSkillTagResponses(project.getSkillTagsAsList());
+                    ProjectMineResponse response = ProjectMineResponse.fromEntity(project, skillResponses);
+
+                    projectMyCache.put(project.getId(), response);
+                    return response;
+                })
+                .collect(Collectors.toList());
+
+        ApiResponse<List<ProjectMineResponse>> response = new ApiResponse<>(true, "내가 지원한 프로젝트 조회 성공", myProjects);
+        return ResponseEntity.ok(response);
+    }
+
 
     private void validateSkillsExistence(List<SkillTagResponse> skills) {
         List<String> skillNames = skills.stream()

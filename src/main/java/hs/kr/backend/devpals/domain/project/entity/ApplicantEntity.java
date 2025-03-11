@@ -8,6 +8,7 @@ import hs.kr.backend.devpals.global.common.enums.ApplicantStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
@@ -16,6 +17,7 @@ import java.util.List;
 
 @Entity
 @Builder
+@Getter
 @Table(name = "Applicant")
 @NoArgsConstructor
 @AllArgsConstructor
