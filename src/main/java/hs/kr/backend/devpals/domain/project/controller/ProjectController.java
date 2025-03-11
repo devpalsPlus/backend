@@ -47,9 +47,10 @@ public class ProjectController {
         return projectService.getProjectList(projectId);
     }
 
+    /*
     @GetMapping("/my")
     public ResponseEntity<ApiResponse<List<ProjectApplyResponse>>> getMyProjectList(@RequestHeader("Authorization")  String token){
         return projectService.getMyProjectApply(token);
     }
-
+    */
 }

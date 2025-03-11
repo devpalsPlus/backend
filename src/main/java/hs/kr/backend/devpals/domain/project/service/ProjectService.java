@@ -33,7 +33,6 @@ public class ProjectService {
     private final ApplicantRepository applicantRepository;
 
     private final Map<Long, ProjectMainResponse> projectMainCache = new HashMap<>();
-    private final Map<Long, List<ProjectApplyResponse>> projectMyApplyCache = new HashMap<>();
 
     public ResponseEntity<ApiResponse<List<ProjectAllDto>>> getProjectAll() {
 
@@ -123,41 +122,6 @@ public class ProjectService {
         return ResponseEntity.ok(response);
     }
 
-    @Transactional
-    public ResponseEntity<ApiResponse<List<ProjectApplyResponse>>> getMyProjectApply(String token) {
-        Long userId = jwtTokenValidator.getUserId(token);
-
-        if (projectMyApplyCache.containsKey(userId)) {
-            ApiResponse<List<ProjectApplyResponse>> response = new ApiResponse<>(
-                    true, "내 지원 프로젝트 조회 성공", new ArrayList<>(projectMyApplyCache.get(userId)));
-            return ResponseEntity.ok(response);
-        }
-
-        UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
-
-        List<ApplicantEntity> applications = applicantRepository.findByUser(user);
-
-        if (applications.isEmpty()) {
-            throw new CustomException(ErrorException.PROJECT_NOT_FOUND);
-        }
-
-        List<ProjectApplyResponse> myProjects = applications.stream()
-                .map(application -> ProjectApplyResponse.fromEntity(
-                        application.getProject().getTitle(),
-                        application.getStatus()
-                ))
-                .collect(Collectors.toList());
-
-        projectMyApplyCache.put(userId, myProjects);
-
-        ApiResponse<List<ProjectApplyResponse>> response = new ApiResponse<>(
-                true, "내 지원 프로젝트 조회 성공", myProjects);
-
-        return ResponseEntity.ok(response);
-    }
-
-
 
     private void validateSkillsExistence(List<SkillTagResponse> skills) {
         List<String> skillNames = skills.stream()
@@ -172,9 +136,7 @@ public class ProjectService {
         }
     }
 
-    /**
-     * 📌 스킬 태그를 DB에서 조회하여 매핑
-     */
+    // 스킬 태그를 DB로 조회
     private Map<String, String> getSkillImageMap(List<String> skillNames) {
         List<SkillTagEntity> skillTagEntities = skillTagRepository.findByNameIn(skillNames);
 
@@ -186,9 +148,9 @@ public class ProjectService {
                 .collect(Collectors.toMap(SkillTagEntity::getName, SkillTagEntity::getImg));
     }
 
-    /**
-     * 📌 스킬 태그 변환 (스킬 목록을 `List<SkillTagResponse>`로 변환)
-     */
+
+    // 스킬 태그 변환 (스킬 목록을 `List<SkillTagResponse>`로 변환)
+
     private List<SkillTagResponse> getSkillTagResponses(List<SkillTagResponse> skills) {
         if (skills == null || skills.isEmpty()) {
             return Collections.emptyList();

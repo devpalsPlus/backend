@@ -1,5 +1,6 @@
 package hs.kr.backend.devpals.domain.user.service;
 
+import hs.kr.backend.devpals.domain.project.dto.ProjectApplyResponse;
 import hs.kr.backend.devpals.domain.project.dto.ProjectMineResponse;
 import hs.kr.backend.devpals.domain.project.entity.ApplicantEntity;
 import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
@@ -39,6 +40,7 @@ public class UserService {
     private final ApplicantRepository applicantRepository;
 
     private final Map<Long, ProjectMineResponse> projectMyCache = new HashMap<>();
+    private final Map<Long, List<ProjectApplyResponse>> projectMyApplyCache = new HashMap<>();
 
     //개인 정보 가져오기
     public ResponseEntity<ApiResponse<UserResponse>> getUserInfo(String token) {
@@ -187,6 +189,63 @@ public class UserService {
         return ResponseEntity.ok(response);
     }
 
+    public ResponseEntity<ApiResponse<List<ProjectMineResponse>>> getUserProject(String token, Long userId) {
+
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
+
+        List<ApplicantEntity> applications = applicantRepository.findByUser(user);
+
+        if (applications.isEmpty()) {
+            throw new CustomException(ErrorException.PROJECT_NOT_FOUND);
+        }
+
+        List<ProjectMineResponse> userProjects = applications.stream()
+                .map(application -> {
+                    ProjectEntity project = application.getProject();
+                    List<SkillTagResponse> skillResponses = getSkillTagResponses(project.getSkillTagsAsList());
+                    return ProjectMineResponse.fromEntity(project, skillResponses);
+                })
+                .collect(Collectors.toList());
+
+        ApiResponse<List<ProjectMineResponse>> response = new ApiResponse<>(true, "사용자가 참여한 프로젝트 조회 성공", userProjects);
+        return ResponseEntity.ok(response);
+    }
+
+    @Transactional
+    public ResponseEntity<ApiResponse<List<ProjectApplyResponse>>> getMyProjectApply(String token) {
+        Long userId = jwtTokenValidator.getUserId(token);
+
+        if (projectMyApplyCache.containsKey(userId)) {
+            ApiResponse<List<ProjectApplyResponse>> response = new ApiResponse<>(
+                    true, "내 지원 프로젝트 조회 성공", new ArrayList<>(projectMyApplyCache.get(userId)));
+            return ResponseEntity.ok(response);
+        }
+
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
+
+        List<ApplicantEntity> applications = applicantRepository.findByUser(user);
+
+        if (applications.isEmpty()) {
+            throw new CustomException(ErrorException.PROJECT_NOT_FOUND);
+        }
+
+        List<ProjectApplyResponse> myProjects = applications.stream()
+                .map(application -> ProjectApplyResponse.fromEntity(
+                        application.getProject().getTitle(),
+                        application.getStatus()
+                ))
+                .collect(Collectors.toList());
+
+        projectMyApplyCache.put(userId, myProjects);
+
+        ApiResponse<List<ProjectApplyResponse>> response = new ApiResponse<>(
+                true, "내 지원 프로젝트 조회 성공", myProjects);
+
+        return ResponseEntity.ok(response);
+    }
+
     // 파일 타입 검증
     private boolean isValidImageFile(String fileName) {
         String lowerCaseFileName = fileName.toLowerCase();
@@ -195,9 +254,8 @@ public class UserService {
                 lowerCaseFileName.endsWith(".png");
     }
 
-    /**
-     * 📌 스킬 태그를 DB에서 조회하여 매핑
-     */
+
+    // 스킬 태그를 DB에서 조회하여 매핑
     private Map<String, String> getSkillImageMap(List<String> skillNames) {
         List<SkillTagEntity> skillTagEntities = skillTagRepository.findByNameIn(skillNames);
 
@@ -209,9 +267,9 @@ public class UserService {
                 .collect(Collectors.toMap(SkillTagEntity::getName, SkillTagEntity::getImg));
     }
 
-    /**
-     * 📌 스킬 태그 변환 (스킬 목록을 `List<SkillTagResponse>`로 변환)
-     */
+
+    // 스킬 태그 변환 (스킬 목록을 `List<SkillTagResponse>`로 변환)
+
     private List<SkillTagResponse> getSkillTagResponses(List<SkillTagResponse> skills) {
         if (skills == null || skills.isEmpty()) {
             return Collections.emptyList();
