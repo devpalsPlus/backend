@@ -4,6 +4,7 @@ import hs.kr.backend.devpals.domain.auth.dto.*;
 import hs.kr.backend.devpals.domain.auth.service.*;
 import hs.kr.backend.devpals.domain.user.dto.LoginUserResponse;
 import hs.kr.backend.devpals.global.common.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-
+@Tag(name = "Auth API", description = "회원가입 및 로그인 관련 API")
 public class AuthController {
 
     private final LoginService loginService;

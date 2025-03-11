@@ -3,16 +3,17 @@ package hs.kr.backend.devpals.domain.project.controller;
 import hs.kr.backend.devpals.domain.project.dto.*;
 import hs.kr.backend.devpals.domain.project.service.ProjectService;
 import hs.kr.backend.devpals.global.common.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/project")
+@Tag(name = "Project API", description = "프로젝트 관련 API")
 public class ProjectController {
 
     private final ProjectService projectService;

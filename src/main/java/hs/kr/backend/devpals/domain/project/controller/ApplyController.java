@@ -3,14 +3,15 @@ package hs.kr.backend.devpals.domain.project.controller;
 import hs.kr.backend.devpals.domain.project.dto.ProjectApplyRequest;
 import hs.kr.backend.devpals.domain.project.service.ApplyService;
 import hs.kr.backend.devpals.global.common.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 @RequestMapping("/project")
 @RequiredArgsConstructor
+@Tag(name = "Project Apply API", description = "프로젝트 지원 관련 API")
 public class ApplyController {
 
     private final ApplyService applicantService;

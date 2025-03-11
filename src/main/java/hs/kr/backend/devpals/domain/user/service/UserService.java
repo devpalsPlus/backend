@@ -11,6 +11,7 @@ import hs.kr.backend.devpals.domain.user.dto.UserUpdateRequest;
 import hs.kr.backend.devpals.domain.user.entity.PositionTagEntity;
 import hs.kr.backend.devpals.domain.user.entity.SkillTagEntity;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
+import hs.kr.backend.devpals.domain.user.facade.UserFacade;
 import hs.kr.backend.devpals.domain.user.repository.PositionTagRepository;
 import hs.kr.backend.devpals.domain.user.repository.SkillTagRepository;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
@@ -33,20 +34,16 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final PositionTagRepository positionTagRepository;
-    private final SkillTagRepository skillTagRepository;
     private final JwtTokenValidator jwtTokenValidator;
     private final AwsS3Client awsS3Client;
     private final ApplicantRepository applicantRepository;
+    private final UserFacade userFacade;
 
-    private final Map<Long, ProjectMineResponse> projectMyCache = new HashMap<>();
+    private final Map<Long, List<ProjectMineResponse>> projectMyCache = new HashMap<>();
     private final Map<Long, List<ProjectApplyResponse>> projectMyApplyCache = new HashMap<>();
 
     //개인 정보 가져오기
     public ResponseEntity<ApiResponse<UserResponse>> getUserInfo(String token) {
-        if (token.startsWith("Bearer ")) {
-            token = token.substring(7);
-        }
 
         Long userId = jwtTokenValidator.getUserId(token);
 
@@ -61,9 +58,6 @@ public class UserService {
 
     //상대방 정보 가져오기
     public ResponseEntity<ApiResponse<UserResponse>> getUserInfoById(String token, Long id) {
-        if (token.startsWith("Bearer ")) {
-            token = token.substring(7); // "Bearer " 제거
-        }
 
         Long requesterId = jwtTokenValidator.getUserId(token);
 
@@ -82,26 +76,24 @@ public class UserService {
 
     //유저 정보 업데이트
     public ResponseEntity<ApiResponse<UserResponse>> userUpdateInfo(String token, UserUpdateRequest request) {
-        if (token.startsWith("Bearer ")) {
-            token = token.substring(7);
-        }
 
         Long userId = jwtTokenValidator.getUserId(token);
 
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
-        // PositionTag 처리
+
         PositionTagEntity positionTag = null;
         if (request.getPositionTagId() != null) {
-            positionTag = positionTagRepository.findById(request.getPositionTagId())
-                    .orElseThrow(() -> new CustomException(ErrorException.POSITION_NOT_FOUND));
+            positionTag = userFacade.getPositionTagById(request.getPositionTagId());
+            if (positionTag == null) {
+                throw new CustomException(ErrorException.POSITION_NOT_FOUND);
+            }
         }
 
-        // SkillTag 처리
         List<SkillTagEntity> skills = new ArrayList<>();
         if (request.getSkillTagIds() != null && !request.getSkillTagIds().isEmpty()) {
-            skills = skillTagRepository.findAllById(request.getSkillTagIds());
+            skills = userFacade.getSkillTagsByIds(request.getSkillTagIds());
         }
 
         // 업데이트 실행
@@ -124,9 +116,6 @@ public class UserService {
 
     @Transactional
     public ResponseEntity<ApiResponse<String>> updateProfileImage(String token, MultipartFile file) {
-        if (token.startsWith("Bearer ")) {
-            token = token.substring(7);
-        }
 
         Long userId = jwtTokenValidator.getUserId(token);
 
@@ -165,6 +154,12 @@ public class UserService {
 
         Long userId = jwtTokenValidator.getUserId(token);
 
+        if (projectMyCache.containsKey(userId)) {
+            List<ProjectMineResponse> cachedProjects = new ArrayList<>(projectMyCache.get(userId));
+            ApiResponse<List<ProjectMineResponse>> response = new ApiResponse<>(true, "내가 참여한 프로젝트 조회 성공 (캐시)", cachedProjects);
+            return ResponseEntity.ok(response);
+        }
+
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
@@ -178,12 +173,11 @@ public class UserService {
                 .map(application -> {
                     ProjectEntity project = application.getProject();
                     List<SkillTagResponse> skillResponses = getSkillTagResponses(project.getSkillTagsAsList());
-                    ProjectMineResponse response = ProjectMineResponse.fromEntity(project, skillResponses);
-
-                    projectMyCache.put(project.getId(), response);
-                    return response;
+                    return ProjectMineResponse.fromEntity(project, skillResponses);
                 })
                 .collect(Collectors.toList());
+
+        projectMyCache.put(userId, myProjects);
 
         ApiResponse<List<ProjectMineResponse>> response = new ApiResponse<>(true, "내가 참여한 프로젝트 조회 성공", myProjects);
         return ResponseEntity.ok(response);
@@ -255,21 +249,7 @@ public class UserService {
     }
 
 
-    // 스킬 태그를 DB에서 조회하여 매핑
-    private Map<String, String> getSkillImageMap(List<String> skillNames) {
-        List<SkillTagEntity> skillTagEntities = skillTagRepository.findByNameIn(skillNames);
-
-        if (skillTagEntities.size() != skillNames.size()) {
-            throw new CustomException(ErrorException.SKILL_NOT_FOUND);
-        }
-
-        return skillTagEntities.stream()
-                .collect(Collectors.toMap(SkillTagEntity::getName, SkillTagEntity::getImg));
-    }
-
-
     // 스킬 태그 변환 (스킬 목록을 `List<SkillTagResponse>`로 변환)
-
     private List<SkillTagResponse> getSkillTagResponses(List<SkillTagResponse> skills) {
         if (skills == null || skills.isEmpty()) {
             return Collections.emptyList();
@@ -279,12 +259,10 @@ public class UserService {
                 .map(SkillTagResponse::getSkillName)
                 .collect(Collectors.toList());
 
-        Map<String, String> skillImgMap = getSkillImageMap(skillNames);
+        List<SkillTagEntity> skillEntities = userFacade.getSkillTagsByNames(skillNames);
 
-        return skills.stream()
-                .map(skill -> new SkillTagResponse(skill.getSkillName(),
-                        skillImgMap.getOrDefault(skill.getSkillName(), "default-img.png")))
+        return skillEntities.stream()
+                .map(skill -> new SkillTagResponse(skill.getName(), skill.getImg()))
                 .collect(Collectors.toList());
     }
-
 }

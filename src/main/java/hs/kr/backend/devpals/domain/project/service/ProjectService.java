@@ -8,6 +8,7 @@ import hs.kr.backend.devpals.domain.project.repository.ProjectRepository;
 import hs.kr.backend.devpals.domain.user.dto.SkillTagResponse;
 import hs.kr.backend.devpals.domain.user.entity.SkillTagEntity;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
+import hs.kr.backend.devpals.domain.user.facade.UserFacade;
 import hs.kr.backend.devpals.domain.user.repository.SkillTagRepository;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.common.ApiResponse;
@@ -27,11 +28,11 @@ import java.util.stream.Collectors;
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
-    private final SkillTagRepository skillTagRepository;
+    private final UserFacade userFacade;
     private final JwtTokenValidator jwtTokenValidator;
     private final UserRepository userRepository;
-    private final ApplicantRepository applicantRepository;
 
+    private final Map<Long, ProjectAllDto> projectAllCache = new HashMap<>();
     private final Map<Long, ProjectMainResponse> projectMainCache = new HashMap<>();
 
     public ResponseEntity<ApiResponse<List<ProjectAllDto>>> getProjectAll() {
@@ -44,11 +45,12 @@ public class ProjectService {
                             .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
                     List<SkillTagResponse> skillResponses = getSkillTagResponses(project.getSkillTagsAsList());
-                    ProjectAllDto response = ProjectAllDto.fromEntity(project, user.getNickname(), user.getProfileImg(), skillResponses);
+                    ProjectAllDto allDto = ProjectAllDto.fromEntity(project, user.getNickname(), user.getProfileImg(), skillResponses);
+                    projectAllCache.put(project.getId(), allDto);
                     ProjectMainResponse mainResponse = ProjectMainResponse.fromEntity(project, user, skillResponses);
                     projectMainCache.put(project.getId(), mainResponse);
 
-                    return response;
+                    return allDto;
                 })
                 .collect(Collectors.toList());
 
@@ -83,11 +85,13 @@ public class ProjectService {
 
         validateSkillsExistence(request.getSkills()); // 스킬 검증
         List<SkillTagResponse> skillResponses = getSkillTagResponses(request.getSkills());
+
         project.updateProject(request, request.getPositions(), skillResponses);
         projectRepository.save(project);
 
         ProjectAllDto updatedProject = ProjectAllDto.fromEntity(project, request.getAuthorNickname(), request.getAuthorImage(), skillResponses);
 
+        projectAllCache.clear();
         projectMainCache.clear();
 
         ApiResponse<ProjectAllDto> response = new ApiResponse<>(true, "프로젝트 업데이트 완료", updatedProject);
@@ -123,33 +127,19 @@ public class ProjectService {
     }
 
 
+
     private void validateSkillsExistence(List<SkillTagResponse> skills) {
         List<String> skillNames = skills.stream()
                 .map(SkillTagResponse::getSkillName)
                 .distinct()
                 .collect(Collectors.toList());
 
-        List<SkillTagEntity> skillEntities = skillTagRepository.findByNameIn(skillNames);
+        List<SkillTagEntity> skillEntities = userFacade.getSkillTagsByNames(skillNames);
 
         if (skillEntities.size() != skillNames.size()) {
             throw new CustomException(ErrorException.SKILL_NOT_FOUND);
         }
     }
-
-    // 스킬 태그를 DB로 조회
-    private Map<String, String> getSkillImageMap(List<String> skillNames) {
-        List<SkillTagEntity> skillTagEntities = skillTagRepository.findByNameIn(skillNames);
-
-        if (skillTagEntities.size() != skillNames.size()) {
-            throw new CustomException(ErrorException.SKILL_NOT_FOUND);
-        }
-
-        return skillTagEntities.stream()
-                .collect(Collectors.toMap(SkillTagEntity::getName, SkillTagEntity::getImg));
-    }
-
-
-    // 스킬 태그 변환 (스킬 목록을 `List<SkillTagResponse>`로 변환)
 
     private List<SkillTagResponse> getSkillTagResponses(List<SkillTagResponse> skills) {
         if (skills == null || skills.isEmpty()) {
@@ -160,11 +150,11 @@ public class ProjectService {
                 .map(SkillTagResponse::getSkillName)
                 .collect(Collectors.toList());
 
-        Map<String, String> skillImgMap = getSkillImageMap(skillNames);
+        List<SkillTagEntity> skillEntities = userFacade.getSkillTagsByNames(skillNames);
 
-        return skills.stream()
-                .map(skill -> new SkillTagResponse(skill.getSkillName(),
-                        skillImgMap.getOrDefault(skill.getSkillName(), "default-img.png")))
+        return skillEntities.stream()
+                .map(skill -> new SkillTagResponse(skill.getName(), skill.getImg()))
                 .collect(Collectors.toList());
     }
+
 }
