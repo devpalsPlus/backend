@@ -1,6 +1,7 @@
 package hs.kr.backend.devpals.domain.project.service;
 
 import hs.kr.backend.devpals.domain.project.dto.*;
+import hs.kr.backend.devpals.domain.project.entity.ApplicantEntity;
 import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
 import hs.kr.backend.devpals.domain.project.repository.ApplicantRepository;
 import hs.kr.backend.devpals.domain.project.repository.ProjectRepository;
@@ -32,6 +33,7 @@ public class ProjectService {
     private final ApplicantRepository applicantRepository;
 
     private final Map<Long, ProjectMainResponse> projectMainCache = new HashMap<>();
+    private final Map<Long, List<ProjectApplyResponse>> projectMyApplyCache = new HashMap<>();
 
     public ResponseEntity<ApiResponse<List<ProjectAllDto>>> getProjectAll() {
 
@@ -120,11 +122,16 @@ public class ProjectService {
         ApiResponse<ProjectMainResponse> response = new ApiResponse<>(true, "프로젝트 조회 성공", project);
         return ResponseEntity.ok(response);
     }
-/*
-    @Transactional
-    public ResponseEntity<ApiResponse<List<ProjectMineResponse>>> getMyProject(String token) {
 
+    @Transactional
+    public ResponseEntity<ApiResponse<List<ProjectApplyResponse>>> getMyProjectApply(String token) {
         Long userId = jwtTokenValidator.getUserId(token);
+
+        if (projectMyApplyCache.containsKey(userId)) {
+            ApiResponse<List<ProjectApplyResponse>> response = new ApiResponse<>(
+                    true, "내 지원 프로젝트 조회 성공", new ArrayList<>(projectMyApplyCache.get(userId)));
+            return ResponseEntity.ok(response);
+        }
 
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
@@ -135,21 +142,22 @@ public class ProjectService {
             throw new CustomException(ErrorException.PROJECT_NOT_FOUND);
         }
 
-        List<ProjectMineResponse> myProjects = applications.stream()
-                .map(application -> {
-                    ProjectEntity project = application.getProject();
-                    List<SkillTagResponse> skillResponses = getSkillTagResponses(project.getSkillTagsAsList());
-                    ProjectMineResponse response = ProjectMineResponse.fromEntity(project, skillResponses);
-
-                    projectMyCache.put(project.getId(), response);
-                    return response;
-                })
+        List<ProjectApplyResponse> myProjects = applications.stream()
+                .map(application -> ProjectApplyResponse.fromEntity(
+                        application.getProject().getTitle(),
+                        application.getStatus()
+                ))
                 .collect(Collectors.toList());
 
-        ApiResponse<List<ProjectMineResponse>> response = new ApiResponse<>(true, "내가 지원한 프로젝트 조회 성공", myProjects);
+        projectMyApplyCache.put(userId, myProjects);
+
+        ApiResponse<List<ProjectApplyResponse>> response = new ApiResponse<>(
+                true, "내 지원 프로젝트 조회 성공", myProjects);
+
         return ResponseEntity.ok(response);
     }
-*/
+
+
 
     private void validateSkillsExistence(List<SkillTagResponse> skills) {
         List<String> skillNames = skills.stream()
