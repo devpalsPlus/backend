@@ -27,7 +27,7 @@ public class ApplyController {
         return applicantService.projectApply(projectId, request, token);
     }
 
-    @GetMapping("/{projectId}/applicant-list")
+    @GetMapping("/{projectId}/applicants")
     public ResponseEntity<ApiResponse<List<ProjectApplicantResponse>>> getProjectApplicantList(
             @PathVariable Long projectId,
             @RequestHeader("Authorization") String token){
