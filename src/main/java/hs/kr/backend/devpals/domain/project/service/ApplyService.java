@@ -1,5 +1,6 @@
 package hs.kr.backend.devpals.domain.project.service;
 
+import hs.kr.backend.devpals.domain.project.dto.ProjectApplicantResponse;
 import hs.kr.backend.devpals.domain.project.dto.ProjectApplyRequest;
 import hs.kr.backend.devpals.domain.project.entity.ApplicantEntity;
 import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
@@ -16,8 +17,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -49,5 +50,25 @@ public class ApplyService {
 
         ApiResponse<String> response = new ApiResponse<String>(true, "프로젝트 지원 되었습니다." , null);
         return ResponseEntity.ok(response);
+    }
+
+    public ResponseEntity<ApiResponse<List<ProjectApplicantResponse>>> getProjectApplicantList(Long projectId, String token) {
+        Long userId = jwtTokenValidator.getUserId(token);
+
+        ProjectEntity project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new CustomException(ErrorException.PROJECT_NOT_FOUND));
+
+        if(!Objects.equals(project.getAuthorId(), userId)) throw new CustomException(ErrorException.AUTHOR_ONLY);
+
+
+        List<ApplicantEntity> applicants = applicantRepository.findByProject(project);
+
+        List<ProjectApplicantResponse> projectApplicants = applicants
+                .stream()
+                .map(ProjectApplicantResponse::fromEntity)
+                .toList();
+
+        return ResponseEntity.ok(new ApiResponse<>(true, "공고 지원자 목록 가져오기 성공",projectApplicants));
+
     }
 }
