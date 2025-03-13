@@ -1,6 +1,7 @@
 package hs.kr.backend.devpals.domain.project.service;
 
 import hs.kr.backend.devpals.domain.project.dto.ProjectApplicantResponse;
+import hs.kr.backend.devpals.domain.project.dto.ProjectApplicantResultResponse;
 import hs.kr.backend.devpals.domain.project.dto.ProjectApplyRequest;
 import hs.kr.backend.devpals.domain.project.entity.ApplicantEntity;
 import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
@@ -9,7 +10,6 @@ import hs.kr.backend.devpals.domain.project.repository.ProjectRepository;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.common.ApiResponse;
-import hs.kr.backend.devpals.global.common.enums.ApplicantStatus;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
 import hs.kr.backend.devpals.global.jwt.JwtTokenValidator;
@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -52,7 +53,7 @@ public class ApplyService {
         return ResponseEntity.ok(response);
     }
 
-    public ResponseEntity<ApiResponse<List<ProjectApplicantResponse>>> getProjectApplicantList(Long projectId, String token) {
+    public ResponseEntity<ApiResponse<List<ProjectApplicantResponse>>> getProjectApplicants(Long projectId, String token) {
         Long userId = jwtTokenValidator.getUserId(token);
 
         ProjectEntity project = projectRepository.findById(projectId)
@@ -70,5 +71,20 @@ public class ApplyService {
 
         return ResponseEntity.ok(new ApiResponse<>(true, "공고 지원자 목록 가져오기 성공",projectApplicants));
 
+    }
+
+    public ResponseEntity<ApiResponse<ProjectApplicantResultResponse>> getProjectApplicantResults(Long projectId, String token) {
+        Long userId = jwtTokenValidator.getUserId(token);
+
+        ProjectEntity project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new CustomException(ErrorException.PROJECT_NOT_FOUND));
+
+        if(!Objects.equals(project.getAuthorId(), userId)) throw new CustomException(ErrorException.AUTHOR_ONLY);
+
+
+        List<ApplicantEntity> applicants = applicantRepository.findByProject(project);
+
+
+        return ResponseEntity.ok(new ApiResponse<>(true, "공고 합격자/불합격자 목록 가져오기 성공",ProjectApplicantResultResponse.fromEntity(applicants)));
     }
 }
