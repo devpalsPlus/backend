@@ -14,13 +14,12 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.util.List;
-
 
 @Configuration
 @EnableWebSecurity
@@ -39,21 +38,32 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable) // CSRF 보호 비활성화
-                .cors(AbstractHttpConfigurer::disable) // CORS 설정
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 설정 추가
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // JWT 사용 시 STATELESS 모드
                 .httpBasic(AbstractHttpConfigurer::disable) // 기본 로그인 비활성화
                 .formLogin(AbstractHttpConfigurer::disable) // 폼 로그인 비활성화
                 .logout(AbstractHttpConfigurer::disable) // 로그아웃 비활성화
-                .anonymous(AbstractHttpConfigurer::disable) // 익명 사용자 비활성화
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())  // 모든 요청을 인증 없이 허용**
                 .authenticationProvider(authenticationProvider()) // 커스텀 인증 제공자 추가
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // JWT 필터 추가
 
         return http.build();
     }
 
-    /*
-     * 비밀번호 암호화
-     */
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("https://www.devpals.site", "https://dev.devpals.site"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
@@ -63,14 +73,8 @@ public class SecurityConfig {
         return provider;
     }
 
-    /*
-    * 비밀번호 암호화
-    */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
 }
-
-
