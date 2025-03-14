@@ -28,7 +28,7 @@ public class SwaggerConfig {
                 .build();
     }
 
-    /*
+
     // 기본 서버를 HTTPS로 설정
     @Bean
     public OpenAPI customOpenAPI() {
@@ -42,5 +42,5 @@ public class SwaggerConfig {
                         new Server().url("https://dev.devpals.site").description("Production Server")
                 ));
     }
-    */
+    
 }
