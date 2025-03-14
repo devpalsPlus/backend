@@ -8,8 +8,8 @@ import lombok.Getter;
 @Getter
 @Builder
 public class UserApplicantResponse {
-    Long id;
-    String nickname;
+    private Long id;
+    private String nickname;
 
     public static UserApplicantResponse fromEntity(UserEntity user) {
         return UserApplicantResponse.builder()

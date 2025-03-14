@@ -1,6 +1,7 @@
 package hs.kr.backend.devpals.domain.project.controller;
 
 import hs.kr.backend.devpals.domain.project.dto.ProjectApplicantResponse;
+import hs.kr.backend.devpals.domain.project.dto.ProjectApplicantResultResponse;
 import hs.kr.backend.devpals.domain.project.dto.ProjectApplyRequest;
 import hs.kr.backend.devpals.domain.project.service.ApplyService;
 import hs.kr.backend.devpals.global.common.ApiCustomResponse;
@@ -59,5 +60,13 @@ public class ApplyController {
             @PathVariable Long projectId,
             @RequestHeader("Authorization") String token) {
         return applicantService.getProjectApplicantList(projectId, token);
+    }
+
+    @GetMapping("/{projectId}/applicants/results")
+    @Operation(summary = "프로젝트 지원 결과 목록", description = "관리자(본인)가 (지원결과) 목록을 확인합니다.")
+    public ResponseEntity<ApiCustomResponse<ProjectApplicantResultResponse>> getProjectApplicantsResults(
+            @PathVariable Long projectId,
+            @RequestHeader("Authorization") String token){
+        return applicantService.getProjectApplicantResults(projectId, token);
     }
 }
