@@ -12,10 +12,8 @@ import hs.kr.backend.devpals.domain.user.entity.PositionTagEntity;
 import hs.kr.backend.devpals.domain.user.entity.SkillTagEntity;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.facade.UserFacade;
-import hs.kr.backend.devpals.domain.user.repository.PositionTagRepository;
-import hs.kr.backend.devpals.domain.user.repository.SkillTagRepository;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
-import hs.kr.backend.devpals.global.common.ApiResponse;
+import hs.kr.backend.devpals.global.common.ApiCustomResponse;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
 import hs.kr.backend.devpals.global.jwt.JwtTokenValidator;
@@ -43,7 +41,7 @@ public class UserService {
     private final Map<Long, List<ProjectApplyResponse>> projectMyApplyCache = new HashMap<>();
 
     //개인 정보 가져오기
-    public ResponseEntity<ApiResponse<UserResponse>> getUserInfo(String token) {
+    public ResponseEntity<ApiCustomResponse<UserResponse>> getUserInfo(String token) {
 
         Long userId = jwtTokenValidator.getUserId(token);
 
@@ -51,13 +49,13 @@ public class UserService {
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
         UserResponse userResponse = UserResponse.fromEntity(user);
-        ApiResponse<UserResponse> response = new ApiResponse<>(true, "사용자의 정보입니다.", userResponse);
+        ApiCustomResponse<UserResponse> response = new ApiCustomResponse<>(true, "사용자의 정보입니다.", userResponse);
 
         return ResponseEntity.ok(response);
     }
 
     //상대방 정보 가져오기
-    public ResponseEntity<ApiResponse<UserResponse>> getUserInfoById(String token, Long id) {
+    public ResponseEntity<ApiCustomResponse<UserResponse>> getUserInfoById(String token, Long id) {
 
         Long requesterId = jwtTokenValidator.getUserId(token);
 
@@ -69,13 +67,13 @@ public class UserService {
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
         UserResponse userResponse = UserResponse.fromEntity(user);
-        ApiResponse<UserResponse> response = new ApiResponse<>(true, "사용자 정보를 조회했습니다.", userResponse);
+        ApiCustomResponse<UserResponse> response = new ApiCustomResponse<>(true, "사용자 정보를 조회했습니다.", userResponse);
 
         return ResponseEntity.ok(response);
     }
 
     //유저 정보 업데이트
-    public ResponseEntity<ApiResponse<UserResponse>> userUpdateInfo(String token, UserUpdateRequest request) {
+    public ResponseEntity<ApiCustomResponse<UserResponse>> userUpdateInfo(String token, UserUpdateRequest request) {
 
         Long userId = jwtTokenValidator.getUserId(token);
 
@@ -109,13 +107,13 @@ public class UserService {
         userRepository.save(user); // 변경 감지 적용
 
         UserResponse userResponse = UserResponse.fromEntity(user);
-        ApiResponse<UserResponse> response = new ApiResponse<>(true, "정보가 변경되었습니다.", userResponse);
+        ApiCustomResponse<UserResponse> response = new ApiCustomResponse<>(true, "정보가 변경되었습니다.", userResponse);
 
         return ResponseEntity.ok(response);
     }
 
     @Transactional
-    public ResponseEntity<ApiResponse<String>> updateProfileImage(String token, MultipartFile file) {
+    public ResponseEntity<ApiCustomResponse<String>> updateProfileImage(String token, MultipartFile file) {
 
         Long userId = jwtTokenValidator.getUserId(token);
 
@@ -145,18 +143,18 @@ public class UserService {
         user.updateProfileImage(fileUrl);
         userRepository.save(user);
 
-        ApiResponse<String> response = new ApiResponse<>(true, "프로필 이미지가 변경되었습니다.", fileUrl);
+        ApiCustomResponse<String> response = new ApiCustomResponse<>(true, "프로필 이미지가 변경되었습니다.", fileUrl);
         return ResponseEntity.ok(response);
     }
 
     @Transactional
-    public ResponseEntity<ApiResponse<List<ProjectMineResponse>>> getMyProject(String token) {
+    public ResponseEntity<ApiCustomResponse<List<ProjectMineResponse>>> getMyProject(String token) {
 
         Long userId = jwtTokenValidator.getUserId(token);
 
         if (projectMyCache.containsKey(userId)) {
             List<ProjectMineResponse> cachedProjects = new ArrayList<>(projectMyCache.get(userId));
-            ApiResponse<List<ProjectMineResponse>> response = new ApiResponse<>(true, "내가 참여한 프로젝트 조회 성공 (캐시)", cachedProjects);
+            ApiCustomResponse<List<ProjectMineResponse>> response = new ApiCustomResponse<>(true, "내가 참여한 프로젝트 조회 성공 (캐시)", cachedProjects);
             return ResponseEntity.ok(response);
         }
 
@@ -179,11 +177,11 @@ public class UserService {
 
         projectMyCache.put(userId, myProjects);
 
-        ApiResponse<List<ProjectMineResponse>> response = new ApiResponse<>(true, "내가 참여한 프로젝트 조회 성공", myProjects);
+        ApiCustomResponse<List<ProjectMineResponse>> response = new ApiCustomResponse<>(true, "내가 참여한 프로젝트 조회 성공", myProjects);
         return ResponseEntity.ok(response);
     }
 
-    public ResponseEntity<ApiResponse<List<ProjectMineResponse>>> getUserProject(String token, Long userId) {
+    public ResponseEntity<ApiCustomResponse<List<ProjectMineResponse>>> getUserProject(String token, Long userId) {
 
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
@@ -202,16 +200,16 @@ public class UserService {
                 })
                 .collect(Collectors.toList());
 
-        ApiResponse<List<ProjectMineResponse>> response = new ApiResponse<>(true, "사용자가 참여한 프로젝트 조회 성공", userProjects);
+        ApiCustomResponse<List<ProjectMineResponse>> response = new ApiCustomResponse<>(true, "사용자가 참여한 프로젝트 조회 성공", userProjects);
         return ResponseEntity.ok(response);
     }
 
     @Transactional
-    public ResponseEntity<ApiResponse<List<ProjectApplyResponse>>> getMyProjectApply(String token) {
+    public ResponseEntity<ApiCustomResponse<List<ProjectApplyResponse>>> getMyProjectApply(String token) {
         Long userId = jwtTokenValidator.getUserId(token);
 
         if (projectMyApplyCache.containsKey(userId)) {
-            ApiResponse<List<ProjectApplyResponse>> response = new ApiResponse<>(
+            ApiCustomResponse<List<ProjectApplyResponse>> response = new ApiCustomResponse<>(
                     true, "내 지원 프로젝트 조회 성공", new ArrayList<>(projectMyApplyCache.get(userId)));
             return ResponseEntity.ok(response);
         }
@@ -234,7 +232,7 @@ public class UserService {
 
         projectMyApplyCache.put(userId, myProjects);
 
-        ApiResponse<List<ProjectApplyResponse>> response = new ApiResponse<>(
+        ApiCustomResponse<List<ProjectApplyResponse>> response = new ApiCustomResponse<>(
                 true, "내 지원 프로젝트 조회 성공", myProjects);
 
         return ResponseEntity.ok(response);

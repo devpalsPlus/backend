@@ -7,7 +7,7 @@ import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
-import hs.kr.backend.devpals.global.common.ApiResponse;
+import hs.kr.backend.devpals.global.common.ApiCustomResponse;
 import hs.kr.backend.devpals.global.jwt.JwtTokenProvider;
 import hs.kr.backend.devpals.global.jwt.JwtTokenValidator;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ public class TokenRefreshService {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
 
-    public ResponseEntity<ApiResponse<TokenResponse>> tokenRefreshRequest(HttpServletRequest request) {
+    public ResponseEntity<ApiCustomResponse<TokenResponse>> tokenRefreshRequest(HttpServletRequest request) {
         // 쿠키에서 RefreshToken 가져오기
         String refreshToken = CookieUtil.getCookie(request, "refreshToken")
                 .orElseThrow(() -> new CustomException(ErrorException.TOKEN_EXPIRED));
@@ -61,7 +61,7 @@ public class TokenRefreshService {
 
         TokenResponse tokenData = new TokenResponse(newAccessToken);
 
-        ApiResponse<TokenResponse> response = new ApiResponse<>(true, "토큰 갱신 성공", tokenData);
+        ApiCustomResponse<TokenResponse> response = new ApiCustomResponse<>(true, "토큰 갱신 성공", tokenData);
 
         return ResponseEntity.ok()
                 .header("Set-Cookie", refreshCookie.toString())

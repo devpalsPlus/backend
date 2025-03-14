@@ -2,7 +2,12 @@ package hs.kr.backend.devpals.domain.project.controller;
 
 import hs.kr.backend.devpals.domain.project.dto.*;
 import hs.kr.backend.devpals.domain.project.service.ProjectService;
-import hs.kr.backend.devpals.global.common.ApiResponse;
+import hs.kr.backend.devpals.global.common.ApiCustomResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,39 +24,86 @@ public class ProjectController {
     private final ProjectService projectService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<ProjectAllDto>>> getProjectAll(){
+    @Operation(summary = "프로젝트 조회", description = "프로젝트의 전체 리스트를 조회합니다")
+    @ApiResponse(responseCode = "200", description = "프로젝트 조회 성공")
+    @ApiResponse(
+            responseCode = "400",
+            description = "프로젝트 조회 실패",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ApiCustomResponse.class),
+                    examples = @ExampleObject(value = "{\"success\": false, \"message\": \"프로젝트를 불러오는 중 오류가 발생했습니다.\", \"data\": null}")
+            )
+    )
+    public ResponseEntity<ApiCustomResponse<List<ProjectAllDto>>> getProjectAll() {
         return projectService.getProjectAll();
     }
 
     @GetMapping("/count")
-    public ResponseEntity<ApiResponse<ProjectCountResponse>> getProjectCount(){
+    @Operation(summary = "프로젝트 개수 조회", description = "프로젝트의 개수를 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "프로젝트 개수 조회 성공")
+    @ApiResponse(
+            responseCode = "400",
+            description = "프로젝트 개수 조회 실패",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ApiCustomResponse.class),
+                    examples = @ExampleObject(value = "{\"success\": false, \"message\": \"프로젝트 개수를 조회할 수 없습니다.\", \"data\": null}")
+            )
+    )
+    public ResponseEntity<ApiCustomResponse<ProjectCountResponse>> getProjectCount() {
         return projectService.getProjectCount();
     }
 
     @PutMapping("/{projectId}")
-    public ResponseEntity<ApiResponse<ProjectAllDto>> updateProject(
+    @Operation(summary = "프로젝트 업데이트", description = "프로젝트를 업데이트 합니다.")
+    @ApiResponse(responseCode = "200", description = "프로젝트 업데이트 성공")
+    @ApiResponse(
+            responseCode = "400",
+            description = "프로젝트 업데이트 실패",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ApiCustomResponse.class),
+                    examples = @ExampleObject(value = "{\"success\": false, \"message\": \"작성자만 수정 가능합니다.\", \"data\": null}")
+            )
+    )
+    public ResponseEntity<ApiCustomResponse<ProjectAllDto>> updateProject(
             @PathVariable Long projectId,
-            @RequestHeader("Authorization")  String token,
+            @RequestHeader("Authorization") String token,
             @RequestBody ProjectAllDto request) {
         return projectService.updateProject(projectId, token, request);
     }
 
-
     @PostMapping
-    public ResponseEntity<ApiResponse<Long>> createProject(@RequestBody ProjectAllDto request) {
+    @Operation(summary = "프로젝트 작성", description = "프로젝트를 작성합니다.")
+    @ApiResponse(responseCode = "200", description = "프로젝트 작성 성공")
+    @ApiResponse(
+            responseCode = "400",
+            description = "프로젝트 작성 실패",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ApiCustomResponse.class),
+                    examples = @ExampleObject(value = "{\"success\": false, \"message\": \"프로젝트 등록에 실패했습니다.\", \"data\": null}")
+            )
+    )
+    public ResponseEntity<ApiCustomResponse<Long>> createProject(@RequestBody ProjectAllDto request) {
         return projectService.projectSignup(request);
     }
 
     @GetMapping("/{projectId}")
-    public ResponseEntity<ApiResponse<ProjectMainResponse>> getProjectList(
-            @PathVariable Long projectId){
+    @Operation(summary = "프로젝트 메인 화면", description = "프로젝트 메인화면에 필요한 값들만 던져줍니다. (데이터베이스 최적화)")
+    @ApiResponse(responseCode = "200", description = "프로젝트 메인화면 데이터 제공 성공")
+    @ApiResponse(
+            responseCode = "400",
+            description = "프로젝트 데이터를 불러올 수 없음",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ApiCustomResponse.class),
+                    examples = @ExampleObject(value = "{\"success\": false, \"message\": \"해당 프로젝트를 찾을 수 없습니다.\", \"data\": null}")
+            )
+    )
+    public ResponseEntity<ApiCustomResponse<ProjectMainResponse>> getProjectList(
+            @PathVariable Long projectId) {
         return projectService.getProjectList(projectId);
     }
-
-    /*
-    @GetMapping("/my")
-    public ResponseEntity<ApiResponse<List<ProjectApplyResponse>>> getMyProjectList(@RequestHeader("Authorization")  String token){
-        return projectService.getMyProjectApply(token);
-    }
-    */
 }

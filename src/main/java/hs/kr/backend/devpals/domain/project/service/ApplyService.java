@@ -8,8 +8,7 @@ import hs.kr.backend.devpals.domain.project.repository.ApplicantRepository;
 import hs.kr.backend.devpals.domain.project.repository.ProjectRepository;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
-import hs.kr.backend.devpals.global.common.ApiResponse;
-import hs.kr.backend.devpals.global.common.enums.ApplicantStatus;
+import hs.kr.backend.devpals.global.common.ApiCustomResponse;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
 import hs.kr.backend.devpals.global.jwt.JwtTokenValidator;
@@ -30,7 +29,7 @@ public class ApplyService {
     private final ProjectRepository projectRepository;
     private final ApplicantRepository applicantRepository;
 
-    public ResponseEntity<ApiResponse<String>> projectApply(Long projectId, ProjectApplyRequest request, String token)   {
+    public ResponseEntity<ApiCustomResponse<String>> projectApply(Long projectId, ProjectApplyRequest request, String token)   {
 
         Long userId = jwtTokenValidator.getUserId(token);
 
@@ -48,11 +47,11 @@ public class ApplyService {
         ApplicantEntity applicant = ApplicantEntity.createApplicant(user, project, request);
         applicantRepository.save(applicant);
 
-        ApiResponse<String> response = new ApiResponse<String>(true, "프로젝트 지원 되었습니다." , null);
+        ApiCustomResponse<String> response = new ApiCustomResponse<String>(true, "프로젝트 지원 되었습니다." , null);
         return ResponseEntity.ok(response);
     }
 
-    public ResponseEntity<ApiResponse<List<ProjectApplicantResponse>>> getProjectApplicantList(Long projectId, String token) {
+    public ResponseEntity<ApiCustomResponse<List<ProjectApplicantResponse>>> getProjectApplicantList(Long projectId, String token) {
         Long userId = jwtTokenValidator.getUserId(token);
 
         ProjectEntity project = projectRepository.findById(projectId)
@@ -68,7 +67,7 @@ public class ApplyService {
                 .map(ProjectApplicantResponse::fromEntity)
                 .toList();
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "공고 지원자 목록 가져오기 성공",projectApplicants));
+        return ResponseEntity.ok(new ApiCustomResponse<>(true, "공고 지원자 목록 가져오기 성공",projectApplicants));
 
     }
 }

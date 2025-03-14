@@ -1,15 +1,13 @@
 package hs.kr.backend.devpals.domain.auth.service;
 
-import java.time.LocalDateTime;
 import hs.kr.backend.devpals.domain.auth.dto.SignUpRequest;
-import hs.kr.backend.devpals.domain.auth.entity.EmailVertificationEntity;
 import hs.kr.backend.devpals.domain.auth.repository.AuthenticodeRepository;
 import hs.kr.backend.devpals.domain.user.dto.LoginUserResponse;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
-import hs.kr.backend.devpals.global.common.ApiResponse;
+import hs.kr.backend.devpals.global.common.ApiCustomResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,7 +22,7 @@ public class SignUpService {
     private final AuthenticodeRepository authenticodeRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public ResponseEntity<ApiResponse<LoginUserResponse>> signUp(SignUpRequest request) {
+    public ResponseEntity<ApiCustomResponse<LoginUserResponse>> signUp(SignUpRequest request) {
         String email = request.getEmail();
         String nickname = request.getNickname();
         String password = request.getPassword();
@@ -53,7 +51,7 @@ public class SignUpService {
 
         LoginUserResponse userDto = LoginUserResponse.fromEntity(user);
 
-        ApiResponse<LoginUserResponse> response = new ApiResponse<>(true,"회원가입이 완료되었습니다.", userDto);
+        ApiCustomResponse<LoginUserResponse> response = new ApiCustomResponse<>(true,"회원가입이 완료되었습니다.", userDto);
 
         return ResponseEntity.ok(response);
     }

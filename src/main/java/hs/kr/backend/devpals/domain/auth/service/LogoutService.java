@@ -4,7 +4,7 @@ import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
-import hs.kr.backend.devpals.global.common.ApiResponse;
+import hs.kr.backend.devpals.global.common.ApiCustomResponse;
 import hs.kr.backend.devpals.global.jwt.JwtTokenValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +17,7 @@ public class LogoutService {
     private final JwtTokenValidator jwtTokenValidator;
     private final UserRepository userRepository;
 
-    public ResponseEntity<ApiResponse<String>> logout(String token) {
+    public ResponseEntity<ApiCustomResponse<String>> logout(String token) {
         if (token.startsWith("Bearer ")) {
             token = token.substring(7); // "Bearer " 제거
         }
@@ -32,7 +32,7 @@ public class LogoutService {
             user.updateRefreshToken(null); // RefreshToken 제거
             userRepository.save(user);
 
-            ApiResponse<String> response = new ApiResponse<>(true, "로그아웃 되었습니다", null);
+            ApiCustomResponse<String> response = new ApiCustomResponse<>(true, "로그아웃 되었습니다", null);
 
             return ResponseEntity.ok(response);
         } catch (CustomException e) {

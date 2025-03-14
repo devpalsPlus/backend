@@ -4,7 +4,7 @@ import hs.kr.backend.devpals.domain.user.entity.PositionTagEntity;
 import hs.kr.backend.devpals.domain.user.entity.SkillTagEntity;
 import hs.kr.backend.devpals.domain.user.repository.PositionTagRepository;
 import hs.kr.backend.devpals.domain.user.repository.SkillTagRepository;
-import hs.kr.backend.devpals.global.common.ApiResponse;
+import hs.kr.backend.devpals.global.common.ApiCustomResponse;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -49,15 +49,15 @@ public class UserFacade {
         }
     }
 
-    public ResponseEntity<ApiResponse<List<PositionTagEntity>>> getPositionTag() {
+    public ResponseEntity<ApiCustomResponse<List<PositionTagEntity>>> getPositionTag() {
         List<PositionTagEntity> positionTags = List.copyOf(positionTagCache.values());
-        ApiResponse<List<PositionTagEntity>> response = new ApiResponse<>(true, "포지션 태그 목록 가져오기 성공", positionTags);
+        ApiCustomResponse<List<PositionTagEntity>> response = new ApiCustomResponse<>(true, "포지션 태그 목록 가져오기 성공", positionTags);
         return ResponseEntity.ok(response);
     }
 
-    public ResponseEntity<ApiResponse<List<SkillTagEntity>>> getSkillTags() {
+    public ResponseEntity<ApiCustomResponse<List<SkillTagEntity>>> getSkillTags() {
         List<SkillTagEntity> skillTags = List.copyOf(skillTagCache.values());
-        ApiResponse<List<SkillTagEntity>> response = new ApiResponse<>(true, "스킬 태그 목록 가져오기 성공", skillTags);
+        ApiCustomResponse<List<SkillTagEntity>> response = new ApiCustomResponse<>(true, "스킬 태그 목록 가져오기 성공", skillTags);
         return ResponseEntity.ok(response);
     }
 

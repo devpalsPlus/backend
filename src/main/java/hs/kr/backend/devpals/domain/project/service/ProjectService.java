@@ -1,17 +1,14 @@
 package hs.kr.backend.devpals.domain.project.service;
 
 import hs.kr.backend.devpals.domain.project.dto.*;
-import hs.kr.backend.devpals.domain.project.entity.ApplicantEntity;
 import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
-import hs.kr.backend.devpals.domain.project.repository.ApplicantRepository;
 import hs.kr.backend.devpals.domain.project.repository.ProjectRepository;
 import hs.kr.backend.devpals.domain.user.dto.SkillTagResponse;
 import hs.kr.backend.devpals.domain.user.entity.SkillTagEntity;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.facade.UserFacade;
-import hs.kr.backend.devpals.domain.user.repository.SkillTagRepository;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
-import hs.kr.backend.devpals.global.common.ApiResponse;
+import hs.kr.backend.devpals.global.common.ApiCustomResponse;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
 import hs.kr.backend.devpals.global.jwt.JwtTokenValidator;
@@ -35,7 +32,7 @@ public class ProjectService {
     private final Map<Long, ProjectAllDto> projectAllCache = new HashMap<>();
     private final Map<Long, ProjectMainResponse> projectMainCache = new HashMap<>();
 
-    public ResponseEntity<ApiResponse<List<ProjectAllDto>>> getProjectAll() {
+    public ResponseEntity<ApiCustomResponse<List<ProjectAllDto>>> getProjectAll() {
 
         List<ProjectEntity> projects = projectRepository.findAll();
 
@@ -54,26 +51,26 @@ public class ProjectService {
                 })
                 .collect(Collectors.toList());
 
-        ApiResponse<List<ProjectAllDto>> response = new ApiResponse<>(true, "프로젝트 목록 조회 성공", projectList);
+        ApiCustomResponse<List<ProjectAllDto>> response = new ApiCustomResponse<>(true, "프로젝트 목록 조회 성공", projectList);
         return ResponseEntity.ok(response);
     }
 
 
     // 프로젝트 개수
-    public ResponseEntity<ApiResponse<ProjectCountResponse>> getProjectCount() {
+    public ResponseEntity<ApiCustomResponse<ProjectCountResponse>> getProjectCount() {
         long totalProjectCount = projectRepository.count();
         long ongoingProjectCount = projectRepository.countByIsDoneFalse();
         long endProjectCount = totalProjectCount - ongoingProjectCount;
 
         ProjectCountResponse responseData = new ProjectCountResponse(totalProjectCount, ongoingProjectCount, endProjectCount);
 
-        ApiResponse<ProjectCountResponse> response = new ApiResponse<>(true, "프로젝트 개수 조회 성공", responseData);
+        ApiCustomResponse<ProjectCountResponse> response = new ApiCustomResponse<>(true, "프로젝트 개수 조회 성공", responseData);
         return ResponseEntity.ok(response);
     }
 
     // 프로젝트 업데이트
     @Transactional
-    public ResponseEntity<ApiResponse<ProjectAllDto>> updateProject(Long projectId, String token, ProjectAllDto request) {
+    public ResponseEntity<ApiCustomResponse<ProjectAllDto>> updateProject(Long projectId, String token, ProjectAllDto request) {
         Long userId = jwtTokenValidator.getUserId(token);
 
         ProjectEntity project = projectRepository.findById(projectId)
@@ -94,14 +91,14 @@ public class ProjectService {
         projectAllCache.clear();
         projectMainCache.clear();
 
-        ApiResponse<ProjectAllDto> response = new ApiResponse<>(true, "프로젝트 업데이트 완료", updatedProject);
+        ApiCustomResponse<ProjectAllDto> response = new ApiCustomResponse<>(true, "프로젝트 업데이트 완료", updatedProject);
         return ResponseEntity.ok(response);
     }
 
 
     // 프로젝트 등록
     @Transactional
-    public ResponseEntity<ApiResponse<Long>> projectSignup(ProjectAllDto request) {
+    public ResponseEntity<ApiCustomResponse<Long>> projectSignup(ProjectAllDto request) {
 
         validateSkillsExistence(request.getSkills());
 
@@ -109,20 +106,20 @@ public class ProjectService {
         ProjectEntity project = ProjectEntity.fromRequest(request, request.getPositions(), skillResponses);
         ProjectEntity savedProject = projectRepository.save(project);
 
-        ApiResponse<Long> response = new ApiResponse<>(true, "프로젝트 등록 완료", savedProject.getId());
+        ApiCustomResponse<Long> response = new ApiCustomResponse<>(true, "프로젝트 등록 완료", savedProject.getId());
         return ResponseEntity.ok(response);
     }
 
 
     // 프로젝트 목록 조회
-    public ResponseEntity<ApiResponse<ProjectMainResponse>> getProjectList(Long projectId) {
+    public ResponseEntity<ApiCustomResponse<ProjectMainResponse>> getProjectList(Long projectId) {
         ProjectMainResponse project = projectMainCache.get(projectId);
 
         if (project == null) {
             throw new CustomException(ErrorException.PROJECT_NOT_FOUND);
         }
 
-        ApiResponse<ProjectMainResponse> response = new ApiResponse<>(true, "프로젝트 조회 성공", project);
+        ApiCustomResponse<ProjectMainResponse> response = new ApiCustomResponse<>(true, "프로젝트 조회 성공", project);
         return ResponseEntity.ok(response);
     }
 
