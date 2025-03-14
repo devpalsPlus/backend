@@ -64,6 +64,16 @@ public class ApplyController {
 
     @GetMapping("/{projectId}/applicants/results")
     @Operation(summary = "프로젝트 지원 결과 목록", description = "관리자(본인)가 (지원결과) 목록을 확인합니다.")
+    @ApiResponse(responseCode = "200", description = "프로젝트 지원 결과 목록 조회 성공")
+    @ApiResponse(
+            responseCode = "400",
+            description = "프로젝트 지원 결과 목록 조회 실패",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ApiCustomResponse.class),
+                    examples = @ExampleObject(value = "{\"success\": false, \"message\": \"프로젝트 지원 결과를 조회할 수 없습니다.\", \"data\": null}")
+            )
+    )
     public ResponseEntity<ApiCustomResponse<ProjectApplicantResultResponse>> getProjectApplicantsResults(
             @PathVariable Long projectId,
             @RequestHeader("Authorization") String token){
