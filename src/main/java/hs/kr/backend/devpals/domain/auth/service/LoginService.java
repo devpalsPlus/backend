@@ -56,15 +56,8 @@ public class LoginService {
         LoginUserResponse userDto = LoginUserResponse.fromEntity(user);
         TokenResponse tokenData = new TokenResponse(accessToken);
 
-        LoginCustomResponse<TokenResponse> finalResponse = new LoginCustomResponse<>(
-                true,
-                "로그인 되었습니다.",
-                tokenData,
-                userDto
-        );
-
         return ResponseEntity.ok()
                 .header("Set-Cookie", refreshCookie.toString())
-                .body(finalResponse);
+                .body(new LoginCustomResponse<>(true, "로그인 되었습니다.", tokenData, userDto));
     }
 }

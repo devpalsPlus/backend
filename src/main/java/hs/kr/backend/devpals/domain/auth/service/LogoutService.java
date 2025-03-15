@@ -32,9 +32,7 @@ public class LogoutService {
             user.updateRefreshToken(null); // RefreshToken 제거
             userRepository.save(user);
 
-            ApiCustomResponse<String> response = new ApiCustomResponse<>(true, "로그아웃 되었습니다", null);
-
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(new ApiCustomResponse<>(true, "로그아웃 되었습니다", null));
         } catch (CustomException e) {
             throw e;
         } catch (Exception e) {

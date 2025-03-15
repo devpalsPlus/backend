@@ -1,6 +1,7 @@
 package hs.kr.backend.devpals.domain.project.dto;
 
 import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
+import hs.kr.backend.devpals.domain.user.dto.PositionTagResponse;
 import hs.kr.backend.devpals.domain.user.dto.SkillTagResponse;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import lombok.AllArgsConstructor;
@@ -16,18 +17,19 @@ public class ProjectMainResponse {
     private boolean isDone;
     private LocalDate recruitmentEndDate;
     private List<SkillTagResponse> skills;
-    private List<String> positions;
+    private List<PositionTagResponse> positions;
     private String authorNickname;
     private int views;
 
-    public static ProjectMainResponse fromEntity(ProjectEntity project, UserEntity user, List<SkillTagResponse> skills) {
+    public static ProjectMainResponse fromEntity(ProjectEntity project, UserEntity user, List<SkillTagResponse> skills,
+                                                 List<PositionTagResponse> positions) {
         return new ProjectMainResponse(
                 project.getId(),
                 project.getTitle(),
                 project.isDone(),
                 project.getRecruitmentEndDate(),
                 skills,
-                project.getPositionTagsAsList(),
+                positions,
                 user.getNickname(),
                 project.getViews()
         );

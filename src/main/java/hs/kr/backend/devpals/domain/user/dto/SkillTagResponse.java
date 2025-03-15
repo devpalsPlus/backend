@@ -10,11 +10,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SkillTagResponse {
 
+    private Long id;
     private String skillName;
     private String skillImg;
 
-    // SkillTagEntity → SkillTagDTO 변환하는 정적 메서드
     public static SkillTagResponse fromEntity(SkillTagEntity skill) {
-        return new SkillTagResponse(skill.getName(), skill.getImg());
+        return new SkillTagResponse(skill.getId(), skill.getName(), skill.getImg());
     }
+
 }

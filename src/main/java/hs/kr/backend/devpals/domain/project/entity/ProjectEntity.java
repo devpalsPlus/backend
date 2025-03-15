@@ -3,11 +3,13 @@ package hs.kr.backend.devpals.domain.project.entity;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hs.kr.backend.devpals.domain.project.dto.ProjectAllDto;
+import hs.kr.backend.devpals.domain.user.dto.PositionTagResponse;
 import hs.kr.backend.devpals.domain.user.dto.SkillTagResponse;
 import hs.kr.backend.devpals.global.common.enums.MethodType;
 import jakarta.persistence.*;
 import lombok.*;
 
+import javax.swing.text.Position;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -79,7 +81,7 @@ public class ProjectEntity {
     /**
      * 📌 프로젝트 빌더 메소드 (Skill을 `List<SkillTagResponse>` 형태로 받음)
      */
-    public static ProjectEntity fromRequest(ProjectAllDto request, List<String> positionNames, List<SkillTagResponse> skillResponses) {
+    public static ProjectEntity fromRequest(ProjectAllDto request, List<PositionTagResponse> positionResponses, List<SkillTagResponse> skillResponses) {
         return ProjectEntity.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
@@ -94,7 +96,7 @@ public class ProjectEntity {
                 .recruitmentEndDate(request.getRecruitmentEndDate())
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
-                .positionTags(convertListToJson(positionNames))
+                .positionTags(convertPositionListToJson(positionResponses))
                 .skillTags(convertSkillListToJson(skillResponses))
                 .build();
     }
@@ -102,7 +104,7 @@ public class ProjectEntity {
     /**
      * 📌 프로젝트 업데이트 메소드 (Skill을 `List<SkillTagResponse>`로 저장)
      */
-    public void updateProject(ProjectAllDto request, List<String> positionNames, List<SkillTagResponse> skillResponses) {
+    public void updateProject(ProjectAllDto request, List<PositionTagResponse> positionNames, List<SkillTagResponse> skillResponses) {
         this.title = request.getTitle();
         this.description = request.getDescription();
         this.totalMember = request.getTotalMember();
@@ -113,52 +115,19 @@ public class ProjectEntity {
         this.isDone = request.getIsDone();
         this.recruitmentStartDate = request.getRecruitmentStartDate();
         this.recruitmentEndDate = request.getRecruitmentEndDate();
-        this.positionTags = convertListToJson(positionNames);
+        this.positionTags = convertPositionListToJson(positionNames);
         this.skillTags = convertSkillListToJson(skillResponses);
     }
 
-    /**
-     * 📌 Getter: JSON → List<String> 변환
-     */
-    public List<String> getPositionTagsAsList() {
-        return convertJsonToList(this.positionTags);
+    public List<PositionTagResponse> getPositionTagsAsList() {
+        return convertJsonToPositionList(this.positionTags);
     }
 
-    /**
-     * 📌 Getter: JSON → List<SkillTagResponse> 변환
-     */
     public List<SkillTagResponse> getSkillTagsAsList() {
         return convertJsonToSkillList(this.skillTags);
     }
 
-    /**
-     * 📌 Setter: List<String> → JSON 문자열 변환 후 저장
-     */
-    public void setPositionTags(List<String> positionTags) {
-        this.positionTags = convertListToJson(positionTags);
-    }
 
-    /**
-     * 📌 Setter: List<SkillTagResponse> → JSON 변환 후 저장
-     */
-    public void setSkillTags(List<SkillTagResponse> skillTags) {
-        this.skillTags = convertSkillListToJson(skillTags);
-    }
-
-    /**
-     * 📌 JSON 변환 메서드 (List<String> → JSON)
-     */
-    private static String convertListToJson(List<String> list) {
-        try {
-            return objectMapper.writeValueAsString(list);
-        } catch (IOException e) {
-            throw new RuntimeException("JSON 변환 오류", e);
-        }
-    }
-
-    /**
-     * 📌 JSON 변환 메서드 (List<SkillTagResponse> → JSON)
-     */
     private static String convertSkillListToJson(List<SkillTagResponse> skills) {
         try {
             return objectMapper.writeValueAsString(skills);
@@ -167,20 +136,18 @@ public class ProjectEntity {
         }
     }
 
-    /**
-     * 📌 JSON 변환 메서드 (JSON → List<String>)
-     */
-    private static List<String> convertJsonToList(String json) {
+    private static String convertPositionListToJson(List<PositionTagResponse> positions) {
         try {
-            return objectMapper.readValue(json, new TypeReference<List<String>>() {});
+            return objectMapper.writeValueAsString(
+                    positions.stream()
+                            .map(position -> new PositionTagResponse(position.getId(), position.getName()))
+                            .collect(Collectors.toList())
+            );
         } catch (IOException e) {
-            throw new RuntimeException("JSON 변환 오류", e);
+            throw new RuntimeException("PositionTagResponse JSON 변환 오류", e);
         }
     }
 
-    /**
-     * 📌 JSON 변환 메서드 (JSON → List<SkillTagResponse>)
-     */
     private static List<SkillTagResponse> convertJsonToSkillList(String json) {
         try {
             return objectMapper.readValue(json, new TypeReference<List<SkillTagResponse>>() {
@@ -191,10 +158,25 @@ public class ProjectEntity {
                 List<String> skillNames = objectMapper.readValue(json, new TypeReference<List<String>>() {
                 });
                 return skillNames.stream()
-                        .map(skillName -> new SkillTagResponse(skillName, "default-img.png")) //  기본 이미지 URL 설정
+                        .map(skillName -> new SkillTagResponse(null, skillName, "default-img.png")) //  기본 이미지 URL 설정
                         .collect(Collectors.toList());
             } catch (IOException ex) {
                 throw new RuntimeException("SkillTagResponse JSON 역직렬화 오류: " + json, ex);
+            }
+        }
+    }
+
+    private static List<PositionTagResponse> convertJsonToPositionList(String json) {
+        try {
+            return objectMapper.readValue(json, new TypeReference<List<PositionTagResponse>>() {});
+        } catch (IOException e) {
+            try {
+                List<String> positionNames = objectMapper.readValue(json, new TypeReference<List<String>>() {});
+                return positionNames.stream()
+                        .map(name -> new PositionTagResponse(null, name)) // ID 없이 이름만 변환
+                        .collect(Collectors.toList());
+            } catch (IOException ex) {
+                throw new RuntimeException("PositionTagResponse JSON 역직렬화 오류: " + json, ex);
             }
         }
     }

@@ -51,8 +51,6 @@ public class SignUpService {
 
         LoginUserResponse userDto = LoginUserResponse.fromEntity(user);
 
-        ApiCustomResponse<LoginUserResponse> response = new ApiCustomResponse<>(true,"회원가입이 완료되었습니다.", userDto);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(new ApiCustomResponse<>(true,"회원가입이 완료되었습니다.", userDto));
     }
 }

@@ -49,9 +49,8 @@ public class UserService {
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
         UserResponse userResponse = UserResponse.fromEntity(user);
-        ApiCustomResponse<UserResponse> response = new ApiCustomResponse<>(true, "사용자의 정보입니다.", userResponse);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(new ApiCustomResponse<>(true, "사용자의 정보입니다.", userResponse));
     }
 
     //상대방 정보 가져오기
@@ -67,9 +66,8 @@ public class UserService {
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
         UserResponse userResponse = UserResponse.fromEntity(user);
-        ApiCustomResponse<UserResponse> response = new ApiCustomResponse<>(true, "사용자 정보를 조회했습니다.", userResponse);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(new ApiCustomResponse<>(true, "사용자 정보를 조회했습니다.", userResponse));
     }
 
     //유저 정보 업데이트
@@ -107,9 +105,8 @@ public class UserService {
         userRepository.save(user); // 변경 감지 적용
 
         UserResponse userResponse = UserResponse.fromEntity(user);
-        ApiCustomResponse<UserResponse> response = new ApiCustomResponse<>(true, "정보가 변경되었습니다.", userResponse);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(new ApiCustomResponse<>(true, "정보가 변경되었습니다.", userResponse));
     }
 
     @Transactional
@@ -143,8 +140,7 @@ public class UserService {
         user.updateProfileImage(fileUrl);
         userRepository.save(user);
 
-        ApiCustomResponse<String> response = new ApiCustomResponse<>(true, "프로필 이미지가 변경되었습니다.", fileUrl);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(new ApiCustomResponse<>(true, "프로필 이미지가 변경되었습니다.", fileUrl));
     }
 
     @Transactional
@@ -154,8 +150,7 @@ public class UserService {
 
         if (projectMyCache.containsKey(userId)) {
             List<ProjectMineResponse> cachedProjects = new ArrayList<>(projectMyCache.get(userId));
-            ApiCustomResponse<List<ProjectMineResponse>> response = new ApiCustomResponse<>(true, "내가 참여한 프로젝트 조회 성공 (캐시)", cachedProjects);
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(new ApiCustomResponse<>(true, "내가 참여한 프로젝트 조회 성공 (캐시)", cachedProjects));
         }
 
         UserEntity user = userRepository.findById(userId)
@@ -177,8 +172,7 @@ public class UserService {
 
         projectMyCache.put(userId, myProjects);
 
-        ApiCustomResponse<List<ProjectMineResponse>> response = new ApiCustomResponse<>(true, "내가 참여한 프로젝트 조회 성공", myProjects);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(new ApiCustomResponse<>(true, "내가 참여한 프로젝트 조회 성공", myProjects));
     }
 
     public ResponseEntity<ApiCustomResponse<List<ProjectMineResponse>>> getUserProject(String token, Long userId) {
@@ -200,8 +194,7 @@ public class UserService {
                 })
                 .collect(Collectors.toList());
 
-        ApiCustomResponse<List<ProjectMineResponse>> response = new ApiCustomResponse<>(true, "사용자가 참여한 프로젝트 조회 성공", userProjects);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(new ApiCustomResponse<>(true, "사용자가 참여한 프로젝트 조회 성공", userProjects));
     }
 
     @Transactional
@@ -209,9 +202,8 @@ public class UserService {
         Long userId = jwtTokenValidator.getUserId(token);
 
         if (projectMyApplyCache.containsKey(userId)) {
-            ApiCustomResponse<List<ProjectApplyResponse>> response = new ApiCustomResponse<>(
-                    true, "내 지원 프로젝트 조회 성공", new ArrayList<>(projectMyApplyCache.get(userId)));
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(new ApiCustomResponse<>(
+                    true, "내 지원 프로젝트 조회 성공", new ArrayList<>(projectMyApplyCache.get(userId))));
         }
 
         UserEntity user = userRepository.findById(userId)
@@ -232,10 +224,7 @@ public class UserService {
 
         projectMyApplyCache.put(userId, myProjects);
 
-        ApiCustomResponse<List<ProjectApplyResponse>> response = new ApiCustomResponse<>(
-                true, "내 지원 프로젝트 조회 성공", myProjects);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(new ApiCustomResponse<>(true, "내 지원 프로젝트 조회 성공", myProjects));
     }
 
     // 파일 타입 검증
@@ -248,19 +237,21 @@ public class UserService {
 
 
     // 스킬 태그 변환 (스킬 목록을 `List<SkillTagResponse>`로 변환)
-    private List<SkillTagResponse> getSkillTagResponses(List<SkillTagResponse> skills) {
+    public List<SkillTagResponse> getSkillTagResponses(List<SkillTagResponse> skills) {
         if (skills == null || skills.isEmpty()) {
-            return Collections.emptyList();
+            throw new CustomException(ErrorException.SKILL_NOT_FOUND);
         }
 
-        List<String> skillNames = skills.stream()
-                .map(SkillTagResponse::getSkillName)
+        List<Long> skillIds = skills.stream()
+                .map(SkillTagResponse::getId)
+                .filter(Objects::nonNull)
+                .distinct()
                 .collect(Collectors.toList());
 
-        List<SkillTagEntity> skillEntities = userFacade.getSkillTagsByNames(skillNames);
+        List<SkillTagEntity> skillEntities = userFacade.getSkillTagsByIds(skillIds);
 
         return skillEntities.stream()
-                .map(skill -> new SkillTagResponse(skill.getName(), skill.getImg()))
+                .map(skill -> new SkillTagResponse(skill.getId(), skill.getName(), skill.getImg()))
                 .collect(Collectors.toList());
     }
 }

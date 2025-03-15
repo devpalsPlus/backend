@@ -52,9 +52,8 @@ public class EmailService {
             throw new CustomException(ErrorException.EMAIL_SEND_FAILED);
         }
 
-        ApiCustomResponse<String> apiCustomResponse = new ApiCustomResponse<>(true, "인증 코드가 이메일로 전송되었습니다.", null);
 
-        return ResponseEntity.ok(apiCustomResponse);
+        return ResponseEntity.ok(new ApiCustomResponse<>(true, "인증 코드가 이메일로 전송되었습니다.", null));
     }
 
     public ResponseEntity<ApiCustomResponse<String>> sendEmailVerification(EmailVertificationRequest request){
@@ -78,9 +77,7 @@ public class EmailService {
         authCode.useCode();
         authenticodeRepository.save(authCode);
 
-        ApiCustomResponse<String> apiCustomResponse = new ApiCustomResponse<>(true, "이메일 인증 성공", null);
-
-        return ResponseEntity.ok(apiCustomResponse);
+        return ResponseEntity.ok(new ApiCustomResponse<>(true, "이메일 인증 성공", null));
     }
 
     @Transactional
@@ -115,9 +112,7 @@ public class EmailService {
         authCode.useCode();
         authenticodeRepository.save(authCode);
 
-        ApiCustomResponse<String> apiCustomResponse = new ApiCustomResponse<>(true, "비밀번호가 성공적으로 변경되었습니다.", null);
-
-        return ResponseEntity.ok(apiCustomResponse);
+        return ResponseEntity.ok(new ApiCustomResponse<>(true, "비밀번호가 성공적으로 변경되었습니다.", null));
     }
 
 

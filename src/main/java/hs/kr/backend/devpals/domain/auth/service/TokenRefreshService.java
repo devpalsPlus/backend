@@ -61,10 +61,8 @@ public class TokenRefreshService {
 
         TokenResponse tokenData = new TokenResponse(newAccessToken);
 
-        ApiCustomResponse<TokenResponse> response = new ApiCustomResponse<>(true, "토큰 갱신 성공", tokenData);
-
         return ResponseEntity.ok()
                 .header("Set-Cookie", refreshCookie.toString())
-                .body(response);
+                .body(new ApiCustomResponse<>(true, "토큰 갱신 성공", tokenData));
     }
 }

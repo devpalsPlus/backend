@@ -3,7 +3,9 @@ package hs.kr.backend.devpals.domain.project.service;
 import hs.kr.backend.devpals.domain.project.dto.*;
 import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
 import hs.kr.backend.devpals.domain.project.repository.ProjectRepository;
+import hs.kr.backend.devpals.domain.user.dto.PositionTagResponse;
 import hs.kr.backend.devpals.domain.user.dto.SkillTagResponse;
+import hs.kr.backend.devpals.domain.user.entity.PositionTagEntity;
 import hs.kr.backend.devpals.domain.user.entity.SkillTagEntity;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.facade.UserFacade;
@@ -33,7 +35,6 @@ public class ProjectService {
     private final Map<Long, ProjectMainResponse> projectMainCache = new HashMap<>();
 
     public ResponseEntity<ApiCustomResponse<List<ProjectAllDto>>> getProjectAll() {
-
         List<ProjectEntity> projects = projectRepository.findAll();
 
         List<ProjectAllDto> projectList = projects.stream()
@@ -42,19 +43,19 @@ public class ProjectService {
                             .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
                     List<SkillTagResponse> skillResponses = getSkillTagResponses(project.getSkillTagsAsList());
-                    ProjectAllDto allDto = ProjectAllDto.fromEntity(project, user.getNickname(), user.getProfileImg(), skillResponses);
-                    projectAllCache.put(project.getId(), allDto);
-                    ProjectMainResponse mainResponse = ProjectMainResponse.fromEntity(project, user, skillResponses);
-                    projectMainCache.put(project.getId(), mainResponse);
+                    List<PositionTagResponse> positionResponses = getPositionTagResponses(project.getPositionTagsAsList());
 
-                    return allDto;
+                    ProjectMainResponse projectResponse = ProjectMainResponse.fromEntity(project, user, skillResponses, positionResponses);
+                    projectMainCache.put(project.getId(), projectResponse);
+                    ProjectAllDto projectDto = ProjectAllDto.fromEntity(project, user.getNickname(), user.getProfileImg(), skillResponses, positionResponses);
+                    projectAllCache.put(project.getId(), projectDto);
+
+                    return projectDto;
                 })
                 .collect(Collectors.toList());
 
-        ApiCustomResponse<List<ProjectAllDto>> response = new ApiCustomResponse<>(true, "프로젝트 목록 조회 성공", projectList);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(new ApiCustomResponse<>(true, "프로젝트 목록 조회 성공", projectList));
     }
-
 
     // 프로젝트 개수
     public ResponseEntity<ApiCustomResponse<ProjectCountResponse>> getProjectCount() {
@@ -64,8 +65,7 @@ public class ProjectService {
 
         ProjectCountResponse responseData = new ProjectCountResponse(totalProjectCount, ongoingProjectCount, endProjectCount);
 
-        ApiCustomResponse<ProjectCountResponse> response = new ApiCustomResponse<>(true, "프로젝트 개수 조회 성공", responseData);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(new ApiCustomResponse<>(true, "프로젝트 개수 조회 성공", responseData));
     }
 
     // 프로젝트 업데이트
@@ -80,34 +80,34 @@ public class ProjectService {
             throw new CustomException(ErrorException.FAIL_PROJECT_UPDATE);
         }
 
-        validateSkillsExistence(request.getSkills()); // 스킬 검증
+        getSkillTagResponses(request.getSkills());
         List<SkillTagResponse> skillResponses = getSkillTagResponses(request.getSkills());
+        List<PositionTagResponse> positionResponses = getPositionTagResponses(project.getPositionTagsAsList());
 
         project.updateProject(request, request.getPositions(), skillResponses);
         projectRepository.save(project);
 
-        ProjectAllDto updatedProject = ProjectAllDto.fromEntity(project, request.getAuthorNickname(), request.getAuthorImage(), skillResponses);
+        ProjectAllDto updatedProject = ProjectAllDto.fromEntity(project, request.getAuthorNickname(),
+                                                                request.getAuthorImage(), skillResponses, positionResponses);
 
-        projectAllCache.clear();
         projectMainCache.clear();
 
-        ApiCustomResponse<ProjectAllDto> response = new ApiCustomResponse<>(true, "프로젝트 업데이트 완료", updatedProject);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(new ApiCustomResponse<>(true, "프로젝트 업데이트 완료", updatedProject));
     }
 
 
     // 프로젝트 등록
     @Transactional
     public ResponseEntity<ApiCustomResponse<Long>> projectSignup(ProjectAllDto request) {
-
-        validateSkillsExistence(request.getSkills());
-
         List<SkillTagResponse> skillResponses = getSkillTagResponses(request.getSkills());
-        ProjectEntity project = ProjectEntity.fromRequest(request, request.getPositions(), skillResponses);
+        List<PositionTagResponse> positionResponses = getPositionTagResponses(request.getPositions());
+
+        ProjectEntity project = ProjectEntity.fromRequest(request, positionResponses, skillResponses);
         ProjectEntity savedProject = projectRepository.save(project);
 
-        ApiCustomResponse<Long> response = new ApiCustomResponse<>(true, "프로젝트 등록 완료", savedProject.getId());
-        return ResponseEntity.ok(response);
+        projectMainCache.clear();
+
+        return ResponseEntity.ok(new ApiCustomResponse<>(true, "프로젝트 등록 완료", savedProject.getId()));
     }
 
 
@@ -119,38 +119,43 @@ public class ProjectService {
             throw new CustomException(ErrorException.PROJECT_NOT_FOUND);
         }
 
-        ApiCustomResponse<ProjectMainResponse> response = new ApiCustomResponse<>(true, "프로젝트 조회 성공", project);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(new ApiCustomResponse<>(true, "프로젝트 조회 성공", project));
     }
 
 
+    public List<SkillTagResponse> getSkillTagResponses(List<SkillTagResponse> skills) {
+        if (skills == null || skills.isEmpty()) {
+            throw new CustomException(ErrorException.SKILL_NOT_FOUND);
+        }
 
-    private void validateSkillsExistence(List<SkillTagResponse> skills) {
-        List<String> skillNames = skills.stream()
-                .map(SkillTagResponse::getSkillName)
+        List<Long> skillIds = skills.stream()
+                .map(SkillTagResponse::getId)
+                .filter(Objects::nonNull)
                 .distinct()
                 .collect(Collectors.toList());
 
-        List<SkillTagEntity> skillEntities = userFacade.getSkillTagsByNames(skillNames);
-
-        if (skillEntities.size() != skillNames.size()) {
-            throw new CustomException(ErrorException.SKILL_NOT_FOUND);
-        }
-    }
-
-    private List<SkillTagResponse> getSkillTagResponses(List<SkillTagResponse> skills) {
-        if (skills == null || skills.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        List<String> skillNames = skills.stream()
-                .map(SkillTagResponse::getSkillName)
-                .collect(Collectors.toList());
-
-        List<SkillTagEntity> skillEntities = userFacade.getSkillTagsByNames(skillNames);
+        List<SkillTagEntity> skillEntities = userFacade.getSkillTagsByIds(skillIds);
 
         return skillEntities.stream()
-                .map(skill -> new SkillTagResponse(skill.getName(), skill.getImg()))
+                .map(skill -> new SkillTagResponse(skill.getId(), skill.getName(), skill.getImg()))
+                .collect(Collectors.toList());
+    }
+
+    public List<PositionTagResponse> getPositionTagResponses(List<PositionTagResponse> positions) {
+        if (positions == null || positions.isEmpty()) {
+            throw new CustomException(ErrorException.POSITION_NOT_FOUND);
+        }
+
+        List<Long> positionIds = positions.stream()
+                .map(PositionTagResponse::getId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
+
+        List<PositionTagEntity> positionEntities = userFacade.getPositionTagByIds(positionIds);
+
+        return positionEntities.stream()
+                .map(position -> new PositionTagResponse(position.getId(), position.getName()))
                 .collect(Collectors.toList());
     }
 

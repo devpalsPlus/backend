@@ -1,10 +1,15 @@
 package hs.kr.backend.devpals.domain.user.entity;
 
+import hs.kr.backend.devpals.domain.user.dto.SkillTagResponse;
+import hs.kr.backend.devpals.global.exception.CustomException;
+import hs.kr.backend.devpals.global.exception.ErrorException;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -29,4 +34,5 @@ public class SkillTagEntity {
         this.name = name;
         this.img = img;
     }
+
 }

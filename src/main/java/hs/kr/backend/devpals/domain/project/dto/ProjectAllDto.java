@@ -1,6 +1,7 @@
 package hs.kr.backend.devpals.domain.project.dto;
 
 import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
+import hs.kr.backend.devpals.domain.user.dto.PositionTagResponse;
 import hs.kr.backend.devpals.domain.user.dto.SkillTagResponse;
 import hs.kr.backend.devpals.global.common.enums.MethodType;
 import lombok.AllArgsConstructor;
@@ -27,10 +28,11 @@ public class ProjectAllDto {
     private Long authorId;
     private String authorNickname;
     private String authorImage;
-    private List<String> positions;
+    private List<PositionTagResponse> positions;
     private List<SkillTagResponse> skills;
 
-    public static ProjectAllDto fromEntity(ProjectEntity project, String authorNickname, String authorImage, List<SkillTagResponse> skillImgMap) {
+    public static ProjectAllDto fromEntity(ProjectEntity project, String authorNickname, String authorImage,
+                                           List<SkillTagResponse> skillResponses, List<PositionTagResponse> positionResponses) {
         return new ProjectAllDto(
                 project.getId(),
                 project.getTitle(),
@@ -46,8 +48,8 @@ public class ProjectAllDto {
                 project.getAuthorId(),
                 authorNickname,
                 authorImage,
-                project.getPositionTagsAsList(),
-                skillImgMap
+                positionResponses,
+                skillResponses
         );
     }
 }

@@ -5,6 +5,8 @@ import hs.kr.backend.devpals.domain.user.entity.SkillTagEntity;
 import hs.kr.backend.devpals.domain.user.repository.PositionTagRepository;
 import hs.kr.backend.devpals.domain.user.repository.SkillTagRepository;
 import hs.kr.backend.devpals.global.common.ApiCustomResponse;
+import hs.kr.backend.devpals.global.exception.CustomException;
+import hs.kr.backend.devpals.global.exception.ErrorException;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +27,6 @@ public class UserFacade {
 
     private final Map<Long, PositionTagEntity> positionTagCache = new ConcurrentHashMap<>();
     private final Map<Long, SkillTagEntity> skillTagCache = new ConcurrentHashMap<>();
-    private final Map<String, SkillTagEntity> skillTagByNameCache = new ConcurrentHashMap<>();
 
     @PostConstruct
     public void initCache() {
@@ -42,10 +43,8 @@ public class UserFacade {
     public void refreshSkillTags() {
         List<SkillTagEntity> skillTags = skillTagRepository.findAll();
         skillTagCache.clear();
-        skillTagByNameCache.clear();
         for (SkillTagEntity tag : skillTags) {
             skillTagCache.put(tag.getId(), tag);
-            skillTagByNameCache.put(tag.getName(), tag);
         }
     }
 
@@ -61,15 +60,34 @@ public class UserFacade {
         return ResponseEntity.ok(response);
     }
 
+    public List<PositionTagEntity> getPositionTagByIds(List<Long> ids) {
+        List<PositionTagEntity> foundPositions = ids.stream()
+                .map(positionTagCache::get)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        if (foundPositions.size() != ids.size()) {
+            throw new CustomException(ErrorException.POSITION_NOT_FOUND);
+        }
+
+        return foundPositions;
+    }
+
+    public List<SkillTagEntity> getSkillTagsByIds(List<Long> ids) {
+        List<SkillTagEntity> foundSkills = ids.stream()
+                .map(skillTagCache::get)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        if (foundSkills.size() != ids.size()) {
+            throw new CustomException(ErrorException.SKILL_NOT_FOUND);
+        }
+
+        return foundSkills;
+    }
+
     public PositionTagEntity getPositionTagById(Long id) {
         return positionTagCache.get(id);
     }
 
-    public List<SkillTagEntity> getSkillTagsByIds(List<Long> ids) {
-        return ids.stream().map(skillTagCache::get).filter(Objects::nonNull).collect(Collectors.toList());
-    }
-
-    public List<SkillTagEntity> getSkillTagsByNames(List<String> names) {
-        return names.stream().map(skillTagByNameCache::get).filter(Objects::nonNull).collect(Collectors.toList());
-    }
 }

@@ -49,8 +49,7 @@ public class ApplyService {
         ApplicantEntity applicant = ApplicantEntity.createApplicant(user, project, request);
         applicantRepository.save(applicant);
 
-        ApiCustomResponse<String> response = new ApiCustomResponse<String>(true, "프로젝트 지원 되었습니다." , null);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(new ApiCustomResponse<String>(true, "프로젝트 지원 되었습니다." , null));
     }
 
     public ResponseEntity<ApiCustomResponse<List<ProjectApplicantResponse>>> getProjectApplicantList(Long projectId, String token) {
