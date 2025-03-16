@@ -22,7 +22,7 @@ public class ProjectScheduleService {
     private final ProjectService projectService;
 
 
-    @Scheduled(cron = "0 44 18 * * *") // 매일 오후 6시 30분 실행
+    @Scheduled(cron = "0 0 0 * * *") // 매일 자정에 실행
     public void closeExpiredProjects() {
         log.info("스케줄러 시작: {}", LocalDateTime.now());
 
