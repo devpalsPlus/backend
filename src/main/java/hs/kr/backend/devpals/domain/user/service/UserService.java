@@ -150,7 +150,7 @@ public class UserService {
 
         if (projectMyCache.containsKey(userId)) {
             List<ProjectMineResponse> cachedProjects = new ArrayList<>(projectMyCache.get(userId));
-            return ResponseEntity.ok(new ApiCustomResponse<>(true, "내가 참여한 프로젝트 조회 성공 (캐시)", cachedProjects));
+            return ResponseEntity.ok(new ApiCustomResponse<>(true, "내가 참여한 프로젝트 조회 성공", cachedProjects));
         }
 
         UserEntity user = userRepository.findById(userId)

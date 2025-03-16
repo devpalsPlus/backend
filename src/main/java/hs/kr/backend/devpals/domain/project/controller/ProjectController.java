@@ -3,6 +3,7 @@ package hs.kr.backend.devpals.domain.project.controller;
 import hs.kr.backend.devpals.domain.project.dto.*;
 import hs.kr.backend.devpals.domain.project.service.ProjectService;
 import hs.kr.backend.devpals.global.common.ApiCustomResponse;
+import hs.kr.backend.devpals.global.common.enums.MethodType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -35,8 +36,15 @@ public class ProjectController {
                     examples = @ExampleObject(value = "{\"success\": false, \"message\": \"프로젝트를 불러오는 중 오류가 발생했습니다.\", \"data\": null}")
             )
     )
-    public ResponseEntity<ApiCustomResponse<List<ProjectAllDto>>> getProjectAll() {
-        return projectService.getProjectAll();
+    public ResponseEntity<ApiCustomResponse<List<ProjectAllDto>>> getProjectAll(
+            @RequestParam(required = false) List<Long> skillTag,
+            @RequestParam(required = false) Long positionTag,
+            @RequestParam(required = false) MethodType methodType,
+            @RequestParam(required = false) Boolean isBeginner,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "12") int size) {
+        return projectService.getProjectAll(skillTag, positionTag, methodType, isBeginner, keyword, page, size);
     }
 
     @GetMapping("/count")
@@ -104,13 +112,15 @@ public class ProjectController {
                     examples = @ExampleObject(value = "{\"success\": false, \"message\": \"프로젝트 등록에 실패했습니다.\", \"data\": null}")
             )
     )
-    public ResponseEntity<ApiCustomResponse<Long>> createProject(@RequestBody ProjectAllDto request) {
-        return projectService.projectSignup(request);
+    public ResponseEntity<ApiCustomResponse<Long>> createProject(
+            @RequestBody ProjectAllDto request,
+            @RequestHeader("Authorization") String token) {
+        return projectService.projectSignup(request, token);
     }
 
     @GetMapping("/{projectId}")
-    @Operation(summary = "프로젝트 메인 화면", description = "프로젝트 메인화면에 필요한 값들만 던져줍니다. (데이터베이스 최적화)")
-    @ApiResponse(responseCode = "200", description = "프로젝트 메인화면 데이터 제공 성공")
+    @Operation(summary = "프로젝트 상세 내용", description = "해당 프로젝트의 상세 내용을 보여줍니다.")
+    @ApiResponse(responseCode = "200", description = "프로젝트 상세 내용 데이터 제공 성공")
     @ApiResponse(
             responseCode = "400",
             description = "프로젝트 데이터를 불러올 수 없음",
@@ -120,7 +130,7 @@ public class ProjectController {
                     examples = @ExampleObject(value = "{\"success\": false, \"message\": \"해당 프로젝트를 찾을 수 없습니다.\", \"data\": null}")
             )
     )
-    public ResponseEntity<ApiCustomResponse<ProjectMainResponse>> getProjectList(
+    public ResponseEntity<ApiCustomResponse<ProjectAllDto>> getProjectList(
             @PathVariable Long projectId) {
         return projectService.getProjectList(projectId);
     }

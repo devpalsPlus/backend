@@ -1,6 +1,7 @@
 package hs.kr.backend.devpals.global.common.enums;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
 import lombok.Getter;
@@ -25,5 +26,10 @@ public enum MethodType {
             }
         }
         throw new CustomException(ErrorException.INVALID_METHOD_TYPE);
+    }
+
+    @JsonValue
+    public String toValue() {
+        return value;
     }
 }
