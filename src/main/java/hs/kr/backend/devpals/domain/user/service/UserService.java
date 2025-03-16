@@ -14,6 +14,7 @@ import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.facade.UserFacade;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.common.ApiCustomResponse;
+import hs.kr.backend.devpals.global.common.enums.ApplicantStatus;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
 import hs.kr.backend.devpals.global.jwt.JwtTokenValidator;
@@ -156,7 +157,10 @@ public class UserService {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
-        List<ApplicantEntity> applications = applicantRepository.findByUser(user);
+        List<ApplicantEntity> applications = applicantRepository.findByUser(user)
+                .stream()
+                .filter(application -> application.getStatus() == ApplicantStatus.ACCEPTED)
+                .collect(Collectors.toList());
 
         if (applications.isEmpty()) {
             throw new CustomException(ErrorException.PROJECT_NOT_FOUND);
@@ -180,7 +184,10 @@ public class UserService {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
-        List<ApplicantEntity> applications = applicantRepository.findByUser(user);
+        List<ApplicantEntity> applications = applicantRepository.findByUser(user)
+                .stream()
+                .filter(application -> application.getStatus() == ApplicantStatus.ACCEPTED)
+                .collect(Collectors.toList());
 
         if (applications.isEmpty()) {
             throw new CustomException(ErrorException.PROJECT_NOT_FOUND);
