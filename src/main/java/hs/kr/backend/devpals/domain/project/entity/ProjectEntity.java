@@ -115,6 +115,10 @@ public class ProjectEntity {
         this.skillTags = convertSkillListToJson(skillResponses);
     }
 
+    public void updateIsDone(boolean isDone) {
+        this.isDone = isDone;
+    }
+
     public List<PositionTagResponse> getPositionTagsAsList() {
         return convertJsonToPositionList(this.positionTags);
     }

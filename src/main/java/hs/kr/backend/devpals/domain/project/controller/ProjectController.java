@@ -82,6 +82,24 @@ public class ProjectController {
         return projectService.updateProject(projectId, token, request);
     }
 
+    @PutMapping("/{projectId}/close")
+    @Operation(summary = "공고 모집 종료", description = "기획자(본인)가 공고 모집을 종료합니다.")
+    @ApiResponse(responseCode = "200", description = "공고 모집 종료 성공")
+    @ApiResponse(
+            responseCode = "400",
+            description = "해당 공고 작성자(기획자)가 아닌 경우",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ApiCustomResponse.class),
+                    examples = @ExampleObject(value = "{\"success\": false, \"message\": \"기획자만 모집을 종료할 수 있습니다.\", \"data\": null}")
+            )
+    )
+    public ResponseEntity<ApiCustomResponse<ProjectCloseResponse>> closeProject(
+            @PathVariable Long projectId,
+            @RequestHeader("Authorization") String token) {
+        return projectService.closeProject(projectId, token);
+    }
+
     @PostMapping
     @Operation(summary = "프로젝트 작성", description = "프로젝트를 작성합니다.")
     @ApiResponse(responseCode = "200", description = "프로젝트 작성 성공")
