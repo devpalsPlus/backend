@@ -30,7 +30,11 @@ public enum ErrorException {
     INVALID_METHOD_TYPE("잘못된 방식입니다. (온라인, 오프라인, 온/오프라인만 허용)"),
     PROJECT_NOT_FOUND("해당 프로젝트를 찾을 수 없습니다."),
     FAIL_PROJECT_UPDATE("작성자만 수정 가능합니다."),
-    ALREADY_APPLIED("해당 프로젝트에 이미 지원하셨습니다.");
+    ALREADY_APPLIED("해당 프로젝트에 이미 지원하셨습니다."),
+    INVALID_APPLICANT_PROJECT("해당 지원자를 프로젝트에서 찾을 수 없습니다."),
+    PROJECT_DONE("마감한 공고는 지원자의 상태를 변경할 수 없습니다."),
+    STATUS_NOT_FOUND("작성한 상태값이 존재하지 않습니다."),
+    EQUAL_STATUS("상태가 이미 동일합니다.");
 
     private final String message;
 
