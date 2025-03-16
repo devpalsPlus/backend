@@ -2,6 +2,7 @@ package hs.kr.backend.devpals.domain.project.entity;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hs.kr.backend.devpals.domain.project.convert.MethodTypeConverter;
 import hs.kr.backend.devpals.domain.project.dto.ProjectAllDto;
 import hs.kr.backend.devpals.domain.user.dto.PositionTagResponse;
 import hs.kr.backend.devpals.domain.user.dto.SkillTagResponse;
@@ -9,7 +10,6 @@ import hs.kr.backend.devpals.global.common.enums.MethodType;
 import jakarta.persistence.*;
 import lombok.*;
 
-import javax.swing.text.Position;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -42,7 +42,7 @@ public class ProjectEntity {
 
     private String estimatedPeriod;
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = MethodTypeConverter.class)
     @Column(nullable = false)
     private MethodType method;
 
@@ -78,10 +78,8 @@ public class ProjectEntity {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    /**
-     * 📌 프로젝트 빌더 메소드 (Skill을 `List<SkillTagResponse>` 형태로 받음)
-     */
-    public static ProjectEntity fromRequest(ProjectAllDto request, List<PositionTagResponse> positionResponses, List<SkillTagResponse> skillResponses) {
+    public static ProjectEntity fromRequest(ProjectAllDto request, List<PositionTagResponse> positionResponses,
+                                            Long userId, List<SkillTagResponse> skillResponses) {
         return ProjectEntity.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
@@ -89,7 +87,7 @@ public class ProjectEntity {
                 .startDate(request.getStartDate())
                 .estimatedPeriod(request.getEstimatedPeriod())
                 .method(request.getMethodType())
-                .authorId(request.getAuthorId())
+                .authorId(userId)
                 .isBeginner(request.getIsBeginner() != null ? request.getIsBeginner() : false)
                 .isDone(request.getIsDone() != null ? request.getIsDone() : false)
                 .recruitmentStartDate(request.getRecruitmentStartDate())
@@ -101,9 +99,7 @@ public class ProjectEntity {
                 .build();
     }
 
-    /**
-     * 📌 프로젝트 업데이트 메소드 (Skill을 `List<SkillTagResponse>`로 저장)
-     */
+
     public void updateProject(ProjectAllDto request, List<PositionTagResponse> positionNames, List<SkillTagResponse> skillResponses) {
         this.title = request.getTitle();
         this.description = request.getDescription();
