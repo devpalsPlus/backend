@@ -219,4 +219,18 @@ public class ProjectService {
                     });
                 }, emailExecutor));
     }
+
+    public ResponseEntity<ApiCustomResponse<List<ProjectAuthoredResponse>>> getMyProject(String token) {
+        Long userId = jwtTokenValidator.getUserId(token);
+        List<ProjectEntity> projects = projectRepository.findProjectsByAuthorId(userId);
+        List<ProjectAuthoredResponse> projectAuthoredResponses = projects.stream()
+                .map(project -> ProjectAuthoredResponse.fromEntity(
+                        project,
+                        userFacade.getPositionTagByIds(project.getPositionTagIds()),
+                        userFacade.getSkillTagsByIds(project.getSkillTagIds())
+                ))
+                .toList();
+
+        return ResponseEntity.ok(new ApiCustomResponse<>(true, "프로젝트 조회 성공", projectAuthoredResponses));
+    }
 }
