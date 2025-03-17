@@ -3,6 +3,7 @@ package hs.kr.backend.devpals.domain.project.dto;
 import hs.kr.backend.devpals.domain.project.entity.ApplicantEntity;
 import hs.kr.backend.devpals.domain.user.dto.CareerDto;
 import hs.kr.backend.devpals.domain.user.dto.UserApplicantResultResponse;
+import hs.kr.backend.devpals.domain.user.facade.UserFacade;
 import hs.kr.backend.devpals.global.common.enums.ApplicantStatus;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,7 +27,7 @@ public class ProjectApplicantResultDto {
     private LocalDateTime updatedAt;
     private UserApplicantResultResponse user;
 
-    public static ProjectApplicantResultDto fromEntity(ApplicantEntity applicant) {
+    public static ProjectApplicantResultDto fromEntity(ApplicantEntity applicant, UserFacade userfacade) {
         return ProjectApplicantResultDto.builder()
                 .id(applicant.getId())
                 .userId(applicant.getUser().getId())
@@ -38,7 +39,7 @@ public class ProjectApplicantResultDto {
                 .status(applicant.getStatus())
                 .createAt(applicant.getCreatedAt())
                 .updatedAt(applicant.getUpdatedAt())
-                .user(UserApplicantResultResponse.fromEntity(applicant.getUser()))
+                .user(UserApplicantResultResponse.fromEntity(applicant.getUser(), userfacade))
                 .build();
     }
 

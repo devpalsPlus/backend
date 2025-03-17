@@ -14,6 +14,7 @@ import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.facade.UserFacade;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.common.ApiCustomResponse;
+import hs.kr.backend.devpals.global.common.enums.ApplicantStatus;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
 import hs.kr.backend.devpals.global.jwt.JwtTokenValidator;
@@ -48,7 +49,7 @@ public class UserService {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
-        UserResponse userResponse = UserResponse.fromEntity(user);
+        UserResponse userResponse = UserResponse.fromEntity(user, userFacade);
 
         return ResponseEntity.ok(new ApiCustomResponse<>(true, "사용자의 정보입니다.", userResponse));
     }
@@ -65,7 +66,7 @@ public class UserService {
         UserEntity user = userRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
-        UserResponse userResponse = UserResponse.fromEntity(user);
+        UserResponse userResponse = UserResponse.fromEntity(user, userFacade);
 
         return ResponseEntity.ok(new ApiCustomResponse<>(true, "사용자 정보를 조회했습니다.", userResponse));
     }
@@ -104,7 +105,7 @@ public class UserService {
 
         userRepository.save(user); // 변경 감지 적용
 
-        UserResponse userResponse = UserResponse.fromEntity(user);
+        UserResponse userResponse = UserResponse.fromEntity(user, userFacade);
 
         return ResponseEntity.ok(new ApiCustomResponse<>(true, "정보가 변경되었습니다.", userResponse));
     }
@@ -156,7 +157,10 @@ public class UserService {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
-        List<ApplicantEntity> applications = applicantRepository.findByUser(user);
+        List<ApplicantEntity> applications = applicantRepository.findByUser(user)
+                .stream()
+                .filter(application -> application.getStatus() == ApplicantStatus.ACCEPTED)
+                .collect(Collectors.toList());
 
         if (applications.isEmpty()) {
             throw new CustomException(ErrorException.PROJECT_NOT_FOUND);
@@ -165,7 +169,10 @@ public class UserService {
         List<ProjectMineResponse> myProjects = applications.stream()
                 .map(application -> {
                     ProjectEntity project = application.getProject();
-                    List<SkillTagResponse> skillResponses = getSkillTagResponses(project.getSkillTagsAsList());
+
+                    List<Long> skillTagIds = project.getSkillTagsAsList();
+                    List<SkillTagResponse> skillResponses = getSkillTagResponses(skillTagIds);
+
                     return ProjectMineResponse.fromEntity(project, skillResponses);
                 })
                 .collect(Collectors.toList());
@@ -180,7 +187,10 @@ public class UserService {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
-        List<ApplicantEntity> applications = applicantRepository.findByUser(user);
+        List<ApplicantEntity> applications = applicantRepository.findByUser(user)
+                .stream()
+                .filter(application -> application.getStatus() == ApplicantStatus.ACCEPTED)
+                .collect(Collectors.toList());
 
         if (applications.isEmpty()) {
             throw new CustomException(ErrorException.PROJECT_NOT_FOUND);
@@ -189,7 +199,8 @@ public class UserService {
         List<ProjectMineResponse> userProjects = applications.stream()
                 .map(application -> {
                     ProjectEntity project = application.getProject();
-                    List<SkillTagResponse> skillResponses = getSkillTagResponses(project.getSkillTagsAsList());
+                    List<Long> skillTagIds = project.getSkillTagsAsList();
+                    List<SkillTagResponse> skillResponses = getSkillTagResponses(skillTagIds);
                     return ProjectMineResponse.fromEntity(project, skillResponses);
                 })
                 .collect(Collectors.toList());
@@ -236,19 +247,15 @@ public class UserService {
     }
 
 
-    // 스킬 태그 변환 (스킬 목록을 `List<SkillTagResponse>`로 변환)
-    public List<SkillTagResponse> getSkillTagResponses(List<SkillTagResponse> skills) {
-        if (skills == null || skills.isEmpty()) {
-            throw new CustomException(ErrorException.SKILL_NOT_FOUND);
+    private List<SkillTagResponse> getSkillTagResponses(List<Long> skillTagIds) {
+        if (skillTagIds == null || skillTagIds.isEmpty()) {
+            return Collections.emptyList();
         }
 
-        List<Long> skillIds = skills.stream()
-                .map(SkillTagResponse::getId)
-                .filter(Objects::nonNull)
-                .distinct()
-                .collect(Collectors.toList());
-
-        List<SkillTagEntity> skillEntities = userFacade.getSkillTagsByIds(skillIds);
+        List<SkillTagEntity> skillEntities = userFacade.getSkillTagsByIds(skillTagIds);
+        if (skillEntities == null || skillEntities.isEmpty()) {
+            return Collections.emptyList(); // 조회된 값이 없으면 빈 리스트 반환
+        }
 
         return skillEntities.stream()
                 .map(skill -> new SkillTagResponse(skill.getId(), skill.getName(), skill.getImg()))
