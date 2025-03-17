@@ -2,6 +2,7 @@ package hs.kr.backend.devpals.domain.user.entity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hs.kr.backend.devpals.domain.user.convert.LongListConverter;
 import hs.kr.backend.devpals.domain.user.dto.CareerDto;
 import hs.kr.backend.devpals.global.common.enums.UserLevel;
 import hs.kr.backend.devpals.global.exception.CustomException;
@@ -10,10 +11,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "User")
@@ -62,13 +60,9 @@ public class UserEntity {
     @JoinColumn(name = "positionTagId", referencedColumnName = "id")
     private PositionTagEntity positionTag;
 
-    @ManyToMany
-    @JoinTable(
-            name = "UserSkillTag",
-            joinColumns = @JoinColumn(name = "userId"),
-            inverseJoinColumns = @JoinColumn(name = "skillTagId")
-    )
-    private Set<SkillTagEntity> skills = new HashSet<>();
+    @Convert(converter = LongListConverter.class) // Skill ID만 저장
+    @Column(columnDefinition = "TEXT") // JSON 형식으로 저장
+    private List<Long> skillIds;
 
     /*
     @OneToMany(mappedBy = "user")
@@ -87,9 +81,8 @@ public class UserEntity {
         if (bio != null) {this.bio = bio;}
         if (github != null) {this.github = github;}
         if (positionTag != null) {this.positionTag = positionTag;}
-        if (skills != null) {
-            this.skills.clear();
-            this.skills.addAll(skills);
+        if (skillIds != null) {
+            this.skillIds = new ArrayList<>(skillIds);
         }
         if (career != null) {
             ObjectMapper objectMapper = new ObjectMapper();

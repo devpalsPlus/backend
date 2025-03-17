@@ -1,6 +1,7 @@
 package hs.kr.backend.devpals.domain.user.dto;
 
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
+import hs.kr.backend.devpals.domain.user.facade.UserFacade;
 import hs.kr.backend.devpals.global.common.enums.UserLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,7 +27,13 @@ public class UserResponse {
     private List<CareerDto> career;
     private LocalDateTime createdAt;
 
-    public static UserResponse fromEntity(UserEntity user) {
+    public static UserResponse fromEntity(UserEntity user, UserFacade userFacade) {
+        List<Long> skillIds = user.getSkillIds();
+
+        List<SkillTagResponse> skillResponses = userFacade.getSkillTagsByIds(skillIds).stream()
+                .map(SkillTagResponse::fromEntity)
+                .collect(Collectors.toList());
+
         return UserResponse.builder()
                 .id(user.getId())
                 .nickname(user.getNickname())
@@ -37,9 +44,7 @@ public class UserResponse {
                 .github(user.getGithub())
                 .positionTag(user.getPositionTag() != null ? user.getPositionTag().getName() : "null")
                 .career(user.getCareer())
-                .skills(user.getSkills().stream()
-                        .map(SkillTagResponse::fromEntity) // DTO로 변환하여 리스트 반환
-                        .collect(Collectors.toList()))
+                .skills(skillResponses)
                 .createdAt(user.getCreatedAt())
                 .build();
     }

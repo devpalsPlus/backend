@@ -49,7 +49,7 @@ public class UserService {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
-        UserResponse userResponse = UserResponse.fromEntity(user);
+        UserResponse userResponse = UserResponse.fromEntity(user, userFacade);
 
         return ResponseEntity.ok(new ApiCustomResponse<>(true, "사용자의 정보입니다.", userResponse));
     }
@@ -66,7 +66,7 @@ public class UserService {
         UserEntity user = userRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
-        UserResponse userResponse = UserResponse.fromEntity(user);
+        UserResponse userResponse = UserResponse.fromEntity(user, userFacade);
 
         return ResponseEntity.ok(new ApiCustomResponse<>(true, "사용자 정보를 조회했습니다.", userResponse));
     }
@@ -105,7 +105,7 @@ public class UserService {
 
         userRepository.save(user); // 변경 감지 적용
 
-        UserResponse userResponse = UserResponse.fromEntity(user);
+        UserResponse userResponse = UserResponse.fromEntity(user, userFacade);
 
         return ResponseEntity.ok(new ApiCustomResponse<>(true, "정보가 변경되었습니다.", userResponse));
     }
