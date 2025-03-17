@@ -3,7 +3,6 @@ package hs.kr.backend.devpals.domain.project.controller;
 import hs.kr.backend.devpals.domain.project.dto.*;
 import hs.kr.backend.devpals.domain.project.service.ProjectService;
 import hs.kr.backend.devpals.global.common.ApiCustomResponse;
-import hs.kr.backend.devpals.global.common.enums.MethodType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -39,7 +38,7 @@ public class ProjectController {
     public ResponseEntity<ApiCustomResponse<List<ProjectAllDto>>> getProjectAll(
             @RequestParam(required = false) List<Long> skillTag,
             @RequestParam(required = false) Long positionTag,
-            @RequestParam(required = false) MethodType methodType,
+            @RequestParam(required = false) List<Long> methodType,
             @RequestParam(required = false) Boolean isBeginner,
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "1") int page,

@@ -1,12 +1,11 @@
 package hs.kr.backend.devpals.domain.project.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import hs.kr.backend.devpals.domain.project.entity.MethodTypeEntity;
 import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
 import hs.kr.backend.devpals.domain.user.dto.PositionTagResponse;
 import hs.kr.backend.devpals.domain.user.dto.SkillTagResponse;
 import hs.kr.backend.devpals.domain.user.entity.PositionTagEntity;
 import hs.kr.backend.devpals.domain.user.entity.SkillTagEntity;
-import hs.kr.backend.devpals.global.common.enums.MethodType;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,13 +35,13 @@ public class ProjectAuthoredResponse {
     private LocalDate recruitmentEndDate;
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
-    private MethodType methodType;
 
+    private List<MethodTypeResponse> methodTypes;
     private List<PositionTagResponse> positions;
     private List<SkillTagResponse> skills;
 
     // Entity -> DTO 변환 메서드
-    public static ProjectAuthoredResponse fromEntity(ProjectEntity project, List<PositionTagEntity> positionTag, List<SkillTagEntity> skillTag) {
+    public static ProjectAuthoredResponse fromEntity(ProjectEntity project, List<PositionTagEntity> positionTag, List<SkillTagEntity> skillTag,List<MethodTypeEntity> methodType) {
         return ProjectAuthoredResponse.builder()
                 .id(project.getId())
                 .title(project.getTitle())
@@ -58,7 +57,10 @@ public class ProjectAuthoredResponse {
                 .recruitmentEndDate(project.getRecruitmentEndDate())
                 .createAt(project.getCreatedAt())
                 .updateAt(project.getUpdatedAt())
-                .methodType(project.getMethod()) // ENUM 타입 직접 매핑
+                .methodTypes(
+                        methodType.stream()
+                                .map(MethodTypeResponse::fromEntity) // 리스트 변환
+                                .collect(Collectors.toList()))
                 .positions(
                         positionTag.stream()
                                 .map(PositionTagResponse::fromEntity) // 리스트 변환
