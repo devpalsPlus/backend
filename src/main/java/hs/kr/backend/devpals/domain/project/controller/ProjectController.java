@@ -94,7 +94,7 @@ public class ProjectController {
                     examples = @ExampleObject(value = "{\"success\": false, \"message\": \"프로젝트 등록에 실패했습니다.\", \"data\": null}")
             )
     )
-    public ResponseEntity<ApiCustomResponse<Long>> createProject(
+    public ResponseEntity<ApiCustomResponse<ProjectAllDto>> createProject(
             @RequestBody ProjectAllDto request,
             @RequestHeader("Authorization") String token) {
         return projectService.projectSignup(request, token);

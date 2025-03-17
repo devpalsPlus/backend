@@ -12,6 +12,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "User")
@@ -60,8 +61,8 @@ public class UserEntity {
     @JoinColumn(name = "positionTagId", referencedColumnName = "id")
     private PositionTagEntity positionTag;
 
-    @Convert(converter = LongListConverter.class) // Skill ID만 저장
-    @Column(columnDefinition = "TEXT") // JSON 형식으로 저장
+    @Convert(converter = LongListConverter.class)
+    @Column(columnDefinition = "TEXT")
     private List<Long> skillIds;
 
     /*
@@ -81,8 +82,8 @@ public class UserEntity {
         if (bio != null) {this.bio = bio;}
         if (github != null) {this.github = github;}
         if (positionTag != null) {this.positionTag = positionTag;}
-        if (skillIds != null) {
-            this.skillIds = new ArrayList<>(skillIds);
+        if (skills != null) {
+            this.skillIds = skills.stream().map(SkillTagEntity::getId).collect(Collectors.toList());
         }
         if (career != null) {
             ObjectMapper objectMapper = new ObjectMapper();

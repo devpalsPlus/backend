@@ -169,7 +169,10 @@ public class UserService {
         List<ProjectMineResponse> myProjects = applications.stream()
                 .map(application -> {
                     ProjectEntity project = application.getProject();
-                    List<SkillTagResponse> skillResponses = getSkillTagResponses(project.getSkillTagsAsList());
+
+                    List<Long> skillTagIds = project.getSkillTagsAsList();
+                    List<SkillTagResponse> skillResponses = getSkillTagResponses(skillTagIds);
+
                     return ProjectMineResponse.fromEntity(project, skillResponses);
                 })
                 .collect(Collectors.toList());
@@ -196,7 +199,8 @@ public class UserService {
         List<ProjectMineResponse> userProjects = applications.stream()
                 .map(application -> {
                     ProjectEntity project = application.getProject();
-                    List<SkillTagResponse> skillResponses = getSkillTagResponses(project.getSkillTagsAsList());
+                    List<Long> skillTagIds = project.getSkillTagsAsList();
+                    List<SkillTagResponse> skillResponses = getSkillTagResponses(skillTagIds);
                     return ProjectMineResponse.fromEntity(project, skillResponses);
                 })
                 .collect(Collectors.toList());
@@ -243,19 +247,15 @@ public class UserService {
     }
 
 
-    // 스킬 태그 변환 (스킬 목록을 `List<SkillTagResponse>`로 변환)
-    public List<SkillTagResponse> getSkillTagResponses(List<SkillTagResponse> skills) {
-        if (skills == null || skills.isEmpty()) {
-            throw new CustomException(ErrorException.SKILL_NOT_FOUND);
+    private List<SkillTagResponse> getSkillTagResponses(List<Long> skillTagIds) {
+        if (skillTagIds == null || skillTagIds.isEmpty()) {
+            return Collections.emptyList();
         }
 
-        List<Long> skillIds = skills.stream()
-                .map(SkillTagResponse::getId)
-                .filter(Objects::nonNull)
-                .distinct()
-                .collect(Collectors.toList());
-
-        List<SkillTagEntity> skillEntities = userFacade.getSkillTagsByIds(skillIds);
+        List<SkillTagEntity> skillEntities = userFacade.getSkillTagsByIds(skillTagIds);
+        if (skillEntities == null || skillEntities.isEmpty()) {
+            return Collections.emptyList(); // 조회된 값이 없으면 빈 리스트 반환
+        }
 
         return skillEntities.stream()
                 .map(skill -> new SkillTagResponse(skill.getId(), skill.getName(), skill.getImg()))
