@@ -44,43 +44,49 @@ public class ProjectService {
     private final Map<Long, ProjectAllDto> projectAllCache = new HashMap<>();
 
     // 프로젝트 목록 조회
-    public ResponseEntity<ApiCustomResponse<List<ProjectAllDto>>> getProjectAll(List<Long> skillTagId, Long positionTagId,
-                                                                                List<Long> methodTypeId, Boolean isBeginner,
-                                                                                String keyword, int page, int size) {
+    public ResponseEntity<ApiCustomResponse<ProjectListResponse>> getProjectAll(
+            List<Long> skillTagId, Long positionTagId,
+            List<Long> methodTypeId, Boolean isBeginner,
+            String keyword, int page) {
 
         projectAllCache.clear();
-
         List<ProjectEntity> projects = projectRepository.findAll();
 
+        // 캐싱 및 DTO 변환
         projects.forEach(project -> {
             if (!projectAllCache.containsKey(project.getId())) {
                 List<SkillTagResponse> skillResponses = getSkillTagResponses(project.getSkillTagIds());
                 List<PositionTagResponse> positionResponses = getPositionTagResponses(project.getPositionTagIds());
                 List<MethodTypeResponse> methodTypeResponses = getMethodTypeResponses(project.getMethodTypeIds());
 
-
                 ProjectAllDto projectDto = ProjectAllDto.fromEntity(project, positionResponses, skillResponses, methodTypeResponses);
                 projectAllCache.put(project.getId(), projectDto);
             }
         });
 
-        // 필터링 적용
+        // 필터링 및 페이지네이션 (size 제거, 페이지당 12개 고정)
         List<ProjectAllDto> filteredProjects = projectAllCache.values().stream()
-                .filter(project -> (isBeginner == null || project.getIsBeginner() == isBeginner))
-                .filter(project -> (keyword == null || keyword.isEmpty() ||
+                .filter(project -> isBeginner == null || project.getIsBeginner().equals(isBeginner))
+                .filter(project -> keyword == null || keyword.isEmpty() ||
                         project.getTitle().toLowerCase().contains(keyword.toLowerCase()) ||
-                        project.getDescription().toLowerCase().contains(keyword.toLowerCase())))
-                .filter(project -> (methodTypeId == null || methodTypeId.isEmpty()) ||
+                        project.getDescription().toLowerCase().contains(keyword.toLowerCase()))
+                .filter(project -> methodTypeId == null || methodTypeId.isEmpty() ||
                         project.getMethodTypeIds().stream().anyMatch(methodTypeId::contains))
-                .filter(project -> (positionTagId == null || positionTagId == 0 ||
-                        project.getPositionTagIds().contains(positionTagId)))
-                .filter(project -> (skillTagId == null || skillTagId.isEmpty() ||
-                        project.getSkillTagIds().stream().anyMatch(skillTagId::contains)))
-                .skip((page - 1) * size)
-                .limit(size)
+                .filter(project -> positionTagId == null || positionTagId == 0 ||
+                        project.getPositionTagIds().contains(positionTagId))
+                .filter(project -> skillTagId == null || skillTagId.isEmpty() ||
+                        project.getSkillTagIds().stream().anyMatch(skillTagId::contains))
+                .skip((page - 1) * 12)
+                .limit(12)
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(new ApiCustomResponse<>(true, "프로젝트 목록 조회 성공", filteredProjects));
+        int totalProjects = projectAllCache.size();
+        int lastPage = (int) Math.ceil((double) totalProjects / 12);
+
+
+        ProjectListResponse responseDto = new ProjectListResponse(page, lastPage, totalProjects, filteredProjects);
+
+        return ResponseEntity.ok(new ApiCustomResponse<>(true, "프로젝트 목록 조회 성공", responseDto));
     }
 
     private List<MethodTypeResponse> getMethodTypeResponses(List<Long> methodTypeIds) {

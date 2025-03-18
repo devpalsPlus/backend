@@ -31,6 +31,7 @@ public class ProjectFacade {
 
     private void refreshMethodTypes() {
         List<MethodTypeEntity> methodTypes = methodTypeRepository.findAll();
+
         methodTypeCache.clear();
         methodTypeCache.putAll(methodTypes.stream().collect(Collectors.toMap(MethodTypeEntity::getId, methodType -> methodType)));
     }
