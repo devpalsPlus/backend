@@ -57,9 +57,9 @@ public class UserEntity {
     @Column(columnDefinition = "TEXT")
     private String refreshToken;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "positionTagId", referencedColumnName = "id")
-    private PositionTagEntity positionTag;
+    @Convert(converter = LongListConverter.class)
+    @Column(columnDefinition = "TEXT")
+    private List<Long> positionIds;
 
     @Convert(converter = LongListConverter.class)
     @Column(columnDefinition = "TEXT")
@@ -77,14 +77,13 @@ public class UserEntity {
     */
 
     // 유저 업데이트
-    public void updateUserInfo(String nickname, String bio, String github, PositionTagEntity positionTag, List<SkillTagEntity> skills, List<Map<String, Object>> career) {
-        if (nickname != null) {this.nickname = nickname;}
-        if (bio != null) {this.bio = bio;}
-        if (github != null) {this.github = github;}
-        if (positionTag != null) {this.positionTag = positionTag;}
-        if (skills != null) {
-            this.skillIds = skills.stream().map(SkillTagEntity::getId).collect(Collectors.toList());
-        }
+    public void updateUserInfo(String nickname, String bio, String github, List<Long> positionIds,
+                               List<Long> skillIds, List<Map<String, Object>> career) {
+        if (nickname != null) { this.nickname = nickname; }
+        if (bio != null) { this.bio = bio; }
+        if (github != null) { this.github = github; }
+        if (positionIds != null) { this.positionIds = new ArrayList<>(positionIds); }
+        if (skillIds != null) { this.skillIds = new ArrayList<>(skillIds); }
         if (career != null) {
             ObjectMapper objectMapper = new ObjectMapper();
             try {

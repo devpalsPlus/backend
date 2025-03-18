@@ -22,13 +22,18 @@ public class UserResponse {
     private String profileImg;
     private UserLevel userLevel;
     private String github;
-    private String positionTag;
+    private List<PositionTagResponse> positions;
     private List<SkillTagResponse> skills;
     private List<CareerDto> career;
     private LocalDateTime createdAt;
 
     public static UserResponse fromEntity(UserEntity user, UserFacade userFacade) {
+        List<Long> positionIds = user.getPositionIds();
         List<Long> skillIds = user.getSkillIds();
+
+        List<PositionTagResponse> positionResponses = userFacade.getPositionTagByIds(positionIds).stream()
+                .map(PositionTagResponse::fromEntity)
+                .collect(Collectors.toList());
 
         List<SkillTagResponse> skillResponses = userFacade.getSkillTagsByIds(skillIds).stream()
                 .map(SkillTagResponse::fromEntity)
@@ -42,9 +47,9 @@ public class UserResponse {
                 .profileImg(user.getProfileImg())
                 .userLevel(user.getUserLevel())
                 .github(user.getGithub())
-                .positionTag(user.getPositionTag() != null ? user.getPositionTag().getName() : "null")
-                .career(user.getCareer())
+                .positions(positionResponses)
                 .skills(skillResponses)
+                .career(user.getCareer())
                 .createdAt(user.getCreatedAt())
                 .build();
     }
