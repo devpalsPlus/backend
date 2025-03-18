@@ -3,7 +3,6 @@ package hs.kr.backend.devpals.domain.project.controller;
 import hs.kr.backend.devpals.domain.project.dto.*;
 import hs.kr.backend.devpals.domain.project.service.ProjectService;
 import hs.kr.backend.devpals.global.common.ApiCustomResponse;
-import hs.kr.backend.devpals.global.common.enums.MethodType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -39,7 +38,7 @@ public class ProjectController {
     public ResponseEntity<ApiCustomResponse<List<ProjectAllDto>>> getProjectAll(
             @RequestParam(required = false) List<Long> skillTag,
             @RequestParam(required = false) Long positionTag,
-            @RequestParam(required = false) MethodType methodType,
+            @RequestParam(required = false) List<Long> methodType,
             @RequestParam(required = false) Boolean isBeginner,
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "1") int page,
@@ -61,6 +60,14 @@ public class ProjectController {
     )
     public ResponseEntity<ApiCustomResponse<ProjectCountResponse>> getProjectCount() {
         return projectService.getProjectCount();
+    }
+
+    @GetMapping("/my")
+    @Operation(summary = "기획자가 등록한 프로젝트 목록", description = "기획자(본인)가 등록한 프로젝트 목록을 등록순으로 보여줍니다.")
+    @ApiResponse(responseCode = "200", description = "프로젝트 목록 가져오기 성공")
+    public ResponseEntity<ApiCustomResponse<List<ProjectAuthoredResponse>>> getMyProject(
+            @RequestHeader("Authorization") String token) {
+        return projectService.getMyProject(token);
     }
 
     @PutMapping("/{projectId}")

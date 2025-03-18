@@ -1,7 +1,6 @@
 package hs.kr.backend.devpals.domain.project.dto;
 
 import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
-import hs.kr.backend.devpals.global.common.enums.MethodType;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +8,7 @@ import lombok.Getter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Builder
@@ -20,7 +20,7 @@ public class ProjectCloseResponse {
     private Integer totalMember;
     private LocalDate startDate;
     private String estimatedPeriod;
-    private MethodType methodType;
+    private List<MethodTypeResponse> methodType;
     private Long authorId;
     private Integer views;
     private Boolean isBeginner;
@@ -30,14 +30,14 @@ public class ProjectCloseResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updateAt;
 
-    public static ProjectCloseResponse fromEntity(ProjectEntity project){
+    public static ProjectCloseResponse fromEntity(ProjectEntity project, List<MethodTypeResponse> methodTypeResponses){
         return ProjectCloseResponse.builder()
                 .title(project.getTitle())
                 .description(project.getDescription())
                 .totalMember(project.getTotalMember())
                 .startDate(project.getStartDate())
                 .estimatedPeriod(project.getEstimatedPeriod())
-                .methodType(project.getMethod())
+                .methodType(methodTypeResponses)
                 .authorId(project.getAuthorId())
                 .views(project.getViews())
                 .isBeginner(project.isBeginner())
