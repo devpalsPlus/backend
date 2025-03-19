@@ -36,12 +36,12 @@ public class ProjectAuthoredResponse {
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
 
-    private List<MethodTypeResponse> methodTypes;
+    private MethodTypeResponse methodType;
     private List<PositionTagResponse> positions;
     private List<SkillTagResponse> skills;
 
     // Entity -> DTO 변환 메서드
-    public static ProjectAuthoredResponse fromEntity(ProjectEntity project, List<PositionTagEntity> positionTag, List<SkillTagEntity> skillTag,List<MethodTypeEntity> methodType) {
+    public static ProjectAuthoredResponse fromEntity(ProjectEntity project, List<PositionTagEntity> positionTag, List<SkillTagEntity> skillTag,MethodTypeEntity methodType) {
         return ProjectAuthoredResponse.builder()
                 .id(project.getId())
                 .title(project.getTitle())
@@ -57,10 +57,9 @@ public class ProjectAuthoredResponse {
                 .recruitmentEndDate(project.getRecruitmentEndDate())
                 .createAt(project.getCreatedAt())
                 .updateAt(project.getUpdatedAt())
-                .methodTypes(
-                        methodType.stream()
-                                .map(MethodTypeResponse::fromEntity) // 리스트 변환
-                                .collect(Collectors.toList()))
+                .methodType(
+                        MethodTypeResponse.fromEntity(methodType)
+                     )
                 .positions(
                         positionTag.stream()
                                 .map(PositionTagResponse::fromEntity) // 리스트 변환

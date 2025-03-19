@@ -3,6 +3,7 @@ package hs.kr.backend.devpals.domain.project.service;
 import hs.kr.backend.devpals.domain.auth.service.EmailService;
 import hs.kr.backend.devpals.domain.project.dto.*;
 import hs.kr.backend.devpals.domain.project.entity.ApplicantEntity;
+import hs.kr.backend.devpals.domain.project.entity.MethodTypeEntity;
 import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
 import hs.kr.backend.devpals.domain.project.facade.ProjectFacade;
 import hs.kr.backend.devpals.domain.project.repository.ApplicantRepository;
@@ -45,7 +46,7 @@ public class ProjectService {
 
     // 프로젝트 목록 조회
     public ResponseEntity<ApiCustomResponse<List<ProjectAllDto>>> getProjectAll(List<Long> skillTagId, Long positionTagId,
-                                                                                List<Long> methodTypeId, Boolean isBeginner,
+                                                                                Long methodTypeId, Boolean isBeginner,
                                                                                 String keyword, int page, int size) {
 
         projectAllCache.clear();
@@ -56,7 +57,7 @@ public class ProjectService {
             if (!projectAllCache.containsKey(project.getId())) {
                 List<SkillTagResponse> skillResponses = getSkillTagResponses(project.getSkillTagIds());
                 List<PositionTagResponse> positionResponses = getPositionTagResponses(project.getPositionTagIds());
-                List<MethodTypeResponse> methodTypeResponses = getMethodTypeResponses(project.getMethodTypeIds());
+                MethodTypeResponse methodTypeResponses = getMethodTypeResponse(project.getMethodTypeId());
 
 
                 ProjectAllDto projectDto = ProjectAllDto.fromEntity(project, positionResponses, skillResponses, methodTypeResponses);
@@ -67,11 +68,10 @@ public class ProjectService {
         // 필터링 적용
         List<ProjectAllDto> filteredProjects = projectAllCache.values().stream()
                 .filter(project -> (isBeginner == null || project.getIsBeginner() == isBeginner))
+                .filter(project -> (methodTypeId == null || Objects.equals(project.getMethodTypeId(), methodTypeId)))
                 .filter(project -> (keyword == null || keyword.isEmpty() ||
                         project.getTitle().toLowerCase().contains(keyword.toLowerCase()) ||
                         project.getDescription().toLowerCase().contains(keyword.toLowerCase())))
-                .filter(project -> (methodTypeId == null || methodTypeId.isEmpty()) ||
-                        project.getMethodTypeIds().stream().anyMatch(methodTypeId::contains))
                 .filter(project -> (positionTagId == null || positionTagId == 0 ||
                         project.getPositionTagIds().contains(positionTagId)))
                 .filter(project -> (skillTagId == null || skillTagId.isEmpty() ||
@@ -83,14 +83,10 @@ public class ProjectService {
         return ResponseEntity.ok(new ApiCustomResponse<>(true, "프로젝트 목록 조회 성공", filteredProjects));
     }
 
-    private List<MethodTypeResponse> getMethodTypeResponses(List<Long> methodTypeIds) {
-        if (methodTypeIds == null || methodTypeIds.isEmpty()) {
-            return Collections.emptyList();
-        }
+    private MethodTypeResponse getMethodTypeResponse(Long methodTypeId) {
+        MethodTypeEntity methodType = projectFacade.getMethodTypeById(methodTypeId);
+        return MethodTypeResponse.fromEntity(methodType);
 
-        return projectFacade.getMethodTypeByIds(methodTypeIds).stream()
-                .map(methodType -> new MethodTypeResponse(methodType.getId(), methodType.getName()))
-                .collect(Collectors.toList());
     }
 
     // 프로젝트 개수 조회
@@ -120,7 +116,7 @@ public class ProjectService {
 
         List<SkillTagResponse> skillResponses = getSkillTagResponses(request.getSkillTagIds());
         List<PositionTagResponse> positionResponses = getPositionTagResponses(request.getPositionTagIds());
-        List<MethodTypeResponse> methodTypeResponses = getMethodTypeResponses(request.getMethodTypeIds());
+        MethodTypeResponse methodTypeResponses = getMethodTypeResponse(request.getMethodTypeId());
 
         ProjectAllDto updatedProject = ProjectAllDto.fromEntity(project, positionResponses, skillResponses, methodTypeResponses);
         return ResponseEntity.ok(new ApiCustomResponse<>(true, "프로젝트 업데이트 완료", updatedProject));
@@ -136,9 +132,9 @@ public class ProjectService {
 
         List<SkillTagResponse> skillResponses = getSkillTagResponses(savedProject.getSkillTagIds());
         List<PositionTagResponse> positionResponses = getPositionTagResponses(savedProject.getPositionTagIds());
-        List<MethodTypeResponse> methodTypeResponses = getMethodTypeResponses(request.getMethodTypeIds());
+        MethodTypeResponse methodTypeResponse = getMethodTypeResponse(request.getMethodTypeId());
 
-        ProjectAllDto responseDto = ProjectAllDto.fromEntity(savedProject, positionResponses, skillResponses, methodTypeResponses);
+        ProjectAllDto responseDto = ProjectAllDto.fromEntity(savedProject, positionResponses, skillResponses, methodTypeResponse);
 
         return ResponseEntity.ok(new ApiCustomResponse<>(true, "프로젝트 등록 완료", responseDto));
     }
@@ -195,14 +191,14 @@ public class ProjectService {
                 .forEach(applicant -> applicant.updateStatus(ApplicantStatus.REJECTED));
 
         project.updateIsDone(true);
-        List<MethodTypeResponse> methodTypeResponses = getMethodTypeResponses(project.getMethodTypeIds());
+        MethodTypeResponse methodTypeResponse = getMethodTypeResponse(project.getMethodTypeId());
         // 변경된 상태 저장
         projectRepository.save(project);
         applicantRepository.saveAll(applicants);
 
         CompletableFuture.runAsync(() -> emailService.sendEmailsAsync(applicants, project), emailExecutor);
 
-        return ResponseEntity.ok(new ApiCustomResponse<>(true, "프로젝트 모집 종료 성공", ProjectCloseResponse.fromEntity(project, methodTypeResponses)));
+        return ResponseEntity.ok(new ApiCustomResponse<>(true, "프로젝트 모집 종료 성공", ProjectCloseResponse.fromEntity(project, methodTypeResponse)));
     }
 
     @Transactional
@@ -241,7 +237,7 @@ public class ProjectService {
                         project,
                         userFacade.getPositionTagByIds(project.getPositionTagIds()),
                         userFacade.getSkillTagsByIds(project.getSkillTagIds()),
-                        projectFacade.getMethodTypeByIds(project.getMethodTypeIds())
+                        projectFacade.getMethodTypeById(project.getMethodTypeId())
                 ))
                 .toList();
 

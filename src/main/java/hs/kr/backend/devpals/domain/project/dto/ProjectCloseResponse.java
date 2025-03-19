@@ -20,7 +20,7 @@ public class ProjectCloseResponse {
     private Integer totalMember;
     private LocalDate startDate;
     private String estimatedPeriod;
-    private List<MethodTypeResponse> methodType;
+    private MethodTypeResponse methodType;
     private Long authorId;
     private Integer views;
     private Boolean isBeginner;
@@ -30,14 +30,14 @@ public class ProjectCloseResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updateAt;
 
-    public static ProjectCloseResponse fromEntity(ProjectEntity project, List<MethodTypeResponse> methodTypeResponses){
+    public static ProjectCloseResponse fromEntity(ProjectEntity project, MethodTypeResponse methodTypeResponse){
         return ProjectCloseResponse.builder()
                 .title(project.getTitle())
                 .description(project.getDescription())
                 .totalMember(project.getTotalMember())
                 .startDate(project.getStartDate())
                 .estimatedPeriod(project.getEstimatedPeriod())
-                .methodType(methodTypeResponses)
+                .methodType(methodTypeResponse)
                 .authorId(project.getAuthorId())
                 .views(project.getViews())
                 .isBeginner(project.isBeginner())

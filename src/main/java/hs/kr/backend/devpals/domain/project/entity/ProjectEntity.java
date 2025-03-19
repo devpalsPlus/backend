@@ -63,9 +63,8 @@ public class ProjectEntity {
     @Column(columnDefinition = "TEXT")
     private List<Long> skillTagIds;
 
-    @Convert(converter = LongListConverter.class)
     @Column(columnDefinition = "TEXT")
-    private List<Long> methodTypeIds;
+    private Long methodTypeId;
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -89,6 +88,7 @@ public class ProjectEntity {
                 .isDone(request.getIsDone() != null ? request.getIsDone() : false)
                 .recruitmentStartDate(request.getRecruitmentStartDate())
                 .recruitmentEndDate(request.getRecruitmentEndDate())
+                .methodTypeId(request.getMethodTypeId())
                 .positionTagIds(request.getPositionTagIds())
                 .skillTagIds(request.getSkillTagIds())
                 .createdAt(LocalDateTime.now())
@@ -106,7 +106,7 @@ public class ProjectEntity {
         this.isDone = request.getIsDone();
         this.recruitmentStartDate = request.getRecruitmentStartDate();
         this.recruitmentEndDate = request.getRecruitmentEndDate();
-        this.methodTypeIds = request.getMethodTypeIds();
+        this.methodTypeId = request.getMethodTypeId();
         this.positionTagIds = request.getPositionTagIds();
         this.skillTagIds = request.getSkillTagIds();
     }

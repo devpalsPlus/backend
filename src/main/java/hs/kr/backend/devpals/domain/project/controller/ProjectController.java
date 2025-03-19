@@ -38,7 +38,7 @@ public class ProjectController {
     public ResponseEntity<ApiCustomResponse<List<ProjectAllDto>>> getProjectAll(
             @RequestParam(required = false) List<Long> skillTag,
             @RequestParam(required = false) Long positionTag,
-            @RequestParam(required = false) List<Long> methodType,
+            @RequestParam(required = false) Long methodType,
             @RequestParam(required = false) Boolean isBeginner,
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "1") int page,

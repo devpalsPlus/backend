@@ -34,15 +34,15 @@ public class ProjectAllDto {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private List<Long> skillTagIds;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    private List<Long> methodTypeIds;
+    private Long methodTypeId;
 
-    private List<MethodTypeResponse> methodTypes;
+    private MethodTypeResponse methodType;
     private List<PositionTagResponse> positions;
     private List<SkillTagResponse> skills;
 
 
     // response로 보내는 값
-    public static ProjectAllDto fromEntity(ProjectEntity project, List<PositionTagResponse> positions, List<SkillTagResponse> skills,List<MethodTypeResponse> methodTypes) {
+    public static ProjectAllDto fromEntity(ProjectEntity project, List<PositionTagResponse> positions, List<SkillTagResponse> skills,MethodTypeResponse methodType) {
         return ProjectAllDto.builder()
                 .id(project.getId())
                 .title(project.getTitle())
@@ -55,7 +55,7 @@ public class ProjectAllDto {
                 .recruitmentStartDate(project.getRecruitmentStartDate())
                 .recruitmentEndDate(project.getRecruitmentEndDate())
                 .authorId(project.getAuthorId())
-                .methodTypes(methodTypes)
+                .methodType(methodType)
                 .positions(positions)
                 .skills(skills)
                 .build();
