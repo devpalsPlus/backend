@@ -49,30 +49,24 @@ public class ProjectService {
             List<Long> methodTypeId, Boolean isBeginner,
             String keyword, int page) {
 
-        projectAllCache.clear();
-        List<ProjectEntity> projects = projectRepository.findAll();
+        if (projectAllCache.isEmpty()) {
+            List<ProjectEntity> projects = projectRepository.findAll();
+            projects.forEach(project -> {
+                if (!projectAllCache.containsKey(project.getId())) {
+                    projectAllCache.put(project.getId(), convertToDto(project));
+                }
+            });
+        }
 
-        // 캐싱 및 DTO 변환
-        projects.forEach(project -> {
-            if (!projectAllCache.containsKey(project.getId())) {
-                List<SkillTagResponse> skillResponses = getSkillTagResponses(project.getSkillTagIds());
-                List<PositionTagResponse> positionResponses = getPositionTagResponses(project.getPositionTagIds());
-                List<MethodTypeResponse> methodTypeResponses = getMethodTypeResponses(project.getMethodTypeIds());
 
-                ProjectAllDto projectDto = ProjectAllDto.fromEntity(project, positionResponses, skillResponses, methodTypeResponses);
-                projectAllCache.put(project.getId(), projectDto);
-            }
-        });
-
-        // 필터링 및 페이지네이션 (size 제거, 페이지당 12개 고정)
         List<ProjectAllDto> filteredProjects = projectAllCache.values().stream()
                 .filter(project -> isBeginner == null || project.getIsBeginner().equals(isBeginner))
                 .filter(project -> keyword == null || keyword.isEmpty() ||
                         project.getTitle().toLowerCase().contains(keyword.toLowerCase()) ||
                         project.getDescription().toLowerCase().contains(keyword.toLowerCase()))
-                .filter(project -> methodTypeId == null || methodTypeId.isEmpty() ||
+                .filter(project -> methodTypeId == null || methodTypeId.isEmpty() || methodTypeId.contains(0L) ||
                         project.getMethodTypeIds().stream().anyMatch(methodTypeId::contains))
-                .filter(project -> positionTagId == null || positionTagId == 0 ||
+                .filter(project -> positionTagId == null || positionTagId <= 0 ||
                         project.getPositionTagIds().contains(positionTagId))
                 .filter(project -> skillTagId == null || skillTagId.isEmpty() ||
                         project.getSkillTagIds().stream().anyMatch(skillTagId::contains))
@@ -87,16 +81,6 @@ public class ProjectService {
         ProjectListResponse responseDto = new ProjectListResponse(page, lastPage, totalProjects, filteredProjects);
 
         return ResponseEntity.ok(new ApiCustomResponse<>(true, "프로젝트 목록 조회 성공", responseDto));
-    }
-
-    private List<MethodTypeResponse> getMethodTypeResponses(List<Long> methodTypeIds) {
-        if (methodTypeIds == null || methodTypeIds.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        return projectFacade.getMethodTypeByIds(methodTypeIds).stream()
-                .map(methodType -> new MethodTypeResponse(methodType.getId(), methodType.getName()))
-                .collect(Collectors.toList());
     }
 
     // 프로젝트 개수 조회
@@ -124,11 +108,9 @@ public class ProjectService {
         project.updateProject(request);
         projectRepository.save(project);
 
-        List<SkillTagResponse> skillResponses = getSkillTagResponses(request.getSkillTagIds());
-        List<PositionTagResponse> positionResponses = getPositionTagResponses(request.getPositionTagIds());
-        List<MethodTypeResponse> methodTypeResponses = getMethodTypeResponses(request.getMethodTypeIds());
+        ProjectAllDto updatedProject = convertToDto(project);
+        projectAllCache.put(projectId, updatedProject);
 
-        ProjectAllDto updatedProject = ProjectAllDto.fromEntity(project, positionResponses, skillResponses, methodTypeResponses);
         return ResponseEntity.ok(new ApiCustomResponse<>(true, "프로젝트 업데이트 완료", updatedProject));
     }
 
@@ -140,15 +122,11 @@ public class ProjectService {
         ProjectEntity project = ProjectEntity.fromRequest(request, userId);
         ProjectEntity savedProject = projectRepository.save(project);
 
-        List<SkillTagResponse> skillResponses = getSkillTagResponses(savedProject.getSkillTagIds());
-        List<PositionTagResponse> positionResponses = getPositionTagResponses(savedProject.getPositionTagIds());
-        List<MethodTypeResponse> methodTypeResponses = getMethodTypeResponses(request.getMethodTypeIds());
-
-        ProjectAllDto responseDto = ProjectAllDto.fromEntity(savedProject, positionResponses, skillResponses, methodTypeResponses);
+        ProjectAllDto responseDto = convertToDto(savedProject);
+        projectAllCache.put(savedProject.getId(), responseDto);
 
         return ResponseEntity.ok(new ApiCustomResponse<>(true, "프로젝트 등록 완료", responseDto));
     }
-
 
     // 특정 프로젝트 조회
     public ResponseEntity<ApiCustomResponse<ProjectAllDto>> getProjectList(Long projectId) {
@@ -156,30 +134,22 @@ public class ProjectService {
         if (project == null) {
             throw new CustomException(ErrorException.PROJECT_NOT_FOUND);
         }
-        return ResponseEntity.ok(new ApiCustomResponse<>(true, "프로젝트 조회 성공", project));
+        return ResponseEntity.ok(new ApiCustomResponse<>(true, "프로젝트 상세 내용조회 성공", project));
     }
 
-    // 스킬 태그 변환 (ID 리스트 -> DTO 리스트)
-    private List<SkillTagResponse> getSkillTagResponses(List<Long> skillTagIds) {
-        if (skillTagIds == null || skillTagIds.isEmpty()) {
-            return Collections.emptyList();
-        }
+    public ResponseEntity<ApiCustomResponse<List<ProjectAuthoredResponse>>> getMyProject(String token) {
+        Long userId = jwtTokenValidator.getUserId(token);
+        List<ProjectEntity> projects = projectRepository.findProjectsByAuthorId(userId);
+        List<ProjectAuthoredResponse> projectAuthoredResponses = projects.stream()
+                .map(project -> ProjectAuthoredResponse.fromEntity(
+                        project,
+                        userFacade.getPositionTagByIds(project.getPositionTagIds()),
+                        userFacade.getSkillTagsByIds(project.getSkillTagIds()),
+                        projectFacade.getMethodTypeByIds(project.getMethodTypeIds())
+                ))
+                .toList();
 
-        return userFacade.getSkillTagsByIds(skillTagIds).stream()
-                .map(skill -> new SkillTagResponse(skill.getId(), skill.getName(), skill.getImg()))
-                .collect(Collectors.toList());
-    }
-
-
-    // 포지션 태그 변환 (ID 리스트 -> DTO 리스트)
-    private List<PositionTagResponse> getPositionTagResponses(List<Long> positionTagIds) {
-        if (positionTagIds == null || positionTagIds.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        return userFacade.getPositionTagByIds(positionTagIds).stream()
-                .map(position -> new PositionTagResponse(position.getId(), position.getName()))
-                .collect(Collectors.toList());
+        return ResponseEntity.ok(new ApiCustomResponse<>(true, "내 프로젝트 조회 성공", projectAuthoredResponses));
     }
 
     @Transactional
@@ -239,18 +209,45 @@ public class ProjectService {
                 }, emailExecutor));
     }
 
-    public ResponseEntity<ApiCustomResponse<List<ProjectAuthoredResponse>>> getMyProject(String token) {
-        Long userId = jwtTokenValidator.getUserId(token);
-        List<ProjectEntity> projects = projectRepository.findProjectsByAuthorId(userId);
-        List<ProjectAuthoredResponse> projectAuthoredResponses = projects.stream()
-                .map(project -> ProjectAuthoredResponse.fromEntity(
-                        project,
-                        userFacade.getPositionTagByIds(project.getPositionTagIds()),
-                        userFacade.getSkillTagsByIds(project.getSkillTagIds()),
-                        projectFacade.getMethodTypeByIds(project.getMethodTypeIds())
-                ))
-                .toList();
+    // 메소드 태그 변환 (ID 리스트 -> DTO 리스트)
+    private List<MethodTypeResponse> getMethodTypeResponses(List<Long> methodTypeIds) {
+        if (methodTypeIds == null || methodTypeIds.isEmpty()) {
+            return Collections.emptyList();
+        }
 
-        return ResponseEntity.ok(new ApiCustomResponse<>(true, "프로젝트 조회 성공", projectAuthoredResponses));
+        return projectFacade.getMethodTypeByIds(methodTypeIds).stream()
+                .map(methodType -> new MethodTypeResponse(methodType.getId(), methodType.getName()))
+                .collect(Collectors.toList());
     }
+
+    // 스킬 태그 변환 (ID 리스트 -> DTO 리스트)
+    private List<SkillTagResponse> getSkillTagResponses(List<Long> skillTagIds) {
+        if (skillTagIds == null || skillTagIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return userFacade.getSkillTagsByIds(skillTagIds).stream()
+                .map(skill -> new SkillTagResponse(skill.getId(), skill.getName(), skill.getImg()))
+                .collect(Collectors.toList());
+    }
+
+
+    // 포지션 태그 변환 (ID 리스트 -> DTO 리스트)
+    private List<PositionTagResponse> getPositionTagResponses(List<Long> positionTagIds) {
+        if (positionTagIds == null || positionTagIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return userFacade.getPositionTagByIds(positionTagIds).stream()
+                .map(position -> new PositionTagResponse(position.getId(), position.getName()))
+                .collect(Collectors.toList());
+    }
+    private ProjectAllDto convertToDto(ProjectEntity project) {
+        List<SkillTagResponse> skillResponses = getSkillTagResponses(project.getSkillTagIds());
+        List<PositionTagResponse> positionResponses = getPositionTagResponses(project.getPositionTagIds());
+        List<MethodTypeResponse> methodTypeResponses = getMethodTypeResponses(project.getMethodTypeIds());
+
+        return ProjectAllDto.fromEntity(project, positionResponses, skillResponses, methodTypeResponses);
+    }
+
 }
