@@ -72,6 +72,7 @@ public class UserService {
     }
 
     //유저 정보 업데이트
+    @Transactional
     public ResponseEntity<ApiCustomResponse<UserResponse>> userUpdateInfo(String token, UserUpdateRequest request) {
 
         Long userId = jwtTokenValidator.getUserId(token);
@@ -79,31 +80,25 @@ public class UserService {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
+        List<Long> positionIds = request.getPositionTagIds();
+        List<Long> skillIds = request.getSkillTagIds();
 
-        PositionTagEntity positionTag = null;
-        if (request.getPositionTagId() != null) {
-            positionTag = userFacade.getPositionTagById(request.getPositionTagId());
-            if (positionTag == null) {
-                throw new CustomException(ErrorException.POSITION_NOT_FOUND);
-            }
+        if (positionIds == null) {
+            throw new CustomException(ErrorException.POSITION_NOT_FOUND);
+        } else if (skillIds == null){
+            throw new CustomException(ErrorException.SKILL_NOT_FOUND);
         }
 
-        List<SkillTagEntity> skills = new ArrayList<>();
-        if (request.getSkillTagIds() != null && !request.getSkillTagIds().isEmpty()) {
-            skills = userFacade.getSkillTagsByIds(request.getSkillTagIds());
-        }
-
-        // 업데이트 실행
         user.updateUserInfo(
                 request.getNickname(),
                 request.getBio(),
                 request.getGithub(),
-                positionTag,
-                skills,
+                positionIds,
+                skillIds,
                 request.getCareer()
         );
 
-        userRepository.save(user); // 변경 감지 적용
+        userRepository.save(user);
 
         UserResponse userResponse = UserResponse.fromEntity(user, userFacade);
 

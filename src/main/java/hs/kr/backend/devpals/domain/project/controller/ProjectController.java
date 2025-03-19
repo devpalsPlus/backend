@@ -35,15 +35,14 @@ public class ProjectController {
                     examples = @ExampleObject(value = "{\"success\": false, \"message\": \"프로젝트를 불러오는 중 오류가 발생했습니다.\", \"data\": null}")
             )
     )
-    public ResponseEntity<ApiCustomResponse<List<ProjectAllDto>>> getProjectAll(
+    public ResponseEntity<ApiCustomResponse<ProjectListResponse>> getProjectAll(
             @RequestParam(required = false) List<Long> skillTag,
             @RequestParam(required = false) Long positionTag,
             @RequestParam(required = false) Long methodType,
             @RequestParam(required = false) Boolean isBeginner,
             @RequestParam(required = false) String keyword,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "12") int size) {
-        return projectService.getProjectAll(skillTag, positionTag, methodType, isBeginner, keyword, page, size);
+            @RequestParam(defaultValue = "1") int page) {
+        return projectService.getProjectAll(skillTag, positionTag, methodType, isBeginner, keyword, page);
     }
 
     @GetMapping("/count")
