@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SingUpRequest {
-    String email;
-    String password;
-    String nickname;
+    private String email;
+    private String password;
+    private String nickname;
 }

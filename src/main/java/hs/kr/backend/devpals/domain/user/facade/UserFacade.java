@@ -1,5 +1,7 @@
 package hs.kr.backend.devpals.domain.user.facade;
 
+import hs.kr.backend.devpals.domain.user.dto.PositionTagRequest;
+import hs.kr.backend.devpals.domain.user.dto.SkillTagRequest;
 import hs.kr.backend.devpals.domain.user.entity.PositionTagEntity;
 import hs.kr.backend.devpals.domain.user.entity.SkillTagEntity;
 import hs.kr.backend.devpals.domain.user.repository.PositionTagRepository;
@@ -46,6 +48,20 @@ public class UserFacade {
         for (SkillTagEntity tag : skillTags) {
             skillTagCache.put(tag.getId(), tag);
         }
+    }
+
+    public ResponseEntity<ApiCustomResponse<SkillTagEntity>> createSkillTag(SkillTagRequest request) {
+        SkillTagEntity skillTag = new SkillTagEntity(request.getName(), request.getImg());
+        SkillTagEntity saved = skillTagRepository.save(skillTag);
+        refreshSkillTags();
+        return ResponseEntity.ok(new ApiCustomResponse<>(true, "스킬 태그 등록 성공", saved));
+    }
+
+    public ResponseEntity<ApiCustomResponse<PositionTagEntity>> createPositionTag(PositionTagRequest request) {
+        PositionTagEntity positionTag = new PositionTagEntity(request.getName());
+        PositionTagEntity saved = positionTagRepository.save(positionTag);
+        refreshPositionTags();
+        return ResponseEntity.ok(new ApiCustomResponse<>(true, "포지션 태그 등록 성공", saved));
     }
 
     public ResponseEntity<ApiCustomResponse<List<PositionTagEntity>>> getPositionTag() {
