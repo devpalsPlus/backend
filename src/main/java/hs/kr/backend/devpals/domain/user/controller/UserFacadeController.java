@@ -86,7 +86,7 @@ public class UserFacadeController {
                     examples = @ExampleObject(value = "{\"success\": false, \"message\": \"스킬 태그를 저장하던 중 오류가 발생했습니다.\", \"data\": null}")
             )
     )
-    public ResponseEntity<ApiCustomResponse<SkillTagEntity>> createSkillTag(@RequestBody SkillTagRequest request) {
+    public ResponseEntity<ApiCustomResponse<SkillTagEntity>> createSkillTag(@ModelAttribute SkillTagRequest request) {
         return userFacade.createSkillTag(request);
     }
 }
