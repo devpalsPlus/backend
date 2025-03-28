@@ -58,7 +58,6 @@ public class ProjectService {
             });
         }
 
-
         List<ProjectAllDto> filteredProjects = projectAllCache.values().stream()
                 .filter(project -> isBeginner == null || project.getIsBeginner().equals(isBeginner))
                 .filter(project -> keyword == null || keyword.isEmpty() ||
@@ -152,6 +151,7 @@ public class ProjectService {
         return ResponseEntity.ok(new ApiCustomResponse<>(true, "내 프로젝트 조회 성공", projectAuthoredResponses));
     }
 
+    // 프로젝트 모집 종료하기
     @Transactional
     public ResponseEntity<ApiCustomResponse<ProjectCloseResponse>> closeProject(Long projectId, String token) {
         Long userId = jwtTokenValidator.getUserId(token);
