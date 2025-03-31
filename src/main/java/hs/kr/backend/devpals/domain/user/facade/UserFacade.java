@@ -1,5 +1,6 @@
 package hs.kr.backend.devpals.domain.user.facade;
 
+import hs.kr.backend.devpals.domain.user.dto.SkillTagResponse;
 import hs.kr.backend.devpals.domain.user.entity.PositionTagEntity;
 import hs.kr.backend.devpals.domain.user.entity.SkillTagEntity;
 import hs.kr.backend.devpals.domain.user.repository.PositionTagRepository;
@@ -7,11 +8,13 @@ import hs.kr.backend.devpals.domain.user.repository.SkillTagRepository;
 import hs.kr.backend.devpals.global.common.ApiCustomResponse;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
+import hs.kr.backend.devpals.infra.Aws.AwsS3Client;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -24,7 +27,7 @@ public class UserFacade {
 
     private final PositionTagRepository positionTagRepository;
     private final SkillTagRepository skillTagRepository;
-
+    private final AwsS3Client awsS3Client;
     private final Map<Long, PositionTagEntity> positionTagCache = new ConcurrentHashMap<>();
     private final Map<Long, SkillTagEntity> skillTagCache = new ConcurrentHashMap<>();
 
@@ -46,6 +49,26 @@ public class UserFacade {
         for (SkillTagEntity tag : skillTags) {
             skillTagCache.put(tag.getId(), tag);
         }
+    }
+
+    public ResponseEntity<ApiCustomResponse<SkillTagEntity>> createSkillTag(SkillTagRequest request) {
+        String ext = getSkillExtension(request.getImg().getOriginalFilename());
+        String fileName = request.getName().trim().replaceAll("\\s+", "_") + "." + ext;
+
+        String imgUrl = awsS3Client.upload(request.getImg(), fileName);
+
+        SkillTagEntity skillTag = new SkillTagEntity(request.getName(), imgUrl);
+        SkillTagEntity saved = skillTagRepository.save(skillTag);
+        refreshSkillTags();
+
+        return ResponseEntity.ok(new ApiCustomResponse<>(true, "스킬 태그 등록 성공", saved));
+    }
+
+    public ResponseEntity<ApiCustomResponse<PositionTagEntity>> createPositionTag(PositionTagRequest request) {
+        PositionTagEntity positionTag = new PositionTagEntity(request.getName());
+        PositionTagEntity saved = positionTagRepository.save(positionTag);
+        refreshPositionTags();
+        return ResponseEntity.ok(new ApiCustomResponse<>(true, "포지션 태그 등록 성공", saved));
     }
 
     public ResponseEntity<ApiCustomResponse<List<PositionTagEntity>>> getPositionTag() {
@@ -86,8 +109,26 @@ public class UserFacade {
         return foundSkills;
     }
 
-    public PositionTagEntity getPositionTagById(Long id) {
-        return positionTagCache.get(id);
+    private String getSkillExtension(String fileName) {
+        if (fileName == null || !fileName.contains(".")) {
+            throw new CustomException(ErrorException.SKILL_NOT_FOUND);
+        }
+        return fileName.substring(fileName.lastIndexOf('.') + 1);
+    }
+
+    public List<SkillTagResponse> getSkillTagResponses(List<Long> skillTagIds) {
+        if (skillTagIds == null || skillTagIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<SkillTagEntity> skillEntities = getSkillTagsByIds(skillTagIds);
+        if (skillEntities == null || skillEntities.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return skillEntities.stream()
+                .map(skill -> new SkillTagResponse(skill.getId(), skill.getName(), skill.getImg()))
+                .collect(Collectors.toList());
     }
 
 }
