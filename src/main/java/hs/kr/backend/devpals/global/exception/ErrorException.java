@@ -27,6 +27,7 @@ public enum ErrorException {
     FILE_NOT_SEARCH("파일을 찾을 수 없습니다."),
     INVALID_FILE_TYPE("파일 타입을 확인해주세요."),
     SKILL_NOT_FOUND("스킬 태그를 찾을 수 없습니다."),
+    METHOD_TYPE_NOT_FOUND("방식 유형을 찾을 수 없습니다."),
     INVALID_METHOD_TYPE("잘못된 방식입니다. (온라인, 오프라인, 온/오프라인만 허용)"),
     PROJECT_NOT_FOUND("해당 프로젝트를 찾을 수 없습니다."),
     FAIL_PROJECT_UPDATE("작성자만 수정 가능합니다."),

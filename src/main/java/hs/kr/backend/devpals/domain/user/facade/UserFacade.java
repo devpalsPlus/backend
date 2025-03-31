@@ -1,5 +1,7 @@
 package hs.kr.backend.devpals.domain.user.facade;
 
+import hs.kr.backend.devpals.domain.user.dto.PositionTagRequest;
+import hs.kr.backend.devpals.domain.user.dto.SkillTagRequest;
 import hs.kr.backend.devpals.domain.user.dto.SkillTagResponse;
 import hs.kr.backend.devpals.domain.user.entity.PositionTagEntity;
 import hs.kr.backend.devpals.domain.user.entity.SkillTagEntity;

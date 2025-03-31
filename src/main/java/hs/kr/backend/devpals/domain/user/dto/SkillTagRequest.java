@@ -1,14 +1,15 @@
 package hs.kr.backend.devpals.domain.user.dto;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class SingUpRequest {
-    private String email;
-    private String password;
-    private String nickname;
+@NoArgsConstructor
+public class SkillTagRequest {
+    private String name;
+    private MultipartFile img;
 }

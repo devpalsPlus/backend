@@ -27,6 +27,7 @@ public class ApplyService {
     private final ProjectRepository projectRepository;
     private final ApplicantRepository applicantRepository;
 
+    // 프로젝트 지원하기
     public ResponseEntity<ApiCustomResponse<String>> projectApply(Long projectId, ProjectApplyRequest request, String token)   {
 
         Long userId = jwtTokenValidator.getUserId(token);
@@ -48,6 +49,7 @@ public class ApplyService {
         return ResponseEntity.ok(new ApiCustomResponse<String>(true, "프로젝트 지원 되었습니다." , null));
     }
 
+    // 프로젝트의 지원자 목록 가져오기
     public ResponseEntity<ApiCustomResponse<List<ProjectApplicantResponse>>> getProjectApplicantList(Long projectId, String token) {
         Long userId = jwtTokenValidator.getUserId(token);
 
@@ -68,6 +70,7 @@ public class ApplyService {
 
     }
 
+    // 프로젝트의 합격/불합격 목록 가져오기
     public ResponseEntity<ApiCustomResponse<ProjectApplicantResultResponse>> getProjectApplicantResults(Long projectId, String token) {
         Long userId = jwtTokenValidator.getUserId(token);
 
@@ -83,6 +86,7 @@ public class ApplyService {
         return ResponseEntity.ok(new ApiCustomResponse<>(true, "공고 합격자/불합격자 목록 가져오기 성공",ProjectApplicantResultResponse.fromEntity(applicants)));
     }
 
+    // 프로젝트 지원한 지원자의 상태 변경하기
     public ResponseEntity<ApiCustomResponse<ApplicantStatusUpdateResponse>> modifyApplicantStatus(Long projectId, String token, ApplicantStatusUpdateRequest applicantStatusUpdateRequest) {
         Long userId = jwtTokenValidator.getUserId(token);
         String status = applicantStatusUpdateRequest.getStatus();

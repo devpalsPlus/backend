@@ -1,9 +1,7 @@
 package hs.kr.backend.devpals.domain.project.entity;
 
-import hs.kr.backend.devpals.domain.project.convert.MethodTypeConverter;
 import hs.kr.backend.devpals.domain.project.dto.ProjectAllDto;
 import hs.kr.backend.devpals.domain.user.convert.LongListConverter;
-import hs.kr.backend.devpals.global.common.enums.MethodType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -38,9 +36,9 @@ public class ProjectEntity {
 
     private String estimatedPeriod;
 
-    @Convert(converter = MethodTypeConverter.class)
-    @Column(nullable = false)
-    private MethodType method;
+//    @Convert(converter = MethodTypeConverter.class)
+//    @Column(nullable = false)
+//    private MethodType method;
 
     @Column(nullable = false)
     private Long authorId;
@@ -65,6 +63,9 @@ public class ProjectEntity {
     @Column(columnDefinition = "TEXT")
     private List<Long> skillTagIds;
 
+    @Column(columnDefinition = "TEXT")
+    private Long methodTypeId;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -82,12 +83,12 @@ public class ProjectEntity {
                 .totalMember(request.getTotalMember())
                 .startDate(request.getStartDate())
                 .estimatedPeriod(request.getEstimatedPeriod())
-                .method(request.getMethodType())
                 .authorId(userId)
                 .isBeginner(request.getIsBeginner() != null ? request.getIsBeginner() : false)
                 .isDone(request.getIsDone() != null ? request.getIsDone() : false)
                 .recruitmentStartDate(request.getRecruitmentStartDate())
                 .recruitmentEndDate(request.getRecruitmentEndDate())
+                .methodTypeId(request.getMethodTypeId())
                 .positionTagIds(request.getPositionTagIds())
                 .skillTagIds(request.getSkillTagIds())
                 .createdAt(LocalDateTime.now())
@@ -101,17 +102,21 @@ public class ProjectEntity {
         this.totalMember = request.getTotalMember();
         this.startDate = request.getStartDate();
         this.estimatedPeriod = request.getEstimatedPeriod();
-        this.method = request.getMethodType();
         this.isBeginner = request.getIsBeginner();
         this.isDone = request.getIsDone();
         this.recruitmentStartDate = request.getRecruitmentStartDate();
         this.recruitmentEndDate = request.getRecruitmentEndDate();
+        this.methodTypeId = request.getMethodTypeId();
         this.positionTagIds = request.getPositionTagIds();
         this.skillTagIds = request.getSkillTagIds();
     }
 
     public List<Long> getSkillTagsAsList() {
         return skillTagIds != null ? skillTagIds : Collections.emptyList();
+    }
+
+    public void updateIsDone(boolean isDone) {
+        this.isDone = isDone;
     }
 
 }

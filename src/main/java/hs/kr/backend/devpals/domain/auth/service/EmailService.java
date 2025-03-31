@@ -5,12 +5,17 @@ import hs.kr.backend.devpals.domain.auth.dto.EmailVertificationRequest;
 import hs.kr.backend.devpals.domain.auth.dto.ResetPasswordRequest;
 import hs.kr.backend.devpals.domain.auth.entity.EmailVertificationEntity;
 import hs.kr.backend.devpals.domain.auth.repository.AuthenticodeRepository;
+import hs.kr.backend.devpals.domain.project.entity.ApplicantEntity;
+import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
+import hs.kr.backend.devpals.global.common.enums.ApplicantStatus;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
 import hs.kr.backend.devpals.global.common.ApiCustomResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -19,9 +24,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class EmailService {
 
@@ -29,6 +39,9 @@ public class EmailService {
     private final AuthenticodeRepository authenticodeRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    @Qualifier("emailExecutor")
+    private final Executor emailExecutor; // 병렬 실행을 위한 Executor 주입
+
 
     @Transactional
     public ResponseEntity<ApiCustomResponse<String>> emailSend(EmailRequest request) {
@@ -80,6 +93,47 @@ public class EmailService {
         return ResponseEntity.ok(new ApiCustomResponse<>(true, "이메일 인증 성공", null));
     }
 
+    /**
+     * 지원자 리스트에 대해 비동기 이메일 전송
+     */
+    public CompletableFuture<Void> sendEmailsAsync(List<ApplicantEntity> applicants, ProjectEntity project) {
+        int batchSize = 5; // 한 번에 5개씩 이메일 전송
+
+        List<List<ApplicantEntity>> batches = new ArrayList<>();
+        for (int i = 0; i < applicants.size(); i += batchSize) {
+            batches.add(applicants.subList(i, Math.min(i + batchSize, applicants.size())));
+        }
+
+        List<CompletableFuture<Void>> futures = batches.stream()
+                .map(batch -> CompletableFuture.runAsync(() -> {
+                    for (ApplicantEntity applicant : batch) {
+                        sendEmailsToApplicantsByStatus(applicant, project);
+                    }
+                }, emailExecutor))
+                .toList();
+
+        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+    }
+
+    public CompletableFuture<Void> sendEmailsToApplicantsByStatus(ApplicantEntity applicant, ProjectEntity project) {
+        return CompletableFuture.runAsync(() -> {
+            String email = applicant.getEmail();
+
+            String message = applicant.getStatus() == ApplicantStatus.ACCEPTED
+                    ? "축하합니다! " + project.getTitle() + " 프로젝트에 합격하셨습니다."
+                    : "안타깝지만 " + project.getTitle() + " 프로젝트에 불합격하셨습니다.";
+
+            try {
+                sendEmail(email, "DevPals 프로젝트 지원 결과", message);
+            } catch (Exception e) {
+                log.error("이메일 전송 중 오류 발생 - 프로젝트: {}, 지원자 이메일: {}, 오류 메시지: {}",
+                        project.getTitle(), email, e.getMessage(), e);
+                throw new RuntimeException(e);
+            }
+        }, emailExecutor);
+    }
+
+
     @Transactional
     public ResponseEntity<ApiCustomResponse<String>> resetPassword(ResetPasswordRequest request) {
         String email = request.getEmail();
@@ -123,6 +177,15 @@ public class EmailService {
         message.setFrom("Devpals <skaehgus113@naver.com>");
         message.setSubject("DevPals 이메일 인증 코드");
         message.setText("인증 코드: " + verificationCode + "\n\n해당 코드를 입력하여 이메일 인증을 완료하세요.");
+
+        javaMailSender.send(message);
+    }
+    private void sendEmail(String to, String subject, String text) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setFrom("Devpals <skaehgus113@naver.com>");
+        message.setSubject(subject);
+        message.setText(text);
 
         javaMailSender.send(message);
     }

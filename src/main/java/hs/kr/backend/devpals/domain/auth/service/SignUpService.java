@@ -28,8 +28,8 @@ public class SignUpService {
         String password = request.getPassword();
 
         // 이메일 인증 여부 확인
-        authenticodeRepository.findTopByUserEmailOrderByExpiresAtDesc(email)
-                .orElseThrow(() -> new CustomException(ErrorException.EMAIL_VERTIFICATION));
+//        authenticodeRepository.findTopByUserEmailOrderByExpiresAtDesc(email)
+//                .orElseThrow(() -> new CustomException(ErrorException.EMAIL_VERTIFICATION));
 
 
         // 이메일 중복 체크

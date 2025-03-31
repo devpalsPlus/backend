@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
 import hs.kr.backend.devpals.domain.user.dto.PositionTagResponse;
 import hs.kr.backend.devpals.domain.user.dto.SkillTagResponse;
-import hs.kr.backend.devpals.global.common.enums.MethodType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,7 +23,6 @@ public class ProjectAllDto {
     private int totalMember;
     private LocalDate startDate;
     private String estimatedPeriod;
-    private MethodType methodType;
     private Boolean isBeginner;
     private Boolean isDone;
     private LocalDate recruitmentStartDate;
@@ -35,13 +33,16 @@ public class ProjectAllDto {
     private List<Long> positionTagIds;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private List<Long> skillTagIds;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Long methodTypeId;
 
+    private MethodTypeResponse methodType;
     private List<PositionTagResponse> positions;
     private List<SkillTagResponse> skills;
 
 
     // response로 보내는 값
-    public static ProjectAllDto fromEntity(ProjectEntity project, List<PositionTagResponse> positions, List<SkillTagResponse> skills) {
+    public static ProjectAllDto fromEntity(ProjectEntity project, List<PositionTagResponse> positions, List<SkillTagResponse> skills,MethodTypeResponse methodType) {
         return ProjectAllDto.builder()
                 .id(project.getId())
                 .title(project.getTitle())
@@ -49,12 +50,12 @@ public class ProjectAllDto {
                 .totalMember(project.getTotalMember())
                 .startDate(project.getStartDate())
                 .estimatedPeriod(project.getEstimatedPeriod())
-                .methodType(project.getMethod())
                 .isBeginner(project.isBeginner())
                 .isDone(project.isDone())
                 .recruitmentStartDate(project.getRecruitmentStartDate())
                 .recruitmentEndDate(project.getRecruitmentEndDate())
                 .authorId(project.getAuthorId())
+                .methodType(methodType)
                 .positions(positions)
                 .skills(skills)
                 .build();

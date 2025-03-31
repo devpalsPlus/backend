@@ -3,7 +3,6 @@ package hs.kr.backend.devpals.domain.project.controller;
 import hs.kr.backend.devpals.domain.project.dto.*;
 import hs.kr.backend.devpals.domain.project.service.ProjectService;
 import hs.kr.backend.devpals.global.common.ApiCustomResponse;
-import hs.kr.backend.devpals.global.common.enums.MethodType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -36,15 +35,14 @@ public class ProjectController {
                     examples = @ExampleObject(value = "{\"success\": false, \"message\": \"프로젝트를 불러오는 중 오류가 발생했습니다.\", \"data\": null}")
             )
     )
-    public ResponseEntity<ApiCustomResponse<List<ProjectAllDto>>> getProjectAll(
+    public ResponseEntity<ApiCustomResponse<ProjectListResponse>> getProjectAll(
             @RequestParam(required = false) List<Long> skillTag,
             @RequestParam(required = false) Long positionTag,
-            @RequestParam(required = false) MethodType methodType,
+            @RequestParam(required = false) Long methodType,
             @RequestParam(required = false) Boolean isBeginner,
             @RequestParam(required = false) String keyword,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "12") int size) {
-        return projectService.getProjectAll(skillTag, positionTag, methodType, isBeginner, keyword, page, size);
+            @RequestParam(defaultValue = "1") int page) {
+        return projectService.getProjectAll(skillTag, positionTag, methodType, isBeginner, keyword, page);
     }
 
     @GetMapping("/count")
@@ -61,6 +59,14 @@ public class ProjectController {
     )
     public ResponseEntity<ApiCustomResponse<ProjectCountResponse>> getProjectCount() {
         return projectService.getProjectCount();
+    }
+
+    @GetMapping("/my")
+    @Operation(summary = "기획자가 등록한 프로젝트 목록", description = "기획자(본인)가 등록한 프로젝트 목록을 등록순으로 보여줍니다.")
+    @ApiResponse(responseCode = "200", description = "프로젝트 목록 가져오기 성공")
+    public ResponseEntity<ApiCustomResponse<List<ProjectAuthoredResponse>>> getMyProject(
+            @RequestHeader("Authorization") String token) {
+        return projectService.getMyProject(token);
     }
 
     @PutMapping("/{projectId}")
@@ -80,6 +86,24 @@ public class ProjectController {
             @RequestHeader("Authorization") String token,
             @RequestBody ProjectAllDto request) {
         return projectService.updateProject(projectId, token, request);
+    }
+
+    @PutMapping("/{projectId}/close")
+    @Operation(summary = "공고 모집 종료", description = "기획자(본인)가 공고 모집을 종료합니다.")
+    @ApiResponse(responseCode = "200", description = "공고 모집 종료 성공")
+    @ApiResponse(
+            responseCode = "400",
+            description = "해당 공고 작성자(기획자)가 아닌 경우",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ApiCustomResponse.class),
+                    examples = @ExampleObject(value = "{\"success\": false, \"message\": \"기획자만 모집을 종료할 수 있습니다.\", \"data\": null}")
+            )
+    )
+    public ResponseEntity<ApiCustomResponse<ProjectCloseResponse>> closeProject(
+            @PathVariable Long projectId,
+            @RequestHeader("Authorization") String token) {
+        return projectService.closeProject(projectId, token);
     }
 
     @PostMapping
