@@ -75,6 +75,11 @@ public class UserEntity {
         this.refreshToken = refreshToken;
     }
 
+    //비밀번호 재설정
+    public void updatePassword(String newPassword) {
+        this.password = newPassword;
+    }
+
     public UserEntity(String email, String password, String nickname) {
         this.email = email;
         this.password = password;

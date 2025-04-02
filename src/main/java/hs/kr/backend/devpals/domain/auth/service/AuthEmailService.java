@@ -23,7 +23,7 @@ import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
-public class EmailService {
+public class AuthEmailService {
 
     private final JavaMailSender javaMailSender;
     private final AuthenticodeRepository authenticodeRepository;

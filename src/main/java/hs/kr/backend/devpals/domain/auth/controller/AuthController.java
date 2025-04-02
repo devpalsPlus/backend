@@ -15,27 +15,30 @@ import org.springframework.web.bind.annotation.*;
 
 public class AuthController {
 
-    private final LoginService loginService;
-    private final LogoutService logoutService;
-    private final SignUpService signUpService;
-    private final TokenRefreshService tokenRefreshService;
-    private final EmailService emailService;
+    private final AuthService authService;
+    private final AuthEmailService emailService;
 
     // 회원가입 API
     @PostMapping("/sign-up")
     public ResponseEntity<ApiResponse<LoginUserResponse>> signUp(@RequestBody SignUpRequest request) {
-        return signUpService.signUp(request);
+        return authService.signUp(request);
     }
-    //  로그인 API (JWT 반환)
+    // 로그인 API (JWT 반환)
     @PostMapping("/login")
     public ResponseEntity<LoginResponse<TokenResponse>> login(@RequestBody LoginRequest request) {
-        return loginService.login(request);
+        return authService.login(request);
+    }
+
+    // 로그아웃 API
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<String>> logout(@RequestHeader("Authorization") String token){
+        return authService.logout(token);
     }
 
     // Refresh Token API
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponse<TokenResponse>> tokenRefresh(HttpServletRequest request) {
-        return tokenRefreshService.tokenRefreshRequest(request);
+        return authService.tokenRefreshRequest(request);
     }
 
     @PostMapping("/email-send")
@@ -51,10 +54,5 @@ public class AuthController {
     @PostMapping("/password/reset")
     public ResponseEntity<ApiResponse<String>> resetPassword(@RequestBody ResetPasswordRequest request){
         return emailService.resetPassword(request);
-    }
-
-    @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<String>> logout(@RequestHeader("Authorization") String token){
-        return logoutService.logout(token);
     }
 }
