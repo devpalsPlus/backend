@@ -212,7 +212,6 @@ public class ProjectService {
     // 메소드 태그 변환 (ID 리스트 -> DTO 리스트)
     private MethodTypeResponse getMethodTypeResponse(Long methodTypeId) {
 
-
         return MethodTypeResponse.fromEntity(projectFacade.getMethodTypeById(methodTypeId));
     }
 

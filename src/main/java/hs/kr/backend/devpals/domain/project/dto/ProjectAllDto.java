@@ -23,6 +23,7 @@ public class ProjectAllDto {
     private int totalMember;
     private LocalDate startDate;
     private String estimatedPeriod;
+    private Integer views;
     private Boolean isBeginner;
     private Boolean isDone;
     private LocalDate recruitmentStartDate;
@@ -50,6 +51,7 @@ public class ProjectAllDto {
                 .totalMember(project.getTotalMember())
                 .startDate(project.getStartDate())
                 .estimatedPeriod(project.getEstimatedPeriod())
+                .views(project.getViews())
                 .isBeginner(project.isBeginner())
                 .isDone(project.isDone())
                 .recruitmentStartDate(project.getRecruitmentStartDate())

@@ -63,7 +63,6 @@ public class ProjectEntity {
     @Column(columnDefinition = "TEXT")
     private List<Long> skillTagIds;
 
-    @Column(columnDefinition = "TEXT")
     private Long methodTypeId;
 
     @Column(nullable = false, updatable = false)
@@ -83,6 +82,7 @@ public class ProjectEntity {
                 .totalMember(request.getTotalMember())
                 .startDate(request.getStartDate())
                 .estimatedPeriod(request.getEstimatedPeriod())
+                .views(request.getViews())
                 .authorId(userId)
                 .isBeginner(request.getIsBeginner() != null ? request.getIsBeginner() : false)
                 .isDone(request.getIsDone() != null ? request.getIsDone() : false)
