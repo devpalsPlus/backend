@@ -2,6 +2,7 @@ package hs.kr.backend.devpals.domain.project.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
+import hs.kr.backend.devpals.domain.user.dto.LoginUserResponse;
 import hs.kr.backend.devpals.domain.user.dto.PositionTagResponse;
 import hs.kr.backend.devpals.domain.user.dto.SkillTagResponse;
 import lombok.AllArgsConstructor;
@@ -28,7 +29,7 @@ public class ProjectAllDto {
     private Boolean isDone;
     private LocalDate recruitmentStartDate;
     private LocalDate recruitmentEndDate;
-    private Long authorId;
+    private ProjectUserResponse user;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private List<Long> positionTagIds;
@@ -43,7 +44,8 @@ public class ProjectAllDto {
 
 
     // response로 보내는 값
-    public static ProjectAllDto fromEntity(ProjectEntity project, List<PositionTagResponse> positions, List<SkillTagResponse> skills,MethodTypeResponse methodType) {
+    public static ProjectAllDto fromEntity(ProjectEntity project, List<PositionTagResponse> positions,
+                                           List<SkillTagResponse> skills,MethodTypeResponse methodType, ProjectUserResponse user) {
         return ProjectAllDto.builder()
                 .id(project.getId())
                 .title(project.getTitle())
@@ -56,7 +58,7 @@ public class ProjectAllDto {
                 .isDone(project.isDone())
                 .recruitmentStartDate(project.getRecruitmentStartDate())
                 .recruitmentEndDate(project.getRecruitmentEndDate())
-                .authorId(project.getAuthorId())
+                .user(user)
                 .methodType(methodType)
                 .positions(positions)
                 .skills(skills)

@@ -7,9 +7,12 @@ import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
 import hs.kr.backend.devpals.domain.project.facade.ProjectFacade;
 import hs.kr.backend.devpals.domain.project.repository.ApplicantRepository;
 import hs.kr.backend.devpals.domain.project.repository.ProjectRepository;
+import hs.kr.backend.devpals.domain.user.dto.LoginUserResponse;
 import hs.kr.backend.devpals.domain.user.dto.PositionTagResponse;
 import hs.kr.backend.devpals.domain.user.dto.SkillTagResponse;
+import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.facade.UserFacade;
+import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.common.enums.ApplicantStatus;
 import hs.kr.backend.devpals.global.exception.CustomException;
@@ -31,6 +34,7 @@ import java.util.stream.Collectors;
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
+    private final UserRepository userRepository;
     private final UserFacade userFacade;
     private final ProjectFacade projectFacade;
     private final JwtTokenValidator jwtTokenValidator;
@@ -242,7 +246,12 @@ public class ProjectService {
         List<PositionTagResponse> positionResponses = getPositionTagResponses(project.getPositionTagIds());
         MethodTypeResponse methodTypeResponse = getMethodTypeResponse(project.getMethodTypeId());
 
-        return ProjectAllDto.fromEntity(project, positionResponses, skillResponses, methodTypeResponse);
+        UserEntity userEntity = userRepository.findById(project.getAuthorId())
+                .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
+
+        ProjectUserResponse user = ProjectUserResponse.fromEntity(userEntity);
+
+        return ProjectAllDto.fromEntity(project, positionResponses, skillResponses, methodTypeResponse, user);
     }
 
 }
