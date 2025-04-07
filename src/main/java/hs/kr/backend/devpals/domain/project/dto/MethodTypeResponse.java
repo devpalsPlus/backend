@@ -14,13 +14,11 @@ import java.time.LocalDateTime;
 public class MethodTypeResponse {
     private  Long id;
     private  String name;
-    private  LocalDateTime createAt;
 
     public static MethodTypeResponse fromEntity(MethodTypeEntity methodType){
         return MethodTypeResponse.builder()
                 .id(methodType.getId())
                 .name(methodType.getName())
-                .createAt(methodType.getCreatedAt())
                 .build();
     }
 }
