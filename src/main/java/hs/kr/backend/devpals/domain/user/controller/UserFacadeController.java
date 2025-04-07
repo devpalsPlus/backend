@@ -88,4 +88,14 @@ public class UserFacadeController {
     public ResponseEntity<ApiResponse<SkillTagEntity>> createSkillTag(@ModelAttribute SkillTagRequest request) {
         return userFacade.createSkillTag(request);
     }
+
+    @DeleteMapping("/position-tag")
+    public ResponseEntity<ApiResponse<String>> deletePositionTag(@RequestParam Long positionTagId) {
+        return userFacade.deletePositionTag(positionTagId);
+    }
+
+    @DeleteMapping("/skill-tag")
+    public ResponseEntity<ApiResponse<String>> deleteSkillTag(@RequestParam Long skillTagId) {
+        return userFacade.deleteSkillTag(skillTagId);
+    }
 }

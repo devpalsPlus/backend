@@ -13,6 +13,7 @@ import hs.kr.backend.devpals.global.exception.ErrorException;
 import hs.kr.backend.devpals.infra.Aws.AwsS3Client;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.aspectj.weaver.patterns.AndPointcut;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -73,15 +74,41 @@ public class UserFacade {
         return ResponseEntity.ok(new ApiResponse<>(true, "포지션 태그 등록 성공", saved));
     }
 
+    public ResponseEntity<ApiResponse<List<SkillTagEntity>>> getSkillTags() {
+        List<SkillTagEntity> skillTags = List.copyOf(skillTagCache.values());
+        ApiResponse<List<SkillTagEntity>> response = new ApiResponse<>(true, "스킬 태그 목록 가져오기 성공", skillTags);
+        return ResponseEntity.ok(response);
+    }
+
     public ResponseEntity<ApiResponse<List<PositionTagEntity>>> getPositionTag() {
         List<PositionTagEntity> positionTags = List.copyOf(positionTagCache.values());
         ApiResponse<List<PositionTagEntity>> response = new ApiResponse<>(true, "포지션 태그 목록 가져오기 성공", positionTags);
         return ResponseEntity.ok(response);
     }
 
-    public ResponseEntity<ApiResponse<List<SkillTagEntity>>> getSkillTags() {
-        List<SkillTagEntity> skillTags = List.copyOf(skillTagCache.values());
-        ApiResponse<List<SkillTagEntity>> response = new ApiResponse<>(true, "스킬 태그 목록 가져오기 성공", skillTags);
+    public ResponseEntity<ApiResponse<String>> deleteSkillTag(Long skillTagId) {
+        SkillTagEntity skillTag = skillTagRepository.findById(skillTagId)
+                .orElseThrow(() -> new CustomException(ErrorException.SKILL_NOT_FOUND));
+
+        String imgUrl = skillTag.getImg();
+        String fileName = imgUrl.substring(imgUrl.lastIndexOf("/") + 1);
+        awsS3Client.delete(fileName);
+
+        skillTagRepository.delete(skillTag);
+        skillTagCache.remove(skillTagId);
+
+        ApiResponse<String> response = new ApiResponse<>(true, "스킬 태그 삭제 성공", null);
+        return ResponseEntity.ok(response);
+    }
+
+    public ResponseEntity<ApiResponse<String>> deletePositionTag(Long positionTagId) {
+        PositionTagEntity positionTag = positionTagRepository.findById(positionTagId)
+                .orElseThrow(() -> new CustomException(ErrorException.POSITION_NOT_FOUND));
+
+        positionTagRepository.delete(positionTag);
+        positionTagCache.remove(positionTagId);
+
+        ApiResponse<String> response = new ApiResponse<>(true, "포지션 태그 삭제 성공", null);
         return ResponseEntity.ok(response);
     }
 
