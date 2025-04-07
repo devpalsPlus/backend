@@ -118,10 +118,8 @@ public class UserFacade {
         return fileName.substring(fileName.lastIndexOf('.') + 1);
     }
 
+    //
     public List<SkillTagResponse> getSkillTagResponses(List<Long> skillTagIds) {
-        if (skillTagIds == null || skillTagIds.isEmpty()) {
-            return Collections.emptyList();
-        }
 
         List<SkillTagEntity> skillEntities = getSkillTagsByIds(skillTagIds);
         if (skillEntities == null || skillEntities.isEmpty()) {
