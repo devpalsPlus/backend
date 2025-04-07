@@ -5,7 +5,7 @@ import hs.kr.backend.devpals.domain.user.dto.UserUpdateRequest;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.facade.UserFacade;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
-import hs.kr.backend.devpals.global.common.ApiCustomResponse;
+import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
 import hs.kr.backend.devpals.global.jwt.JwtTokenValidator;
@@ -28,7 +28,7 @@ public class UserProfileService {
     private final AwsS3Client awsS3Client;
 
     //개인 정보 가져오기
-    public ResponseEntity<ApiCustomResponse<UserResponse>> getUserInfo(String token) {
+    public ResponseEntity<ApiResponse<UserResponse>> getUserInfo(String token) {
 
         Long userId = jwtTokenValidator.getUserId(token);
 
@@ -37,11 +37,11 @@ public class UserProfileService {
 
         UserResponse userResponse = UserResponse.fromEntity(user, userFacade);
 
-        return ResponseEntity.ok(new ApiCustomResponse<>(true, "사용자의 정보입니다.", userResponse));
+        return ResponseEntity.ok(new ApiResponse<>(true, "사용자의 정보입니다.", userResponse));
     }
 
     //상대방 정보 가져오기
-    public ResponseEntity<ApiCustomResponse<UserResponse>> getUserInfoById(String token, Long id) {
+    public ResponseEntity<ApiResponse<UserResponse>> getUserInfoById(String token, Long id) {
 
         Long requesterId = jwtTokenValidator.getUserId(token);
 
@@ -54,12 +54,12 @@ public class UserProfileService {
 
         UserResponse userResponse = UserResponse.fromEntity(user, userFacade);
 
-        return ResponseEntity.ok(new ApiCustomResponse<>(true, "사용자 정보를 조회했습니다.", userResponse));
+        return ResponseEntity.ok(new ApiResponse<>(true, "사용자 정보를 조회했습니다.", userResponse));
     }
 
     //유저 정보 업데이트
     @Transactional
-    public ResponseEntity<ApiCustomResponse<UserResponse>> userUpdateInfo(String token, UserUpdateRequest request) {
+    public ResponseEntity<ApiResponse<UserResponse>> userUpdateInfo(String token, UserUpdateRequest request) {
 
         Long userId = jwtTokenValidator.getUserId(token);
 
@@ -88,11 +88,11 @@ public class UserProfileService {
 
         UserResponse userResponse = UserResponse.fromEntity(user, userFacade);
 
-        return ResponseEntity.ok(new ApiCustomResponse<>(true, "정보가 변경되었습니다.", userResponse));
+        return ResponseEntity.ok(new ApiResponse<>(true, "정보가 변경되었습니다.", userResponse));
     }
 
     @Transactional
-    public ResponseEntity<ApiCustomResponse<String>> updateProfileImage(String token, MultipartFile file) {
+    public ResponseEntity<ApiResponse<String>> updateProfileImage(String token, MultipartFile file) {
 
         Long userId = jwtTokenValidator.getUserId(token);
 
@@ -122,7 +122,7 @@ public class UserProfileService {
         user.updateProfileImage(fileUrl);
         userRepository.save(user);
 
-        return ResponseEntity.ok(new ApiCustomResponse<>(true, "프로필 이미지가 변경되었습니다.", fileUrl));
+        return ResponseEntity.ok(new ApiResponse<>(true, "프로필 이미지가 변경되었습니다.", fileUrl));
     }
 
     // 파일 타입 검증

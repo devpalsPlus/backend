@@ -1,6 +1,6 @@
 package hs.kr.backend.devpals.domain.project.service;
 
-import hs.kr.backend.devpals.domain.auth.service.EmailService;
+import hs.kr.backend.devpals.domain.auth.service.AuthEmailService;
 import hs.kr.backend.devpals.domain.project.dto.*;
 import hs.kr.backend.devpals.domain.project.entity.ApplicantEntity;
 import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
@@ -10,7 +10,7 @@ import hs.kr.backend.devpals.domain.project.repository.ProjectRepository;
 import hs.kr.backend.devpals.domain.user.dto.PositionTagResponse;
 import hs.kr.backend.devpals.domain.user.dto.SkillTagResponse;
 import hs.kr.backend.devpals.domain.user.facade.UserFacade;
-import hs.kr.backend.devpals.global.common.ApiCustomResponse;
+import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.common.enums.ApplicantStatus;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
@@ -35,7 +35,7 @@ public class ProjectService {
     private final ProjectFacade projectFacade;
     private final JwtTokenValidator jwtTokenValidator;
     private final ApplicantRepository applicantRepository;
-    private final EmailService emailService;
+    private final AuthEmailService authEmailService;
     @Qualifier("taskExecutor")
     private final Executor taskExecutor;
     @Qualifier("emailExecutor")
@@ -44,7 +44,7 @@ public class ProjectService {
     private final Map<Long, ProjectAllDto> projectAllCache = new HashMap<>();
 
     // 프로젝트 목록 조회
-    public ResponseEntity<ApiCustomResponse<ProjectListResponse>> getProjectAll(
+    public ResponseEntity<ApiResponse<ProjectListResponse>> getProjectAll(
             List<Long> skillTagId, Long positionTagId,
             Long methodTypeId, Boolean isBeginner,
             String keyword, int page) {
@@ -79,22 +79,22 @@ public class ProjectService {
 
         ProjectListResponse responseDto = new ProjectListResponse(page, lastPage, totalProjects, filteredProjects);
 
-        return ResponseEntity.ok(new ApiCustomResponse<>(true, "프로젝트 목록 조회 성공", responseDto));
+        return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 목록 조회 성공", responseDto));
     }
 
     // 프로젝트 개수 조회
-    public ResponseEntity<ApiCustomResponse<ProjectCountResponse>> getProjectCount() {
+    public ResponseEntity<ApiResponse<ProjectCountResponse>> getProjectCount() {
         long totalProjectCount = projectRepository.count();
         long ongoingProjectCount = projectRepository.countByIsDoneFalse();
         long endProjectCount = totalProjectCount - ongoingProjectCount;
 
         ProjectCountResponse responseData = new ProjectCountResponse(totalProjectCount, ongoingProjectCount, endProjectCount);
-        return ResponseEntity.ok(new ApiCustomResponse<>(true, "프로젝트 개수 조회 성공", responseData));
+        return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 개수 조회 성공", responseData));
     }
 
     // 프로젝트 업데이트
     @Transactional
-    public ResponseEntity<ApiCustomResponse<ProjectAllDto>> updateProject(Long projectId, String token, ProjectAllDto request) {
+    public ResponseEntity<ApiResponse<ProjectAllDto>> updateProject(Long projectId, String token, ProjectAllDto request) {
         Long userId = jwtTokenValidator.getUserId(token);
 
         ProjectEntity project = projectRepository.findById(projectId)
@@ -110,12 +110,12 @@ public class ProjectService {
         ProjectAllDto updatedProject = convertToDto(project);
         projectAllCache.put(projectId, updatedProject);
 
-        return ResponseEntity.ok(new ApiCustomResponse<>(true, "프로젝트 업데이트 완료", updatedProject));
+        return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 업데이트 완료", updatedProject));
     }
 
     // 프로젝트 등록
     @Transactional
-    public ResponseEntity<ApiCustomResponse<ProjectAllDto>> projectSignup(ProjectAllDto request, String token) {
+    public ResponseEntity<ApiResponse<ProjectAllDto>> projectSignup(ProjectAllDto request, String token) {
         Long userId = jwtTokenValidator.getUserId(token);
 
         ProjectEntity project = ProjectEntity.fromRequest(request, userId);
@@ -124,19 +124,19 @@ public class ProjectService {
         ProjectAllDto responseDto = convertToDto(savedProject);
         projectAllCache.put(savedProject.getId(), responseDto);
 
-        return ResponseEntity.ok(new ApiCustomResponse<>(true, "프로젝트 등록 완료", responseDto));
+        return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 등록 완료", responseDto));
     }
 
     // 특정 프로젝트 조회
-    public ResponseEntity<ApiCustomResponse<ProjectAllDto>> getProjectList(Long projectId) {
+    public ResponseEntity<ApiResponse<ProjectAllDto>> getProjectList(Long projectId) {
         ProjectAllDto project = projectAllCache.get(projectId);
         if (project == null) {
             throw new CustomException(ErrorException.PROJECT_NOT_FOUND);
         }
-        return ResponseEntity.ok(new ApiCustomResponse<>(true, "프로젝트 상세 내용조회 성공", project));
+        return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 상세 내용조회 성공", project));
     }
 
-    public ResponseEntity<ApiCustomResponse<List<ProjectAuthoredResponse>>> getMyProject(String token) {
+    public ResponseEntity<ApiResponse<List<ProjectAuthoredResponse>>> getMyProject(String token) {
         Long userId = jwtTokenValidator.getUserId(token);
         List<ProjectEntity> projects = projectRepository.findProjectsByAuthorId(userId);
         List<ProjectAuthoredResponse> projectAuthoredResponses = projects.stream()
@@ -148,12 +148,12 @@ public class ProjectService {
                 ))
                 .toList();
 
-        return ResponseEntity.ok(new ApiCustomResponse<>(true, "내 프로젝트 조회 성공", projectAuthoredResponses));
+        return ResponseEntity.ok(new ApiResponse<>(true, "내 프로젝트 조회 성공", projectAuthoredResponses));
     }
 
     // 프로젝트 모집 종료하기
     @Transactional
-    public ResponseEntity<ApiCustomResponse<ProjectCloseResponse>> closeProject(Long projectId, String token) {
+    public ResponseEntity<ApiResponse<ProjectCloseResponse>> closeProject(Long projectId, String token) {
         Long userId = jwtTokenValidator.getUserId(token);
 
         // 프로젝트 조회 및 유효성 검사
@@ -176,9 +176,9 @@ public class ProjectService {
         projectRepository.save(project);
         applicantRepository.saveAll(applicants);
 
-        CompletableFuture.runAsync(() -> emailService.sendEmailsAsync(applicants, project), emailExecutor);
+        CompletableFuture.runAsync(() -> authEmailService.sendEmailsAsync(applicants, project), emailExecutor);
 
-        return ResponseEntity.ok(new ApiCustomResponse<>(true, "프로젝트 모집 종료 성공", ProjectCloseResponse.fromEntity(project, methodTypeResponse)));
+        return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 모집 종료 성공", ProjectCloseResponse.fromEntity(project, methodTypeResponse)));
     }
 
     @Transactional
@@ -204,7 +204,7 @@ public class ProjectService {
                 .thenCompose(ignored -> CompletableFuture.runAsync(() -> { // ✅ 이메일 전송 (순서 보장)
                     projects.forEach(project -> {
                         List<ApplicantEntity> applicants = projectApplicantsMap.get(project);
-                        emailService.sendEmailsAsync(applicants, project);
+                        authEmailService.sendEmailsAsync(applicants, project);
                     });
                 }, emailExecutor));
     }

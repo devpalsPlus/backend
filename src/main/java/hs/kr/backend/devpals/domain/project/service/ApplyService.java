@@ -7,7 +7,7 @@ import hs.kr.backend.devpals.domain.project.repository.ApplicantRepository;
 import hs.kr.backend.devpals.domain.project.repository.ProjectRepository;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
-import hs.kr.backend.devpals.global.common.ApiCustomResponse;
+import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.common.enums.ApplicantStatus;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
@@ -28,7 +28,7 @@ public class ApplyService {
     private final ApplicantRepository applicantRepository;
 
     // 프로젝트 지원하기
-    public ResponseEntity<ApiCustomResponse<String>> projectApply(Long projectId, ProjectApplyRequest request, String token)   {
+    public ResponseEntity<ApiResponse<String>> projectApply(Long projectId, ProjectApplyRequest request, String token)   {
 
         Long userId = jwtTokenValidator.getUserId(token);
 
@@ -46,11 +46,11 @@ public class ApplyService {
         ApplicantEntity applicant = ApplicantEntity.createApplicant(user, project, request);
         applicantRepository.save(applicant);
 
-        return ResponseEntity.ok(new ApiCustomResponse<String>(true, "프로젝트 지원 되었습니다." , null));
+        return ResponseEntity.ok(new ApiResponse<String>(true, "프로젝트 지원 되었습니다." , null));
     }
 
     // 프로젝트의 지원자 목록 가져오기
-    public ResponseEntity<ApiCustomResponse<List<ProjectApplicantResponse>>> getProjectApplicantList(Long projectId, String token) {
+    public ResponseEntity<ApiResponse<List<ProjectApplicantResponse>>> getProjectApplicantList(Long projectId, String token) {
         Long userId = jwtTokenValidator.getUserId(token);
 
         ProjectEntity project = projectRepository.findById(projectId)
@@ -66,12 +66,12 @@ public class ApplyService {
                 .map(ProjectApplicantResponse::fromEntity)
                 .toList();
 
-        return ResponseEntity.ok(new ApiCustomResponse<>(true, "공고 지원자 목록 가져오기 성공",projectApplicants));
+        return ResponseEntity.ok(new ApiResponse<>(true, "공고 지원자 목록 가져오기 성공",projectApplicants));
 
     }
 
     // 프로젝트의 합격/불합격 목록 가져오기
-    public ResponseEntity<ApiCustomResponse<ProjectApplicantResultResponse>> getProjectApplicantResults(Long projectId, String token) {
+    public ResponseEntity<ApiResponse<ProjectApplicantResultResponse>> getProjectApplicantResults(Long projectId, String token) {
         Long userId = jwtTokenValidator.getUserId(token);
 
         ProjectEntity project = projectRepository.findById(projectId)
@@ -83,11 +83,11 @@ public class ApplyService {
         List<ApplicantEntity> applicants = applicantRepository.findByProject(project);
 
 
-        return ResponseEntity.ok(new ApiCustomResponse<>(true, "공고 합격자/불합격자 목록 가져오기 성공",ProjectApplicantResultResponse.fromEntity(applicants)));
+        return ResponseEntity.ok(new ApiResponse<>(true, "공고 합격자/불합격자 목록 가져오기 성공",ProjectApplicantResultResponse.fromEntity(applicants)));
     }
 
     // 프로젝트 지원한 지원자의 상태 변경하기
-    public ResponseEntity<ApiCustomResponse<ApplicantStatusUpdateResponse>> modifyApplicantStatus(Long projectId, String token, ApplicantStatusUpdateRequest applicantStatusUpdateRequest) {
+    public ResponseEntity<ApiResponse<ApplicantStatusUpdateResponse>> modifyApplicantStatus(Long projectId, String token, ApplicantStatusUpdateRequest applicantStatusUpdateRequest) {
         Long userId = jwtTokenValidator.getUserId(token);
         String status = applicantStatusUpdateRequest.getStatus();
         ProjectEntity project = projectRepository.findById(projectId)
@@ -109,7 +109,7 @@ public class ApplyService {
 
         applicant.updateStatus(applicantStatus);
 
-        return ResponseEntity.ok(new ApiCustomResponse<>(true, "지원자의 상태 변경 성공", ApplicantStatusUpdateResponse.fromEntity(applicant)));
+        return ResponseEntity.ok(new ApiResponse<>(true, "지원자의 상태 변경 성공", ApplicantStatusUpdateResponse.fromEntity(applicant)));
 
     }
 

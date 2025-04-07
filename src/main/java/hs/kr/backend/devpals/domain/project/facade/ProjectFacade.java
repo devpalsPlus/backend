@@ -2,7 +2,7 @@ package hs.kr.backend.devpals.domain.project.facade;
 
 import hs.kr.backend.devpals.domain.project.entity.MethodTypeEntity;
 import hs.kr.backend.devpals.domain.project.repository.MethodTypeRepository;
-import hs.kr.backend.devpals.global.common.ApiCustomResponse;
+import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
 import jakarta.annotation.PostConstruct;
@@ -36,9 +36,9 @@ public class ProjectFacade {
         methodTypeCache.putAll(methodTypes.stream().collect(Collectors.toMap(MethodTypeEntity::getId, methodType -> methodType)));
     }
 
-    public ResponseEntity<ApiCustomResponse<List<MethodTypeEntity>>> getMethodType() {
+    public ResponseEntity<ApiResponse<List<MethodTypeEntity>>> getMethodType() {
         List<MethodTypeEntity> methodTypes = List.copyOf(methodTypeCache.values());
-        ApiCustomResponse<List<MethodTypeEntity>> response = new ApiCustomResponse<>(true, "방식 유형 목록 가져오기 성공", methodTypes);
+        ApiResponse<List<MethodTypeEntity>> response = new ApiResponse<>(true, "방식 유형 목록 가져오기 성공", methodTypes);
         return ResponseEntity.ok(response);
     }
 

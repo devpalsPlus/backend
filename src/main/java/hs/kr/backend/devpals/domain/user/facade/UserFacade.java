@@ -7,7 +7,7 @@ import hs.kr.backend.devpals.domain.user.entity.PositionTagEntity;
 import hs.kr.backend.devpals.domain.user.entity.SkillTagEntity;
 import hs.kr.backend.devpals.domain.user.repository.PositionTagRepository;
 import hs.kr.backend.devpals.domain.user.repository.SkillTagRepository;
-import hs.kr.backend.devpals.global.common.ApiCustomResponse;
+import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
 import hs.kr.backend.devpals.infra.Aws.AwsS3Client;
@@ -53,7 +53,7 @@ public class UserFacade {
         }
     }
 
-    public ResponseEntity<ApiCustomResponse<SkillTagEntity>> createSkillTag(SkillTagRequest request) {
+    public ResponseEntity<ApiResponse<SkillTagEntity>> createSkillTag(SkillTagRequest request) {
         String ext = getSkillExtension(request.getImg().getOriginalFilename());
         String fileName = request.getName().trim().replaceAll("\\s+", "_") + "." + ext;
 
@@ -63,25 +63,25 @@ public class UserFacade {
         SkillTagEntity saved = skillTagRepository.save(skillTag);
         refreshSkillTags();
 
-        return ResponseEntity.ok(new ApiCustomResponse<>(true, "스킬 태그 등록 성공", saved));
+        return ResponseEntity.ok(new ApiResponse<>(true, "스킬 태그 등록 성공", saved));
     }
 
-    public ResponseEntity<ApiCustomResponse<PositionTagEntity>> createPositionTag(PositionTagRequest request) {
+    public ResponseEntity<ApiResponse<PositionTagEntity>> createPositionTag(PositionTagRequest request) {
         PositionTagEntity positionTag = new PositionTagEntity(request.getName());
         PositionTagEntity saved = positionTagRepository.save(positionTag);
         refreshPositionTags();
-        return ResponseEntity.ok(new ApiCustomResponse<>(true, "포지션 태그 등록 성공", saved));
+        return ResponseEntity.ok(new ApiResponse<>(true, "포지션 태그 등록 성공", saved));
     }
 
-    public ResponseEntity<ApiCustomResponse<List<PositionTagEntity>>> getPositionTag() {
+    public ResponseEntity<ApiResponse<List<PositionTagEntity>>> getPositionTag() {
         List<PositionTagEntity> positionTags = List.copyOf(positionTagCache.values());
-        ApiCustomResponse<List<PositionTagEntity>> response = new ApiCustomResponse<>(true, "포지션 태그 목록 가져오기 성공", positionTags);
+        ApiResponse<List<PositionTagEntity>> response = new ApiResponse<>(true, "포지션 태그 목록 가져오기 성공", positionTags);
         return ResponseEntity.ok(response);
     }
 
-    public ResponseEntity<ApiCustomResponse<List<SkillTagEntity>>> getSkillTags() {
+    public ResponseEntity<ApiResponse<List<SkillTagEntity>>> getSkillTags() {
         List<SkillTagEntity> skillTags = List.copyOf(skillTagCache.values());
-        ApiCustomResponse<List<SkillTagEntity>> response = new ApiCustomResponse<>(true, "스킬 태그 목록 가져오기 성공", skillTags);
+        ApiResponse<List<SkillTagEntity>> response = new ApiResponse<>(true, "스킬 태그 목록 가져오기 성공", skillTags);
         return ResponseEntity.ok(response);
     }
 

@@ -12,7 +12,7 @@ import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.common.enums.ApplicantStatus;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
-import hs.kr.backend.devpals.global.common.ApiCustomResponse;
+import hs.kr.backend.devpals.global.common.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -33,7 +33,7 @@ import java.util.concurrent.Executor;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class EmailService {
+public class AuthEmailService {
 
     private final JavaMailSender javaMailSender;
     private final AuthenticodeRepository authenticodeRepository;
@@ -44,7 +44,7 @@ public class EmailService {
 
 
     @Transactional
-    public ResponseEntity<ApiCustomResponse<String>> emailSend(EmailRequest request) {
+    public ResponseEntity<ApiResponse<String>> emailSend(EmailRequest request) {
         String email = request.getEmail();
 
         // 기존 인증 코드 삭제 (중복 방지)
@@ -66,10 +66,10 @@ public class EmailService {
         }
 
 
-        return ResponseEntity.ok(new ApiCustomResponse<>(true, "인증 코드가 이메일로 전송되었습니다.", null));
+        return ResponseEntity.ok(new ApiResponse<>(true, "인증 코드가 이메일로 전송되었습니다.", null));
     }
 
-    public ResponseEntity<ApiCustomResponse<String>> sendEmailVerification(EmailVertificationRequest request){
+    public ResponseEntity<ApiResponse<String>> sendEmailVerification(EmailVertificationRequest request){
         String email = request.getEmail();
         String code = request.getCode();
 
@@ -90,7 +90,7 @@ public class EmailService {
         authCode.useCode();
         authenticodeRepository.save(authCode);
 
-        return ResponseEntity.ok(new ApiCustomResponse<>(true, "이메일 인증 성공", null));
+        return ResponseEntity.ok(new ApiResponse<>(true, "이메일 인증 성공", null));
     }
 
     /**
@@ -135,7 +135,7 @@ public class EmailService {
 
 
     @Transactional
-    public ResponseEntity<ApiCustomResponse<String>> resetPassword(ResetPasswordRequest request) {
+    public ResponseEntity<ApiResponse<String>> resetPassword(ResetPasswordRequest request) {
         String email = request.getEmail();
         String code = request.getCode();
         String newPassword = request.getNewPassword();
@@ -166,7 +166,7 @@ public class EmailService {
         authCode.useCode();
         authenticodeRepository.save(authCode);
 
-        return ResponseEntity.ok(new ApiCustomResponse<>(true, "비밀번호가 성공적으로 변경되었습니다.", null));
+        return ResponseEntity.ok(new ApiResponse<>(true, "비밀번호가 성공적으로 변경되었습니다.", null));
     }
 
 

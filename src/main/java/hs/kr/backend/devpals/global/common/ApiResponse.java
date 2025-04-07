@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @Schema(description = "API 공통 응답 객체")
-public class ApiCustomResponse<T> {
+public class ApiResponse<T> {
 
     @Schema(description = "요청 성공 여부", example = "true")
     private final boolean success;
@@ -16,13 +16,13 @@ public class ApiCustomResponse<T> {
     @Schema(description = "응답 데이터", nullable = true)
     private final T data;
 
-    public ApiCustomResponse(boolean success, String message, T data) {
+    public ApiResponse(boolean success, String message, T data) {
         this.success = success;
         this.message = message;
         this.data = data;
     }
 
-    public static <T> ApiCustomResponse<T> failure(String message) {
-        return new ApiCustomResponse<>(false, message, null);
+    public static <T> ApiResponse<T> failure(String message) {
+        return new ApiResponse<>(false, message, null);
     }
 }

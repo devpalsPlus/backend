@@ -9,7 +9,7 @@ import hs.kr.backend.devpals.domain.user.dto.SkillTagResponse;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.facade.UserFacade;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
-import hs.kr.backend.devpals.global.common.ApiCustomResponse;
+import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.common.enums.ApplicantStatus;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
@@ -36,13 +36,13 @@ public class UserProjectService {
     private final UserFacade userFacade;
 
     @Transactional
-    public ResponseEntity<ApiCustomResponse<List<ProjectMineResponse>>> getMyProject(String token) {
+    public ResponseEntity<ApiResponse<List<ProjectMineResponse>>> getMyProject(String token) {
 
         Long userId = jwtTokenValidator.getUserId(token);
 
         if (projectMyCache.containsKey(userId)) {
             List<ProjectMineResponse> cachedProjects = new ArrayList<>(projectMyCache.get(userId));
-            return ResponseEntity.ok(new ApiCustomResponse<>(true, "내가 참여한 프로젝트 조회 성공", cachedProjects));
+            return ResponseEntity.ok(new ApiResponse<>(true, "내가 참여한 프로젝트 조회 성공", cachedProjects));
         }
 
         UserEntity user = userRepository.findById(userId)
@@ -70,10 +70,10 @@ public class UserProjectService {
 
         projectMyCache.put(userId, myProjects);
 
-        return ResponseEntity.ok(new ApiCustomResponse<>(true, "내가 참여한 프로젝트 조회 성공", myProjects));
+        return ResponseEntity.ok(new ApiResponse<>(true, "내가 참여한 프로젝트 조회 성공", myProjects));
     }
 
-    public ResponseEntity<ApiCustomResponse<List<ProjectMineResponse>>> getUserProject(String token, Long userId) {
+    public ResponseEntity<ApiResponse<List<ProjectMineResponse>>> getUserProject(String token, Long userId) {
 
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
@@ -96,15 +96,15 @@ public class UserProjectService {
                 })
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(new ApiCustomResponse<>(true, "사용자가 참여한 프로젝트 조회 성공", userProjects));
+        return ResponseEntity.ok(new ApiResponse<>(true, "사용자가 참여한 프로젝트 조회 성공", userProjects));
     }
 
     @Transactional
-    public ResponseEntity<ApiCustomResponse<List<ProjectApplyResponse>>> getMyProjectApply(String token) {
+    public ResponseEntity<ApiResponse<List<ProjectApplyResponse>>> getMyProjectApply(String token) {
         Long userId = jwtTokenValidator.getUserId(token);
 
         if (projectMyApplyCache.containsKey(userId)) {
-            return ResponseEntity.ok(new ApiCustomResponse<>(
+            return ResponseEntity.ok(new ApiResponse<>(
                     true, "내 지원 프로젝트 조회 성공", new ArrayList<>(projectMyApplyCache.get(userId))));
         }
 
@@ -126,7 +126,7 @@ public class UserProjectService {
 
         projectMyApplyCache.put(userId, myProjects);
 
-        return ResponseEntity.ok(new ApiCustomResponse<>(true, "내 지원 프로젝트 조회 성공", myProjects));
+        return ResponseEntity.ok(new ApiResponse<>(true, "내 지원 프로젝트 조회 성공", myProjects));
     }
 
 }
