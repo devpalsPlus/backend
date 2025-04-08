@@ -1,6 +1,8 @@
 package hs.kr.backend.devpals.domain.project.entity;
 
 import hs.kr.backend.devpals.domain.project.dto.ProjectAllDto;
+import hs.kr.backend.devpals.domain.project.dto.ProjectPostRequest;
+import hs.kr.backend.devpals.domain.project.dto.ProjectUpdateRequest;
 import hs.kr.backend.devpals.domain.user.convert.LongListConverter;
 import jakarta.persistence.*;
 import lombok.*;
@@ -66,23 +68,25 @@ public class ProjectEntity {
     private Long methodTypeId;
 
     @Column(nullable = false, updatable = false)
+    @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(nullable = false)
+    @Builder.Default
     private LocalDateTime updatedAt = LocalDateTime.now();
 
-    @Column(nullable = false)
-    private int views;
+    @Column(nullable = false,columnDefinition = "INT DEFAULT 0")
+    @Builder.Default
+    private int views = 0;
 
     // Request 보내줘야 하는 값
-    public static ProjectEntity fromRequest(ProjectAllDto request, Long userId) {
+    public static ProjectEntity fromRequest(ProjectPostRequest request, Long userId) {
         return ProjectEntity.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
                 .totalMember(request.getTotalMember())
                 .startDate(request.getStartDate())
                 .estimatedPeriod(request.getEstimatedPeriod())
-                .views(request.getViews())
                 .authorId(userId)
                 .isBeginner(request.getIsBeginner() != null ? request.getIsBeginner() : false)
                 .isDone(request.getIsDone() != null ? request.getIsDone() : false)
@@ -91,12 +95,10 @@ public class ProjectEntity {
                 .methodTypeId(request.getMethodTypeId())
                 .positionTagIds(request.getPositionTagIds())
                 .skillTagIds(request.getSkillTagIds())
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
                 .build();
     }
 
-    public void updateProject(ProjectAllDto request) {
+    public void updateProject(ProjectUpdateRequest request) {
         this.title = request.getTitle();
         this.description = request.getDescription();
         this.totalMember = request.getTotalMember();

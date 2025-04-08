@@ -83,7 +83,7 @@ public class ProjectController {
     public ResponseEntity<ApiResponse<ProjectAllDto>> updateProject(
             @PathVariable Long projectId,
             @RequestHeader("Authorization") String token,
-            @RequestBody ProjectAllDto request) {
+            @RequestBody ProjectUpdateRequest request) {
         return projectService.updateProject(projectId, token, request);
     }
 
@@ -118,7 +118,7 @@ public class ProjectController {
             )
     )
     public ResponseEntity<ApiResponse<ProjectAllDto>> createProject(
-            @RequestBody ProjectAllDto request,
+            @RequestBody ProjectPostRequest request,
             @RequestHeader("Authorization") String token) {
         return projectService.projectSignup(request, token);
     }

@@ -7,7 +7,6 @@ import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
 import hs.kr.backend.devpals.domain.project.facade.ProjectFacade;
 import hs.kr.backend.devpals.domain.project.repository.ApplicantRepository;
 import hs.kr.backend.devpals.domain.project.repository.ProjectRepository;
-import hs.kr.backend.devpals.domain.user.dto.LoginUserResponse;
 import hs.kr.backend.devpals.domain.user.dto.PositionTagResponse;
 import hs.kr.backend.devpals.domain.user.dto.SkillTagResponse;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
@@ -98,7 +97,7 @@ public class ProjectService {
 
     // 프로젝트 업데이트
     @Transactional
-    public ResponseEntity<ApiResponse<ProjectAllDto>> updateProject(Long projectId, String token, ProjectAllDto request) {
+    public ResponseEntity<ApiResponse<ProjectAllDto>> updateProject(Long projectId, String token, ProjectUpdateRequest request) {
         Long userId = jwtTokenValidator.getUserId(token);
 
         ProjectEntity project = projectRepository.findById(projectId)
@@ -119,7 +118,7 @@ public class ProjectService {
 
     // 프로젝트 등록
     @Transactional
-    public ResponseEntity<ApiResponse<ProjectAllDto>> projectSignup(ProjectAllDto request, String token) {
+    public ResponseEntity<ApiResponse<ProjectAllDto>> projectSignup(ProjectPostRequest request, String token) {
         Long userId = jwtTokenValidator.getUserId(token);
 
         ProjectEntity project = ProjectEntity.fromRequest(request, userId);
