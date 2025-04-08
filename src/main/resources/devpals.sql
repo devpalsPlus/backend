@@ -11,6 +11,12 @@ CREATE TABLE `devpals`.`SkillTag` (
                                       createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE `devpals`.`MethodType` (
+                              id INT AUTO_INCREMENT PRIMARY KEY,
+                              createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                              name varchar(255) NOT NULL,
+)
+
 
 CREATE TABLE `devpals`.`User` (
                                   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -21,22 +27,15 @@ CREATE TABLE `devpals`.`User` (
                                   profileImg TEXT,
                                   userLevel ENUM('Beginner', 'Intermediate', 'Advanced') DEFAULT 'Beginner',
                                   github VARCHAR(255),
-                                  career JSON,
-                                  positionTagId INT,
+                                  career JSON DEFAULT NULL,
+                                  skillIds TEXT,
+                                  positionIds TEXT,
                                   refreshToken TEXT NOT NULL,
                                   createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                   updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                                   CONSTRAINT fk_User_positionTag FOREIGN KEY (positionTagId) REFERENCES PositionTag(id)
 );
 
-CREATE TABLE `devpals`.`UserSkillTag` (
-                                          userId INT NOT NULL,
-                                          skillTagId INT NOT NULL,
-                                          createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                          PRIMARY KEY (userId, skillTagId),
-                                          FOREIGN KEY (userId) REFERENCES User(id) ON DELETE CASCADE,
-                                          FOREIGN KEY (skillTagId) REFERENCES SkillTag(id) ON DELETE CASCADE
-);
 
 
 CREATE TABLE `devpals`.`Project` (
@@ -46,13 +45,15 @@ CREATE TABLE `devpals`.`Project` (
                                      totalMember INT NOT NULL,
                                      startDate DATE NOT NULL,
                                      estimatedPeriod VARCHAR(50),
-                                     methodId INT NOT NULL,
+                                     methodTypeId INT NOT NULL,
                                      authorId INT NOT NULL,
                                      views INT DEFAULT 0,
                                      isBeginner BOOLEAN DEFAULT FALSE,
                                      isDone BOOLEAN DEFAULT FALSE,
                                      recruitmentStartDate DATE NOT NULL,
                                      recruitmentEndDate DATE NOT NULL,
+                                     positionTagIds text,
+                                     skillTagIds text,
                                      createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                      updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                                      FOREIGN KEY (authorId) REFERENCES User(id) ON DELETE CASCADE,
@@ -73,15 +74,6 @@ CREATE TABLE `devpals`.`Applicant` (
                                        FOREIGN KEY (userId) REFERENCES User(id) ON DELETE CASCADE,
                                        FOREIGN KEY (projectId) REFERENCES Project(id) ON DELETE CASCADE
 );
-
-CREATE TABLE `devpals`.`Notification` (
-                                          id CHAR(36) PRIMARY KEY,
-                                          userId INT NOT NULL,
-                                          content TEXT NOT NULL,
-                                          createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                          FOREIGN KEY (userId) REFERENCES User(id) ON DELETE CASCADE
-);
-
 
 CREATE TABLE `devpals`.`Authenticode` (
                                           id INT AUTO_INCREMENT PRIMARY KEY,
