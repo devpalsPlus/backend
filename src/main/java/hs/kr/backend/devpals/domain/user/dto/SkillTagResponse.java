@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 public class SkillTagResponse {
 
     private Long id;
-    private String skillName;
-    private String skillImg;
+    private String name;
+    private String img;
 
     public static SkillTagResponse fromEntity(SkillTagEntity skill) {
         return new SkillTagResponse(skill.getId(), skill.getName(), skill.getImg());
