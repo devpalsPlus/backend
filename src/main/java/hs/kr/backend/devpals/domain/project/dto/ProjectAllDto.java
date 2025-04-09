@@ -24,11 +24,16 @@ public class ProjectAllDto {
     private int totalMember;
     private LocalDate startDate;
     private String estimatedPeriod;
-    private Integer views;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private int views;
+
     private Boolean isBeginner;
     private Boolean isDone;
     private LocalDate recruitmentStartDate;
     private LocalDate recruitmentEndDate;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private ProjectUserResponse user;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -38,8 +43,11 @@ public class ProjectAllDto {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Long methodTypeId;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private MethodTypeResponse methodType;
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private List<PositionTagResponse> positions;
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private List<SkillTagResponse> skills;
 
 

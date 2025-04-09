@@ -125,6 +125,7 @@ public class ProjectService {
         ProjectEntity savedProject = projectRepository.save(project);
 
         ProjectAllDto responseDto = convertToDto(savedProject);
+
         projectAllCache.put(savedProject.getId(), responseDto);
 
         return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 등록 완료", responseDto));
@@ -244,6 +245,7 @@ public class ProjectService {
         List<SkillTagResponse> skillResponses = getSkillTagResponses(project.getSkillTagIds());
         List<PositionTagResponse> positionResponses = getPositionTagResponses(project.getPositionTagIds());
         MethodTypeResponse methodTypeResponse = getMethodTypeResponse(project.getMethodTypeId());
+
 
         UserEntity userEntity = userRepository.findById(project.getAuthorId())
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
