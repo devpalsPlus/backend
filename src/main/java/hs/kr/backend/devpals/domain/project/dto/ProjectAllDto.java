@@ -2,10 +2,8 @@ package hs.kr.backend.devpals.domain.project.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
-import hs.kr.backend.devpals.domain.user.dto.LoginUserResponse;
 import hs.kr.backend.devpals.domain.user.dto.PositionTagResponse;
 import hs.kr.backend.devpals.domain.user.dto.SkillTagResponse;
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,41 +23,32 @@ public class ProjectAllDto {
     private int totalMember;
     private LocalDate startDate;
     private String estimatedPeriod;
-
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private int views;
-
     private Boolean isBeginner;
     private Boolean isDone;
     private LocalDate recruitmentStartDate;
     private LocalDate recruitmentEndDate;
 
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private ProjectUserResponse user;
-
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @Schema(accessMode = Schema.AccessMode.WRITE_ONLY)
     private List<Long> positionTagIds;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @Schema(accessMode = Schema.AccessMode.WRITE_ONLY)
     private List<Long> skillTagIds;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @Schema(accessMode = Schema.AccessMode.WRITE_ONLY)
     private Long methodTypeId;
 
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private int views;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private ProjectUserResponse user;
+
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private MethodTypeResponse methodType;
 
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private List<PositionTagResponse> positions;
 
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private List<SkillTagResponse> skills;
 
