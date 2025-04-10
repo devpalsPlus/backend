@@ -62,7 +62,7 @@ public class ProjectService {
         }
 
         List<ProjectAllDto> filteredProjects = projectAllCache.values().stream()
-                .filter(project -> isBeginner == null || project.getIsBeginner().equals(isBeginner))
+                .filter(project -> !isBeginner || project.getIsBeginner())
                 .filter(project -> keyword == null || keyword.isEmpty() ||
                         project.getTitle().toLowerCase().contains(keyword.toLowerCase()) ||
                         project.getDescription().toLowerCase().contains(keyword.toLowerCase()))
