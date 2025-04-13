@@ -6,6 +6,7 @@ import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
 import hs.kr.backend.devpals.domain.project.repository.ApplicantRepository;
 import hs.kr.backend.devpals.domain.project.repository.ProjectRepository;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
+import hs.kr.backend.devpals.domain.user.facade.UserFacade;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.common.enums.ApplicantStatus;
@@ -26,6 +27,7 @@ public class ApplyService {
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
     private final ApplicantRepository applicantRepository;
+    private final UserFacade userFacade;
 
     // 프로젝트 지원하기
     public ResponseEntity<ApiResponse<String>> projectApply(Long projectId, ProjectApplyRequest request, String token)   {
@@ -83,7 +85,7 @@ public class ApplyService {
         List<ApplicantEntity> applicants = applicantRepository.findByProject(project);
 
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "공고 합격자/불합격자 목록 가져오기 성공",ProjectApplicantResultResponse.fromEntity(applicants)));
+        return ResponseEntity.ok(new ApiResponse<>(true, "공고 합격자/불합격자 목록 가져오기 성공",ProjectApplicantResultResponse.fromEntity(applicants,userFacade)));
     }
 
     // 프로젝트 지원한 지원자의 상태 변경하기
