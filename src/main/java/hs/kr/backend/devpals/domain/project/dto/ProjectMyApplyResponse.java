@@ -6,11 +6,11 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class ProjectApplyResponse {
+public class ProjectMyApplyResponse {
     private String title;
     private ApplicantStatus status;
 
-    public static ProjectApplyResponse fromEntity(String title, ApplicantStatus status) {
-        return new ProjectApplyResponse(title, status);
+    public static ProjectMyApplyResponse fromEntity(String title, ApplicantStatus status) {
+        return new ProjectMyApplyResponse(title, status);
     }
 }

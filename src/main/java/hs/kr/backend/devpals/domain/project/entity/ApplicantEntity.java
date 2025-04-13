@@ -1,7 +1,7 @@
 package hs.kr.backend.devpals.domain.project.entity;
 
 import hs.kr.backend.devpals.domain.project.convert.CareerConverter;
-import hs.kr.backend.devpals.domain.project.dto.ProjectApplyRequest;
+import hs.kr.backend.devpals.domain.project.dto.ProjectApplyDTO;
 import hs.kr.backend.devpals.domain.user.dto.CareerDto;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.global.common.enums.ApplicantStatus;
@@ -63,7 +63,7 @@ public class ApplicantEntity {
         this.status = newStatus;
     }
 
-    public static ApplicantEntity createApplicant(UserEntity user, ProjectEntity project, ProjectApplyRequest request) {
+    public static ApplicantEntity createApplicant(UserEntity user, ProjectEntity project, ProjectApplyDTO request) {
         return ApplicantEntity.builder()
                 .user(user)
                 .project(project)
