@@ -9,7 +9,7 @@ name: Java CD with Gradle
 
 on:
   push:
-    branches: [ "TESTCD" ]
+    branches: [ "main" ]
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -25,8 +25,9 @@ jobs:
           port: ${{ secrets.REMOTE_SSH_PORT }}
           script: |
             whoami
+            sudo su
             cd /home/ec2-user/backend/
-            git pull origin Dev
+            git pull origin main
             chmod +x ./gradlew
             ./gradlew build
-            systemctl restart devpals
+            sudo systemctl restart devpals
