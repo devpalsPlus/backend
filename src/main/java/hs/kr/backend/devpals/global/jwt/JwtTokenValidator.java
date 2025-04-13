@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
+import java.util.Date;
 
 @Service
 public class JwtTokenValidator {
@@ -52,12 +53,13 @@ public class JwtTokenValidator {
     /**
      * JWT 토큰에서 userId(PK) 추출
      */
-    public Integer getUserIdFromToken(String token) {
-        return Integer.parseInt(extractClaims(token).getSubject()); //  subject에서 userId(PK) 가져옴
+    public Long getUserId(String jwt) {
+        String token = jwt.replace("Bearer ", "");
+        return Long.parseLong(extractClaims(token).getSubject()); //  subject에서 userId(PK) 가져옴
     }
 
     /**
-     * JWT 토큰 검증
+     * Access Token 검증
      */
     public boolean validateJwtToken(String jwtToken) {
         try {
@@ -65,6 +67,9 @@ public class JwtTokenValidator {
                     .setSigningKey(getSigningKey())
                     .build()
                     .parseClaimsJws(jwtToken);
+
+            Date expiration = claimsJws.getBody().getExpiration();
+            System.out.println("토큰 만료 시간 (서버 기준): " + expiration);
             return true;
         } catch (ExpiredJwtException e) {
             logger.error("JWT 토큰이 만료되었습니다: {}", e.getMessage());
@@ -78,6 +83,25 @@ public class JwtTokenValidator {
         } catch (IllegalArgumentException e) {
             logger.error("JWT 클레임 문자열이 비어 있습니다: {}", e.getMessage());
             throw new CustomException(ErrorException.INVALID_PASSWORD);
+        }
+    }
+
+    /**
+     * Refresh Token 검증
+     */
+    public boolean validateRefreshToken(String refreshToken) {
+        try {
+            // 받은 Refresh Token을 로그로 출력
+            System.out.println("Received Refresh Token: " + refreshToken);
+
+            Jws<Claims> claimsJws = Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey()) // Refresh Token도 동일한 키 사용
+                    .build()
+                    .parseClaimsJws(refreshToken);
+            return true;
+        } catch (ExpiredJwtException e) {
+            logger.error("JWT 토큰이 만료되었습니다: {}", e.getMessage());
+            throw new CustomException(ErrorException.TOKEN_EXPIRED);
         }
     }
 
@@ -106,5 +130,17 @@ public class JwtTokenValidator {
         // ✅ memberId로 유저 정보 조회
         UserDetails userDetails = customUserDetailsService.findById(memberId);
         return new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities());
+    }
+
+    /**
+     * 특정 JWT 토큰을 무효화하는 메서드 -
+     */
+    public void invalidateToken(String token) {
+        try {
+            Claims claims = extractClaims(token);
+            claims.setExpiration(new Date(System.currentTimeMillis() - 1000)); // 1초 전으로 만료 처리
+        } catch (Exception e) {
+            throw new CustomException(ErrorException.TOKEN_EXPIRED);
+        }
     }
 }

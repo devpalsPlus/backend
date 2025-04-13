@@ -1,10 +1,14 @@
 package hs.kr.backend.devpals.domain.auth.dto;
 
-import lombok.AllArgsConstructor;
+import hs.kr.backend.devpals.global.common.ApiResponse;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
-public class LoginResponse {
-    private String token;
+public class LoginResponse<T> extends ApiResponse<T> {
+    private Object user;
+
+    public LoginResponse(boolean success, String message, T data, Object user) {
+        super(success, message, data);
+        this.user = user;
+    }
 }
