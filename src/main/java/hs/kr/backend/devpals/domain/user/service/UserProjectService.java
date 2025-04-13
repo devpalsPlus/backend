@@ -54,7 +54,7 @@ public class UserProjectService {
                 .collect(Collectors.toList());
 
         if (applications.isEmpty()) {
-            throw new CustomException(ErrorException.PROJECT_NOT_FOUND);
+            return ResponseEntity.ok(new ApiResponse<>(true, "참여한 프로젝트가 없습니다.", new ArrayList<>()));
         }
 
         List<ProjectMineResponse> myProjects = applications.stream()
@@ -84,7 +84,7 @@ public class UserProjectService {
                 .collect(Collectors.toList());
 
         if (applications.isEmpty()) {
-            throw new CustomException(ErrorException.PROJECT_NOT_FOUND);
+            return ResponseEntity.ok(new ApiResponse<>(true, "사용자가 참여한 프로젝트가 없습니다.", new ArrayList<>()));
         }
 
         List<ProjectMineResponse> userProjects = applications.stream()
@@ -114,7 +114,7 @@ public class UserProjectService {
         List<ApplicantEntity> applications = applicantRepository.findByUser(user);
 
         if (applications.isEmpty()) {
-            throw new CustomException(ErrorException.PROJECT_NOT_FOUND);
+            return ResponseEntity.ok(new ApiResponse<>(true, "지원한 프로젝트가 없습니다.", new ArrayList<>()));
         }
 
         List<ProjectMyApplyResponse> myProjects = applications.stream()
