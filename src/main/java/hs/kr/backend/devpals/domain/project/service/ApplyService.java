@@ -17,6 +17,7 @@ import hs.kr.backend.devpals.global.jwt.JwtTokenValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -113,6 +114,7 @@ public class ApplyService {
     }
 
     // 프로젝트 지원한 지원자의 상태 변경하기
+    @Transactional
     public ResponseEntity<ApiResponse<ApplicantStatusUpdateResponse>> modifyApplicantStatus(Long projectId, String token, ApplicantStatusUpdateRequest applicantStatusUpdateRequest) {
         Long userId = jwtTokenValidator.getUserId(token);
         String status = applicantStatusUpdateRequest.getStatus();
