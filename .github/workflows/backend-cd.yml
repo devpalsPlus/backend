@@ -30,4 +30,10 @@ jobs:
             git pull origin main
             chmod +x ./gradlew
             ./gradlew build
-            sudo systemctl restart devpals
+            
+            pid=$(lsof -t -i:8080)
+            if [ -n "$pid" ]; then
+              kill -9 $pid
+            fi
+
+            nohup java -jar build/libs/devpals-0.0.1-SNAPSHOT.jar > log.txt 2>&1 &
