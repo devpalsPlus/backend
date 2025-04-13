@@ -90,11 +90,33 @@ public class UserFacadeController {
     }
 
     @DeleteMapping("/position-tag")
+    @Operation(summary = "포지션 태그 삭제", description = "포지션 태그를 삭제합니다.")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "포지션 태그 삭제 성공")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "400",
+            description = "포지션 태그 삭제 실패",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ApiResponse.class),
+                    examples = @ExampleObject(value = "{\"success\": false, \"message\": \"포지션 태그를 삭제하던 중 오류가 발생했습니다.\", \"data\": null}")
+            )
+    )
     public ResponseEntity<ApiResponse<String>> deletePositionTag(@RequestParam Long positionTagId) {
         return userFacade.deletePositionTag(positionTagId);
     }
 
     @DeleteMapping("/skill-tag")
+    @Operation(summary = "스킬 태그 삭제", description = "스킬 태그를 삭제합니다.")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "스킬 태그 삭제 성공")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "400",
+            description = "스킬 태그 삭제 실패",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ApiResponse.class),
+                    examples = @ExampleObject(value = "{\"success\": false, \"message\": \"스킬 태그를 삭제하던 중 오류가 발생했습니다.\", \"data\": null}")
+            )
+    )
     public ResponseEntity<ApiResponse<String>> deleteSkillTag(@RequestParam Long skillTagId) {
         return userFacade.deleteSkillTag(skillTagId);
     }
