@@ -110,7 +110,7 @@ public class ApplyService {
         List<ApplicantEntity> applicants = applicantRepository.findByProject(project);
 
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "공고 합격자/불합격자 목록 가져오기 성공",ProjectApplicantResultResponse.fromEntity(applicants)));
+        return ResponseEntity.ok(new ApiResponse<>(true, "공고 합격자/불합격자 목록 가져오기 성공",ProjectApplicantResultResponse.fromEntity(applicants,userFacade)));
     }
 
     // 프로젝트 지원한 지원자의 상태 변경하기
