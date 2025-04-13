@@ -219,31 +219,9 @@ public class ProjectService {
         return MethodTypeResponse.fromEntity(projectFacade.getMethodTypeById(methodTypeId));
     }
 
-    // 스킬 태그 변환 (ID 리스트 -> DTO 리스트)
-    private List<SkillTagResponse> getSkillTagResponses(List<Long> skillTagIds) {
-        if (skillTagIds == null || skillTagIds.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        return userFacade.getSkillTagsByIds(skillTagIds).stream()
-                .map(skill -> new SkillTagResponse(skill.getId(), skill.getName(), skill.getImg()))
-                .collect(Collectors.toList());
-    }
-
-
-    // 포지션 태그 변환 (ID 리스트 -> DTO 리스트)
-    private List<PositionTagResponse> getPositionTagResponses(List<Long> positionTagIds) {
-        if (positionTagIds == null || positionTagIds.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        return userFacade.getPositionTagByIds(positionTagIds).stream()
-                .map(position -> new PositionTagResponse(position.getId(), position.getName()))
-                .collect(Collectors.toList());
-    }
     private ProjectAllDto convertToDto(ProjectEntity project) {
-        List<SkillTagResponse> skillResponses = getSkillTagResponses(project.getSkillTagIds());
-        List<PositionTagResponse> positionResponses = getPositionTagResponses(project.getPositionTagIds());
+        List<SkillTagResponse> skillResponses = userFacade.getSkillTagResponses(project.getSkillTagIds());
+        List<PositionTagResponse> positionResponses = userFacade.getPositionTagResponses(project.getPositionTagIds());
         MethodTypeResponse methodTypeResponse = getMethodTypeResponse(project.getMethodTypeId());
 
 

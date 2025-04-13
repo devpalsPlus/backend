@@ -1,6 +1,6 @@
 package hs.kr.backend.devpals.domain.user.service;
 
-import hs.kr.backend.devpals.domain.project.dto.ProjectApplyResponse;
+import hs.kr.backend.devpals.domain.project.dto.ProjectMyApplyResponse;
 import hs.kr.backend.devpals.domain.project.dto.ProjectMineResponse;
 import hs.kr.backend.devpals.domain.project.entity.ApplicantEntity;
 import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserProjectService {
     private final Map<Long, List<ProjectMineResponse>> projectMyCache = new HashMap<>();
-    private final Map<Long, List<ProjectApplyResponse>> projectMyApplyCache = new HashMap<>();
+    private final Map<Long, List<ProjectMyApplyResponse>> projectMyApplyCache = new HashMap<>();
     private final JwtTokenValidator jwtTokenValidator;
     private final ApplicantRepository applicantRepository;
     private final UserRepository userRepository;
@@ -100,7 +100,7 @@ public class UserProjectService {
     }
 
     @Transactional
-    public ResponseEntity<ApiResponse<List<ProjectApplyResponse>>> getMyProjectApply(String token) {
+    public ResponseEntity<ApiResponse<List<ProjectMyApplyResponse>>> getMyProjectApply(String token) {
         Long userId = jwtTokenValidator.getUserId(token);
 
         if (projectMyApplyCache.containsKey(userId)) {
@@ -117,8 +117,8 @@ public class UserProjectService {
             throw new CustomException(ErrorException.PROJECT_NOT_FOUND);
         }
 
-        List<ProjectApplyResponse> myProjects = applications.stream()
-                .map(application -> ProjectApplyResponse.fromEntity(
+        List<ProjectMyApplyResponse> myProjects = applications.stream()
+                .map(application -> ProjectMyApplyResponse.fromEntity(
                         application.getProject().getTitle(),
                         application.getStatus()
                 ))

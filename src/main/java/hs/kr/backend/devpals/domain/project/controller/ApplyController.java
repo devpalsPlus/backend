@@ -37,7 +37,7 @@ public class ApplyController {
     public ResponseEntity<ApiResponse<String>> projectApply(
             @PathVariable Long projectId,
             @RequestHeader("Authorization") String token,
-            @RequestBody ProjectApplyRequest request) {
+            @RequestBody ProjectApplyDTO request) {
         return applicantService.projectApply(projectId, request, token);
     }
 
@@ -57,6 +57,25 @@ public class ApplyController {
             @PathVariable Long projectId,
             @RequestHeader("Authorization") String token) {
         return applicantService.getProjectApplicantList(projectId, token);
+    }
+
+    @GetMapping("/{projectId}/applicants/{applicantId}")
+    @Operation(summary = "프로젝트 공고 지원서 조회", description = "프로젝트에 지원한 지원자의 지원서를 조회합니다")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "지원자의 지원서 조회 성공")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "400",
+            description = "지원서  조회 실패 - 해당 프로젝트가 존재하지 않거나 권한 없음",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ApiResponse.class),
+                    examples = @ExampleObject(value = "{\"success\": false, \"message\": \"해당 공고의 기획자만 조회 가능합니다.\", \"data\": null}")
+            )
+    )
+    public ResponseEntity<ApiResponse<ProjectApplyDTO>> getProjectApplicantContent(
+            @PathVariable Long projectId,
+            @PathVariable Long applicantId,
+            @RequestHeader("Authorization") String token) {
+        return applicantService.getProjectApplicantContent(projectId, applicantId, token);
     }
 
     @PutMapping("/{projectId}/applicant")
