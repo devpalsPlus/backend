@@ -9,7 +9,7 @@ name: Java CD with Gradle
 
 on:
   push:
-    branches: [ "Dev" ]
+    branches: [ "Main" ]
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -27,7 +27,7 @@ jobs:
             whoami
             sudo su
             cd /home/ec2-user/backend/
-            git pull origin Dev
+            git pull origin Main
             chmod +x ./gradlew
             ./gradlew build
             sudo systemctl restart devpals
