@@ -35,7 +35,7 @@ public class ProjectController {
             )
     )
     public ResponseEntity<ApiResponse<ProjectListResponse>> getProjectAll(
-            @RequestParam(required = false, defaultValue = "[]") List<Long> skillTag,
+            @RequestParam(required = false, defaultValue = "") List<Long> skillTag,
             @RequestParam(defaultValue = "0") Long positionTag,
             @RequestParam(defaultValue = "0") Long methodType,
             @RequestParam(defaultValue = "false") Boolean isBeginner,
