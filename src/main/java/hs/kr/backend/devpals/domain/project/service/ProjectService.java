@@ -47,6 +47,7 @@ public class ProjectService {
     private final Map<Long, ProjectAllDto> projectAllCache = new HashMap<>();
 
     // 프로젝트 목록 조회
+    @Transactional
     public ResponseEntity<ApiResponse<ProjectListResponse>> getProjectAll(
             List<Long> skillTagId, Long positionTagId,
             Long methodTypeId, Boolean isBeginner,
@@ -132,6 +133,7 @@ public class ProjectService {
     }
 
     // 특정 프로젝트 조회
+    @Transactional
     public ResponseEntity<ApiResponse<ProjectAllDto>> getProjectList(Long projectId) {
         ProjectAllDto project = projectAllCache.get(projectId);
         if (project == null) {
