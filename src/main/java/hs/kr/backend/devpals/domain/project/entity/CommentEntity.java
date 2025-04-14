@@ -3,6 +3,7 @@ package hs.kr.backend.devpals.domain.project.entity;
 import hs.kr.backend.devpals.domain.project.dto.CommentDTO;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,8 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "Comment")
 @Getter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 public class CommentEntity {
     @Id
@@ -44,13 +47,5 @@ public class CommentEntity {
                 .updatedAt(LocalDateTime.now())
                 .build();
     }
-
-    @Builder
-    public CommentEntity(ProjectEntity project, UserEntity user, String content, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.project = project;
-        this.user = user;
-        this.content = content;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
+    
 }
