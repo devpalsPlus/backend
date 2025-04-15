@@ -2,7 +2,6 @@ package hs.kr.backend.devpals.domain.user.dto;
 
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.facade.UserFacade;
-import hs.kr.backend.devpals.global.common.enums.UserLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,7 +19,7 @@ public class UserResponse {
     private String email;
     private String bio;
     private String profileImg;
-    private UserLevel userLevel;
+    private Boolean beginner;
     private String github;
     private List<PositionTagResponse> positions;
     private List<SkillTagResponse> skills;
@@ -45,7 +44,7 @@ public class UserResponse {
                 .email(user.getEmail())
                 .bio(user.getBio())
                 .profileImg(user.getProfileImg())
-                .userLevel(user.getUserLevel())
+                .beginner(user.getBeginner())
                 .github(user.getGithub())
                 .positions(positionResponses)
                 .skills(skillResponses)
