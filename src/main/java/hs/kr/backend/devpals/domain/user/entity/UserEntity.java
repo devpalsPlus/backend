@@ -112,9 +112,10 @@ public class UserEntity {
     }
 
     //회원가입 유저 정보 저장
-    public UserEntity(String email, String password, String nickname) {
+    public UserEntity(String email, String password, String nickname, Boolean beginner) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
+        this.beginner = beginner;
     }
 }

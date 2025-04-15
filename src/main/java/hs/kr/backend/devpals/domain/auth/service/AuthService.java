@@ -106,6 +106,7 @@ public class AuthService {
         String email = request.getEmail();
         String nickname = request.getNickname();
         String password = request.getPassword();
+        Boolean beginner = request.getBeginner();
 
         // 이메일 인증 여부 확인
         authenticodeRepository.findTopByUserEmailOrderByExpiresAtDesc(email)
@@ -126,7 +127,7 @@ public class AuthService {
         String hashedPassword = passwordEncoder.encode(password);
 
         // 유저 저장
-        UserEntity user = new UserEntity(email, hashedPassword, nickname);
+        UserEntity user = new UserEntity(email, hashedPassword, nickname, beginner);
         userRepository.save(user);
 
         LoginUserResponse userDto = LoginUserResponse.fromEntity(user);
