@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hs.kr.backend.devpals.domain.user.convert.LongListConverter;
 import hs.kr.backend.devpals.domain.user.dto.CareerDto;
-import hs.kr.backend.devpals.global.common.enums.UserLevel;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
 import jakarta.persistence.*;
@@ -38,9 +37,8 @@ public class UserEntity {
     @Column(columnDefinition = "TEXT")
     private String profileImg;
 
-    @Enumerated(EnumType.STRING)
-    @Column
-    private UserLevel userLevel = UserLevel.Beginner;
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private Boolean beginner;
 
     @Column(length = 255)
     private String github;
@@ -76,11 +74,12 @@ public class UserEntity {
     */
 
     // 유저 업데이트
-    public void updateUserInfo(String nickname, String bio, String github, List<Long> positionIds,
-                               List<Long> skillIds, List<Map<String, Object>> career) {
+    public void updateUserInfo(String nickname, String bio, String github, Boolean beginner,
+                               List<Long> positionIds, List<Long> skillIds, List<Map<String, Object>> career) {
         if (nickname != null) { this.nickname = nickname; }
         if (bio != null) { this.bio = bio; }
         if (github != null) { this.github = github; }
+        if (beginner != null) { this.beginner = beginner; }
         if (positionIds != null) { this.positionIds = new ArrayList<>(positionIds); }
         if (skillIds != null) { this.skillIds = new ArrayList<>(skillIds); }
         if (career != null) {
@@ -114,9 +113,10 @@ public class UserEntity {
     }
 
     //회원가입 유저 정보 저장
-    public UserEntity(String email, String password, String nickname) {
+    public UserEntity(String email, String password, String nickname, Boolean beginner) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
+        this.beginner = beginner;
     }
 }

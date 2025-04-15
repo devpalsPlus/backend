@@ -1,6 +1,6 @@
 package hs.kr.backend.devpals.domain.user.controller;
 
-import hs.kr.backend.devpals.domain.project.dto.ProjectMyApplyResponse;
+import hs.kr.backend.devpals.domain.project.dto.ProjectApplyResponse;
 import hs.kr.backend.devpals.domain.project.dto.ProjectMineResponse;
 import hs.kr.backend.devpals.domain.user.service.UserProjectService;
 import hs.kr.backend.devpals.global.common.ApiResponse;
@@ -50,7 +50,7 @@ public class UserProjectController {
                     examples = @ExampleObject(value = "{\"success\": false, \"message\": \"지원한 프로젝트를 찾을 수 없습니다.\", \"data\": null}")
             )
     )
-    public ResponseEntity<ApiResponse<List<ProjectMyApplyResponse>>> getMyProjectList(@RequestHeader("Authorization") String token){
+    public ResponseEntity<ApiResponse<List<ProjectApplyResponse>>> getMyProjectList(@RequestHeader("Authorization") String token){
         return userProjectService.getMyProjectApply(token);
     }
 

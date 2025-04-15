@@ -79,6 +79,7 @@ public class UserProfileService {
                 request.getNickname(),
                 request.getBio(),
                 request.getGithub(),
+                request.getBeginner(),
                 positionIds,
                 skillIds,
                 request.getCareer()
