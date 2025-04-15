@@ -29,11 +29,17 @@ public class ProjectScheduleService {
         List<ProjectEntity> projectsEndingTomorrow =
                 projectRepository.findProjectsEndingTomorrow(LocalDate.now().minusDays(1));
 
-        CompletableFuture.runAsync(() -> {
+        CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
             log.info("프로젝트 종료 작업 시작: {}", LocalDateTime.now());
             projectService.closeProject(projectsEndingTomorrow);
             log.info("프로젝트 종료 작업 완료: {}", LocalDateTime.now());
         });
+        try {
+            // 작업 완료 대기
+            future.get();
+        } catch (Exception e) {
+            log.error("프로젝트 종료 작업 실패", e);
+        }
 
         log.info("스케줄러 종료: {}", LocalDateTime.now());
     }

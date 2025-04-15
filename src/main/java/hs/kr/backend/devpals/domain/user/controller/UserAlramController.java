@@ -1,16 +1,18 @@
 package hs.kr.backend.devpals.domain.user.controller;
 
 import hs.kr.backend.devpals.domain.user.dto.AlramDTO;
+import hs.kr.backend.devpals.domain.user.service.AlarmService;
 import hs.kr.backend.devpals.domain.user.service.UserAlramService;
 import hs.kr.backend.devpals.global.common.ApiResponse;
-import hs.kr.backend.devpals.global.common.enums.AlramFilter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 
@@ -20,6 +22,7 @@ import java.util.List;
 public class UserAlramController {
 
     private final UserAlramService userAlramService;
+    private final AlarmService alarmService;
 
     @GetMapping("/alram")
     @Operation(summary = "알림 가져오기", description = "알림을 가져옵니다(해당 api 구현된것이 아닙니다 테스트용도로 만들었어요!)")
@@ -37,5 +40,11 @@ public class UserAlramController {
                                                                     @RequestParam(required = false) String filter) {
 
         return userAlramService.getUserAlram(token, filter);
+    }
+
+    // SSE 연결 엔드포인트
+    @GetMapping(value = "/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter connect(@RequestHeader("Authorization") String token) {
+        return alarmService.createEmitter(token);
     }
 }

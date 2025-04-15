@@ -10,7 +10,9 @@ import hs.kr.backend.devpals.domain.project.repository.ProjectRepository;
 import hs.kr.backend.devpals.domain.user.dto.PositionTagResponse;
 import hs.kr.backend.devpals.domain.user.dto.SkillTagResponse;
 import hs.kr.backend.devpals.domain.user.facade.UserFacade;
+import hs.kr.backend.devpals.domain.user.service.AlarmService;
 import hs.kr.backend.devpals.global.common.ApiResponse;
+import hs.kr.backend.devpals.global.common.enums.AlramFilter;
 import hs.kr.backend.devpals.global.common.enums.ApplicantStatus;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
@@ -36,6 +38,7 @@ public class ProjectService {
     private final JwtTokenValidator jwtTokenValidator;
     private final ApplicantRepository applicantRepository;
     private final AuthEmailService authEmailService;
+    private final AlarmService alarmService;
     @Qualifier("taskExecutor")
     private final Executor taskExecutor;
     @Qualifier("emailExecutor")
@@ -177,7 +180,7 @@ public class ProjectService {
         applicantRepository.saveAll(applicants);
 
         CompletableFuture.runAsync(() -> authEmailService.sendEmailsAsync(applicants, project), emailExecutor);
-
+        alarmService.sendAlarm(applicants,AlramFilter.APPLICANT_CHECK);
         return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 모집 종료 성공", ProjectCloseResponse.fromEntity(project, methodTypeResponse)));
     }
 
@@ -194,7 +197,6 @@ public class ProjectService {
                     applicants.stream()
                             .filter(applicant -> applicant.getStatus().equals(ApplicantStatus.WAITING))
                             .forEach(applicant -> applicant.updateStatus(ApplicantStatus.REJECTED));
-
                     project.updateIsDone(true);
                 }, taskExecutor)) // 비즈니스 로직 실행 (taskExecutor 사용)
                 .toList();
@@ -205,6 +207,7 @@ public class ProjectService {
                     projects.forEach(project -> {
                         List<ApplicantEntity> applicants = projectApplicantsMap.get(project);
                         authEmailService.sendEmailsAsync(applicants, project);
+                        alarmService.sendAlarm(applicants,AlramFilter.APPLICANT_CHECK);
                     });
                 }, emailExecutor));
     }
