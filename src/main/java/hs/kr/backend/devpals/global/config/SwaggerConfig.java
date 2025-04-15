@@ -1,7 +1,10 @@
 package hs.kr.backend.devpals.global.config;
 
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
@@ -16,7 +19,7 @@ public class SwaggerConfig {
     public GroupedOpenApi boardGroupedOpenApi() {
         return GroupedOpenApi
                 .builder()
-                .group("DevPalse")
+                .group("DevPals")
                 .pathsToMatch("/**")
                 .addOpenApiCustomizer(openApi ->
                         openApi.setInfo(new Info()
@@ -28,8 +31,6 @@ public class SwaggerConfig {
                 .build();
     }
 
-
-    // 기본 서버를 HTTPS로 설정
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
@@ -38,9 +39,17 @@ public class SwaggerConfig {
                         .description("DevPals API 문서")
                         .version("1.0")
                 )
+                .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
+                .components(new Components()
+                        .addSecuritySchemes("bearerAuth", new SecurityScheme()
+                                .name("Authorization")
+                                .type(SecurityScheme.Type.HTTP)
+                                .scheme("bearer")
+                                .bearerFormat("JWT")
+                        )
+                )
                 .servers(List.of(
                         new Server().url("https://dev.devpals.site").description("Production Server")
                 ));
     }
-    
 }
