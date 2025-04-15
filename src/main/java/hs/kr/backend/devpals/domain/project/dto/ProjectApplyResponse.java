@@ -7,10 +7,11 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class ProjectApplyResponse {
+    private Long id;
     private String title;
     private ApplicantStatus status;
 
-    public static ProjectApplyResponse fromEntity(String title, ApplicantStatus status) {
-        return new ProjectApplyResponse(title, status);
+    public static ProjectApplyResponse fromEntity(Long id, String title, ApplicantStatus status) {
+        return new ProjectApplyResponse(id, title, status);
     }
 }

@@ -119,6 +119,7 @@ public class UserProjectService {
 
         List<ProjectApplyResponse> myProjects = applications.stream()
                 .map(application -> ProjectApplyResponse.fromEntity(
+                        application.getProject().getId(),
                         application.getProject().getTitle(),
                         application.getStatus()
                 ))
