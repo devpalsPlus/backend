@@ -37,7 +37,7 @@ public class UserEntity {
     @Column(columnDefinition = "TEXT")
     private String profileImg;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private Boolean beginner;
 
     @Column(length = 255)
@@ -74,11 +74,12 @@ public class UserEntity {
     */
 
     // 유저 업데이트
-    public void updateUserInfo(String nickname, String bio, String github, List<Long> positionIds,
-                               List<Long> skillIds, List<Map<String, Object>> career) {
+    public void updateUserInfo(String nickname, String bio, String github, Boolean beginner,
+                               List<Long> positionIds, List<Long> skillIds, List<Map<String, Object>> career) {
         if (nickname != null) { this.nickname = nickname; }
         if (bio != null) { this.bio = bio; }
         if (github != null) { this.github = github; }
+        if (beginner != null) { this.beginner = beginner; }
         if (positionIds != null) { this.positionIds = new ArrayList<>(positionIds); }
         if (skillIds != null) { this.skillIds = new ArrayList<>(skillIds); }
         if (career != null) {
