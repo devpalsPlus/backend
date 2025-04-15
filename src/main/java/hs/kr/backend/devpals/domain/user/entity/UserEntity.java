@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hs.kr.backend.devpals.domain.user.convert.LongListConverter;
 import hs.kr.backend.devpals.domain.user.dto.CareerDto;
-import hs.kr.backend.devpals.global.common.enums.UserLevel;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
 import jakarta.persistence.*;
@@ -38,9 +37,8 @@ public class UserEntity {
     @Column(columnDefinition = "TEXT")
     private String profileImg;
 
-    @Enumerated(EnumType.STRING)
-    @Column
-    private UserLevel userLevel = UserLevel.Beginner;
+    @Column(nullable = false)
+    private Boolean beginner;
 
     @Column(length = 255)
     private String github;
@@ -114,9 +112,10 @@ public class UserEntity {
     }
 
     //회원가입 유저 정보 저장
-    public UserEntity(String email, String password, String nickname) {
+    public UserEntity(String email, String password, String nickname, Boolean beginner) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
+        this.beginner = beginner;
     }
 }

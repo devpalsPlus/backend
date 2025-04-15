@@ -12,6 +12,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public class ProjectMineResponse {
+    private Long id;
     private String title;
     private LocalDate recruitmentEndDate;
     private int totalMember;
@@ -19,6 +20,7 @@ public class ProjectMineResponse {
 
     public static ProjectMineResponse fromEntity(ProjectEntity project, List<SkillTagResponse> skills) {
         return new ProjectMineResponse(
+                project.getId(),
                 project.getTitle(),
                 project.getRecruitmentEndDate(),
                 project.getTotalMember(),
