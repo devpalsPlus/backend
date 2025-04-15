@@ -58,6 +58,28 @@ public class ProjectCommentService {
     }
 
     @Transactional
+    public ResponseEntity<ApiResponse<String>> updateComment(String token, Long projectId, Long commentId, String content) {
+        Long userId = jwtTokenValidator.getUserId(token);
+
+        CommentEntity comment = commentRepoisitory.findById(commentId)
+                .orElseThrow(() -> new CustomException(ErrorException.COMMENT_NOT_FOUND));
+
+        if (!comment.getProject().getId().equals(projectId)) {
+            throw new CustomException(ErrorException.INVALID_PROJECT_COMMENT);
+        }
+
+        Long commentOwnerId = comment.getUser().getId();
+        Long projectAuthorId = comment.getProject().getAuthorId();
+
+        if (!Objects.equals(userId, commentOwnerId) && !Objects.equals(userId, projectAuthorId)) {
+            throw new CustomException(ErrorException.NOT_COMMENT_OWNER);
+        }
+
+        comment.updateContent(content);
+        return ResponseEntity.ok(new ApiResponse<>(true, "댓글 수정 성공", null));
+    }
+
+    @Transactional
     public ResponseEntity<ApiResponse<String>> deleteComment(String token, Long projectId, Long commentId) {
         Long userId = jwtTokenValidator.getUserId(token);
 
