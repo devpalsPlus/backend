@@ -1,8 +1,6 @@
 package hs.kr.backend.devpals.domain.user.service;
 
-import hs.kr.backend.devpals.domain.project.dto.ProjectMineResponse;
 import hs.kr.backend.devpals.domain.user.dto.AlramDTO;
-import hs.kr.backend.devpals.domain.user.entity.AlramEntity;
 import hs.kr.backend.devpals.domain.user.repository.AlramRepository;
 import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.common.enums.AlramFilter;
