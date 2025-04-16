@@ -33,10 +33,14 @@ public class CommentEntity {
     private String content;
 
     @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();;
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(nullable = false)
-    private LocalDateTime updatedAt = LocalDateTime.now();;
+    private LocalDateTime updatedAt = LocalDateTime.now();
+
+    public void updateContent(String newContent) {
+        this.content = newContent;
+    }
 
     public static CommentEntity from(CommentDTO dto, ProjectEntity project, UserEntity user) {
         return CommentEntity.builder()
