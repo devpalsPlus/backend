@@ -44,10 +44,10 @@ public class ProjectEntity {
     private Long authorId;
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
-    private boolean beginner;
+    private boolean isBeginner;
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
-    private boolean done;
+    private boolean isDone;
 
     @Column(nullable = false)
     private LocalDate recruitmentStartDate;
@@ -84,8 +84,8 @@ public class ProjectEntity {
                 .estimatedPeriod(request.getEstimatedPeriod())
                 .views(0)
                 .authorId(userId)
-                .beginner(request.getIsBeginner() != null ? request.getIsBeginner() : false)
-                .done(request.getIsDone() != null ? request.getIsDone() : false)
+                .isBeginner(request.getIsBeginner() != null ? request.getIsBeginner() : false)
+                .isDone(request.getIsDone() != null ? request.getIsDone() : false)
                 .recruitmentStartDate(request.getRecruitmentStartDate())
                 .recruitmentEndDate(request.getRecruitmentEndDate())
                 .methodTypeId(request.getMethodTypeId())
@@ -102,8 +102,8 @@ public class ProjectEntity {
         this.totalMember = request.getTotalMember();
         this.startDate = request.getStartDate();
         this.estimatedPeriod = request.getEstimatedPeriod();
-        this.beginner = request.getIsBeginner();
-        this.done = request.getIsDone();
+        this.isBeginner = request.getIsBeginner();
+        this.isDone = request.getIsDone();
         this.recruitmentStartDate = request.getRecruitmentStartDate();
         this.recruitmentEndDate = request.getRecruitmentEndDate();
         this.methodTypeId = request.getMethodTypeId();
@@ -115,8 +115,8 @@ public class ProjectEntity {
         return skillTagIds != null ? skillTagIds : Collections.emptyList();
     }
 
-    public void updateIsDone(boolean done) {
-        this.done = done;
+    public void updateIsDone(boolean isDone) {
+        this.isDone = isDone;
     }
 
 }

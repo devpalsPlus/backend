@@ -89,7 +89,7 @@ public class ProjectService {
     // 프로젝트 개수 조회
     public ResponseEntity<ApiResponse<ProjectCountResponse>> getProjectCount() {
         long totalProjectCount = projectRepository.count();
-        long ongoingProjectCount = projectRepository.countByDoneFalse();
+        long ongoingProjectCount = projectRepository.countByIsDoneFalse();
         long endProjectCount = totalProjectCount - ongoingProjectCount;
 
         ProjectCountResponse responseData = new ProjectCountResponse(totalProjectCount, ongoingProjectCount, endProjectCount);

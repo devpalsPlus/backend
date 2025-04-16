@@ -2,6 +2,7 @@ package hs.kr.backend.devpals.domain.user.controller;
 
 import hs.kr.backend.devpals.domain.project.dto.ProjectApplyResponse;
 import hs.kr.backend.devpals.domain.project.dto.ProjectMyResponse;
+import hs.kr.backend.devpals.domain.project.dto.ProjectParticipationResponse;
 import hs.kr.backend.devpals.domain.user.service.UserProjectService;
 import hs.kr.backend.devpals.global.common.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -66,7 +67,7 @@ public class UserProjectController {
                     examples = @ExampleObject(value = "{\"success\": false, \"message\": \"해당 유저가 참여한 프로젝트를 찾을 수 없습니다.\", \"data\": null}")
             )
     )
-    public ResponseEntity<ApiResponse<List<ProjectMyResponse>>> getUserProjects(
+    public ResponseEntity<ApiResponse<ProjectParticipationResponse>> getUserProjects(
             @RequestHeader("Authorization") String token,
             @PathVariable Long id) {
         return userProjectService.getUserProject(token, id);

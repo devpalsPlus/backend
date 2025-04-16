@@ -15,8 +15,8 @@ public class ProjectMyResponse {
     private String title;
     private LocalDate recruitmentEndDate;
     private int totalMember;
-    private boolean isBeginner;
-    private boolean isDone;
+    private Boolean isBeginner;
+    private Boolean isDone;
     private List<SkillTagResponse> skills;
 
     public static ProjectMyResponse fromEntity(ProjectEntity project, List<SkillTagResponse> skills) {
