@@ -13,7 +13,6 @@ import java.util.Optional;
 public interface ApplicantRepository extends JpaRepository<ApplicantEntity, Long> {
     Optional<ApplicantEntity> findByUserAndProject(UserEntity user, ProjectEntity project);
     List<ApplicantEntity> findByUser(UserEntity user);
-
     @Query("SELECT a FROM ApplicantEntity a " +
             "JOIN FETCH a.user " +
             "JOIN FETCH a.project " +
