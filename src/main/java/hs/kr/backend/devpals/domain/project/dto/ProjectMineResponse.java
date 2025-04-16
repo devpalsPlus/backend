@@ -16,6 +16,8 @@ public class ProjectMineResponse {
     private String title;
     private LocalDate recruitmentEndDate;
     private int totalMember;
+    private boolean isBeginner;
+    private boolean isDone;
     private List<SkillTagResponse> skills;
 
     public static ProjectMineResponse fromEntity(ProjectEntity project, List<SkillTagResponse> skills) {
@@ -24,6 +26,8 @@ public class ProjectMineResponse {
                 project.getTitle(),
                 project.getRecruitmentEndDate(),
                 project.getTotalMember(),
+                project.isBeginner(),
+                project.isDone(),
                 skills
         );
     }
