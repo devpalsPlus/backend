@@ -74,7 +74,7 @@ public class UserProfileController {
         return userProfileService.userUpdateInfo(token, request);
     }
 
-    @PostMapping("/profile-img")
+    @PatchMapping("/profile-img")
     @Operation(summary = "본인 정보 이미지 업데이트", description = "본인의 정보 중 이미지만 업데이트 합니다.")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "프로필 이미지 업데이트 성공")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(
