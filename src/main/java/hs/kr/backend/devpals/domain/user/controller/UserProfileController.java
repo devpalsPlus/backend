@@ -92,4 +92,22 @@ public class UserProfileController {
             @RequestPart("file") MultipartFile file){
         return userProfileService.updateProfileImage(token, file);
     }
+
+    @GetMapping("/nickname-check")
+    @Operation(summary = "닉네임 체크", description = "닉네임의 유효성을 검사합니다")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "닉네임 변경 가능합니다.")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "400",
+            description = "닉네임 변경 실패",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ApiResponse.class),
+                    examples = @ExampleObject(value = "{\"success\": false, \"message\": \"중복된 닉네임입니다.\", \"data\": null}")
+            )
+    )
+    public ResponseEntity<ApiResponse<String>> userNicknameCheck(
+            @RequestHeader("Authorization") String token,
+            @RequestParam String nickname){
+        return userProfileService.userNicknameCheck(token, nickname);
+    }
 }
