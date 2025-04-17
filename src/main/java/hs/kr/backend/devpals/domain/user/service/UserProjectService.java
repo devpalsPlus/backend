@@ -96,16 +96,15 @@ public class UserProjectService {
 
         List<ProjectEntity> ownProjectsList = projectRepository.findProjectsByAuthorId(user.getId());
 
-        List<ProjectApplyResponse> ownProjects = ownProjectsList.stream()
-                .map(project -> ProjectApplyResponse.fromEntity(
-                        project.getId(),
-                        project.getTitle(),
-                        null
-                ))
+        List<ProjectMyResponse> projects = ownProjectsList.stream()
+                .map(project -> {
+                    List<SkillTagResponse> skills = userFacade.getSkillTagResponses(project.getSkillTagIds());
+                    return ProjectMyResponse.fromEntity(project, skills);
+                })
                 .toList();
 
 
-        ProjectParticipationResponse result = ProjectParticipationResponse.from(acceptedProjects, ownProjects);
+        ProjectParticipationResponse result = ProjectParticipationResponse.from(acceptedProjects, projects);
 
         return ResponseEntity.ok(new ApiResponse<>(true, "사용자의 참여/작성 프로젝트 조회 성공", result));
     }

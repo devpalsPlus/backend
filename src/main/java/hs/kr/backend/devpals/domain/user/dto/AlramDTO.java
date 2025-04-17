@@ -25,7 +25,7 @@ public class AlramDTO {
     public static AlramDTO fromEntity(AlramEntity entity) {
         return AlramDTO.builder()
                 .id(entity.getId())
-                .project_id(entity.getProject_id().getId())
+                .project_id(entity.getProject().getId())
                 .user_id(entity.getUser().getId())
                 .content(entity.getContent())
                 .enabled(entity.isEnabled())

@@ -9,9 +9,9 @@ import java.util.List;
 @AllArgsConstructor
 public class ProjectParticipationResponse {
     private List<ProjectMyResponse> acceptedProjects;
-    private List<ProjectApplyResponse> ownProjects;
+    private List<ProjectMyResponse> ownProjects;
 
-    public static ProjectParticipationResponse from(List<ProjectMyResponse> accepted, List<ProjectApplyResponse> own) {
+    public static ProjectParticipationResponse from(List<ProjectMyResponse> accepted, List<ProjectMyResponse> own) {
         return new ProjectParticipationResponse(accepted, own);
     }
 }

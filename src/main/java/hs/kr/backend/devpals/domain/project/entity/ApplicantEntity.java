@@ -53,10 +53,10 @@ public class ApplicantEntity {
     private ApplicantStatus status = ApplicantStatus.WAITING;
 
     @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();;
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(nullable = false)
-    private LocalDateTime updatedAt = LocalDateTime.now();;
+    private LocalDateTime updatedAt = LocalDateTime.now();
 
     // 지원 상태 업데이트 메서드
     public void updateStatus(ApplicantStatus newStatus) {
