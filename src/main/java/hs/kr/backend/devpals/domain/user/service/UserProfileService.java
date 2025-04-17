@@ -57,6 +57,16 @@ public class UserProfileService {
         return ResponseEntity.ok(new ApiResponse<>(true, "사용자 정보를 조회했습니다.", userResponse));
     }
 
+    public ResponseEntity<ApiResponse<String>> userNicknameCheck(String token, String nickname) {
+        boolean exists = userRepository.existsByNickname(nickname);
+
+        if (exists) {
+            throw new CustomException(ErrorException.DUPLICATE_NICKNAME);
+        } else {
+            return ResponseEntity.ok(new ApiResponse<>(true, "사용 가능한 닉네임입니다.", null));
+        }
+    }
+
     //유저 정보 업데이트
     @Transactional
     public ResponseEntity<ApiResponse<UserResponse>> userUpdateInfo(String token, UserUpdateRequest request) {
