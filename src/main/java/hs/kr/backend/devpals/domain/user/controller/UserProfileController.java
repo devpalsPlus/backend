@@ -88,7 +88,7 @@ public class UserProfileController {
     )
     public ResponseEntity<ApiResponse<String>> updateProfileImg(
             @RequestHeader("Authorization") String token,
-            @RequestParam("file") MultipartFile file){
+            @RequestPart("file") MultipartFile file){
         return userProfileService.updateProfileImage(token, file);
     }
 }
