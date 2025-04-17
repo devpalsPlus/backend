@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -74,7 +75,7 @@ public class UserProfileController {
         return userProfileService.userUpdateInfo(token, request);
     }
 
-    @PatchMapping("/profile-img")
+    @PatchMapping(value = "/profile-img", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "본인 정보 이미지 업데이트", description = "본인의 정보 중 이미지만 업데이트 합니다.")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "프로필 이미지 업데이트 성공")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(
