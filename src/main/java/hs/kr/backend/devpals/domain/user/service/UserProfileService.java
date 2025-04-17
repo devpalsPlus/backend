@@ -61,7 +61,7 @@ public class UserProfileService {
         boolean exists = userRepository.existsByNickname(nickname);
 
         if (exists) {
-            throw new CustomException(ErrorException.DUPLICATE_NICKNAME);
+            return ResponseEntity.ok(new ApiResponse<>(false, "중복된 닉네임입니다.", null));
         } else {
             return ResponseEntity.ok(new ApiResponse<>(true, "사용 가능한 닉네임입니다.", null));
         }
