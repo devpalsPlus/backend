@@ -95,6 +95,8 @@ public class ProjectAllDto {
                 .recruitmentStartDate(project.getRecruitmentStartDate())
                 .recruitmentEndDate(project.getRecruitmentEndDate())
                 .skillTagIds(project.getSkillTagIds() != null ? project.getSkillTagIds() : List.of())
+                .positionTagIds(project.getPositionTagIds() != null ? project.getPositionTagIds() : List.of())
+                .methodTypeId(project.getMethodTypeId() != null ? project.getMethodTypeId() : 0L)
                 .user(user)
                 .methodType(methodType)
                 .positions(positions)
