@@ -1,5 +1,6 @@
 package hs.kr.backend.devpals.domain.user.service;
 
+import hs.kr.backend.devpals.domain.project.service.ProjectService;
 import hs.kr.backend.devpals.domain.user.dto.UserResponse;
 import hs.kr.backend.devpals.domain.user.dto.UserUpdateRequest;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
@@ -26,6 +27,7 @@ public class UserProfileService {
     private final UserRepository userRepository;
     private final JwtTokenValidator jwtTokenValidator;
     private final AwsS3Client awsS3Client;
+    private final ProjectService projectService;
 
     //개인 정보 가져오기
     public ResponseEntity<ApiResponse<UserResponse>> getUserInfo(String token) {
@@ -96,6 +98,8 @@ public class UserProfileService {
         );
 
         userRepository.save(user);
+
+        projectService.refreshProjectCacheByAuthor(userId);
 
         UserResponse userResponse = UserResponse.fromEntity(user, userFacade);
 

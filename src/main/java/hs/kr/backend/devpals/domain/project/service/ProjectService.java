@@ -179,13 +179,16 @@ public class ProjectService {
                 .forEach(applicant -> applicant.updateStatus(ApplicantStatus.REJECTED));
 
         project.updateIsDone(true);
-        MethodTypeResponse methodTypeResponse = getMethodTypeResponse(project.getMethodTypeId());
         // 변경된 상태 저장
         projectRepository.save(project);
         applicantRepository.saveAll(applicants);
 
+        ProjectAllDto updatedProjectDto = convertToDto(project);
+        projectAllCache.put(projectId, updatedProjectDto);
+
         CompletableFuture.runAsync(() -> authEmailService.sendEmailsAsync(applicants, project), emailExecutor);
         alarmService.sendAlarm(applicants,AlramFilter.APPLICANT_CHECK);
+        MethodTypeResponse methodTypeResponse = projectFacade.getMethodTypeResponse(project.getMethodTypeId());
         return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 모집 종료 성공", ProjectCloseResponse.fromEntity(project, methodTypeResponse)));
     }
 
@@ -217,16 +220,19 @@ public class ProjectService {
                 }, emailExecutor));
     }
 
-    // 메소드 태그 변환 (ID 리스트 -> DTO 리스트)
-    private MethodTypeResponse getMethodTypeResponse(Long methodTypeId) {
-
-        return MethodTypeResponse.fromEntity(projectFacade.getMethodTypeById(methodTypeId));
+    public void refreshProjectCacheByAuthor(Long authorId) {
+        List<ProjectEntity> projects = projectRepository.findProjectsByAuthorId(authorId);
+        for (ProjectEntity project : projects) {
+            ProjectAllDto updatedDto = convertToDto(project);
+            projectAllCache.put(project.getId(), updatedDto);
+        }
     }
+
 
     private ProjectAllDto convertToDto(ProjectEntity project) {
         List<SkillTagResponse> skillResponses = userFacade.getSkillTagResponses(project.getSkillTagIds());
         List<PositionTagResponse> positionResponses = userFacade.getPositionTagResponses(project.getPositionTagIds());
-        MethodTypeResponse methodTypeResponse = getMethodTypeResponse(project.getMethodTypeId());
+        MethodTypeResponse methodTypeResponse = projectFacade.getMethodTypeResponse(project.getMethodTypeId());
 
 
         UserEntity userEntity = userRepository.findById(project.getAuthorId())
