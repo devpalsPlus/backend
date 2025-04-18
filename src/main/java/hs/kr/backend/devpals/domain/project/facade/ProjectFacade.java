@@ -1,5 +1,6 @@
 package hs.kr.backend.devpals.domain.project.facade;
 
+import hs.kr.backend.devpals.domain.project.dto.MethodTypeResponse;
 import hs.kr.backend.devpals.domain.project.entity.MethodTypeEntity;
 import hs.kr.backend.devpals.domain.project.repository.MethodTypeRepository;
 import hs.kr.backend.devpals.global.common.ApiResponse;
@@ -42,20 +43,14 @@ public class ProjectFacade {
         return ResponseEntity.ok(response);
     }
 
-    public List<MethodTypeEntity> getMethodTypeByIds(List<Long> ids) {
-        List<MethodTypeEntity> foundMethods = ids.stream()
-                .map(methodTypeCache::get)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-
-        if (foundMethods.size() != ids.size()) {
-            throw new CustomException(ErrorException.METHOD_TYPE_NOT_FOUND);
-        }
-
-        return foundMethods;
-    }
     public MethodTypeEntity getMethodTypeById(Long id) {
         return methodTypeCache.get(id);
+    }
+
+    // 메소드 태그 변환 (ID 리스트 -> DTO 리스트)
+    public MethodTypeResponse getMethodTypeResponse(Long methodTypeId) {
+
+        return MethodTypeResponse.fromEntity(getMethodTypeById(methodTypeId));
     }
 
 }
