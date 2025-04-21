@@ -4,7 +4,7 @@ import hs.kr.backend.devpals.domain.project.entity.ApplicantEntity;
 import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
 import hs.kr.backend.devpals.domain.user.entity.AlramEntity;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
-import hs.kr.backend.devpals.domain.user.repository.AlramRepository;
+import hs.kr.backend.devpals.domain.user.repository.AlarmRepository;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.common.enums.AlramFilter;
 import hs.kr.backend.devpals.global.common.enums.ApplicantStatus;
@@ -29,7 +29,7 @@ public class AlarmService {
 
     private final JwtTokenValidator jwtTokenValidator;
     private final Map<Long, SseEmitter> emitters = new ConcurrentHashMap<>();
-    private final AlramRepository alramRepository;
+    private final AlarmRepository alarmRepository;
     private final UserRepository userRepository;
 
 
@@ -53,7 +53,7 @@ public class AlarmService {
                 .map(a -> new AlramEntity(a, makeMessage(a), alramFilter))
                 .toList();
 
-        alramRepository.saveAll(alramEntities);
+        alarmRepository.saveAll(alramEntities);
 
         alramEntities.forEach(a ->
                 sendToUser(a.getUser().getId(), a.getContent())
@@ -64,7 +64,7 @@ public class AlarmService {
     public void sendAlarm(ProjectEntity project, ApplicantEntity applicant, AlramFilter alramFilter) {
         UserEntity author = userRepository.findById(project.getAuthorId()).orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
         String content = makeMessage(project, applicant);
-        alramRepository.save(new AlramEntity(project,author,content,alramFilter));
+        alarmRepository.save(new AlramEntity(project,author,content,alramFilter));
         sendToUser(project.getAuthorId(),content);
     }
 
