@@ -1,7 +1,7 @@
 package hs.kr.backend.devpals.domain.user.service;
 
-import hs.kr.backend.devpals.domain.user.dto.AlramDTO;
-import hs.kr.backend.devpals.domain.user.repository.AlramRepository;
+import hs.kr.backend.devpals.domain.user.dto.AlarmDto;
+import hs.kr.backend.devpals.domain.user.repository.AlarmRepository;
 import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.common.enums.AlramFilter;
 import hs.kr.backend.devpals.global.jwt.JwtTokenValidator;
@@ -16,21 +16,21 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class UserAlramService {
+public class UserAlarmService {
 
     private final JwtTokenValidator jwtTokenValidator;
-    private final AlramRepository alramRepository;
-    private final Map<Long, List<AlramDTO>> alramMyCache = new HashMap<>();
+    private final AlarmRepository alarmRepository;
+    private final Map<Long, List<AlarmDto>> alarmMyCache = new HashMap<>();
 
-    public ResponseEntity<ApiResponse<List<AlramDTO>>> getUserAlram(String token, String filterStr) {
+    public ResponseEntity<ApiResponse<List<AlarmDto>>> getUserAlarm(String token, String filterStr) {
         Long userId = jwtTokenValidator.getUserId(token);
 
-        List<AlramDTO> cachedAlrams = alramMyCache.get(userId);
+        List<AlarmDto> cachedAlrams = alarmMyCache.get(userId);
         if (cachedAlrams == null) {
-            cachedAlrams = alramRepository.findByUser_Id(userId).stream()
-                    .map(AlramDTO::fromEntity)
+            cachedAlrams = alarmRepository.findByUserId(userId).stream()
+                    .map(AlarmDto::fromEntity)
                     .collect(Collectors.toList());
-            alramMyCache.put(userId, cachedAlrams);
+            alarmMyCache.put(userId, cachedAlrams);
         }
 
         AlramFilter tempFilter = null;
@@ -45,7 +45,7 @@ public class UserAlramService {
 
         final AlramFilter filter = tempFilter;
 
-        List<AlramDTO> filtered = (filter == null || filter == AlramFilter.ALL)
+        List<AlarmDto> filtered = (filter == null || filter == AlramFilter.ALL)
                 ? cachedAlrams
                 : cachedAlrams.stream()
                 .filter(a -> a.getAlramFilter() == filter)
@@ -53,4 +53,5 @@ public class UserAlramService {
 
         return ResponseEntity.ok(new ApiResponse<>(true, "알림 조회 성공", filtered));
     }
+
 }
