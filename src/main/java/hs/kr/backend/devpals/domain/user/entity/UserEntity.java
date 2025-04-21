@@ -56,11 +56,11 @@ public class UserEntity {
 
     @Convert(converter = LongListConverter.class)
     @Column(columnDefinition = "TEXT")
-    private List<Long> positionIds;
+    private List<Long> positionIds = new ArrayList<>();
 
     @Convert(converter = LongListConverter.class)
     @Column(columnDefinition = "TEXT")
-    private List<Long> skillIds;
+    private List<Long> skillIds = new ArrayList<>();
 
     /*
     @OneToMany(mappedBy = "user")
