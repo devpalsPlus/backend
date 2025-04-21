@@ -6,6 +6,7 @@ import hs.kr.backend.devpals.domain.user.entity.AlramEntity;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.repository.AlarmRepository;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
+import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.common.enums.AlramFilter;
 import hs.kr.backend.devpals.global.common.enums.ApplicantStatus;
 import hs.kr.backend.devpals.global.exception.CustomException;
@@ -13,6 +14,8 @@ import hs.kr.backend.devpals.global.exception.ErrorException;
 import hs.kr.backend.devpals.global.jwt.JwtTokenValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -58,6 +61,12 @@ public class AlarmService {
         alramEntities.forEach(a ->
                 sendToUser(a.getUser().getId(), a.getContent())
         );
+    }
+    public ResponseEntity<ApiResponse<String>> sendAlarm(String token){
+        Long userId = jwtTokenValidator.getUserId(token);
+
+        sendToUser(userId,"테스트 메시지 입니다. 메시지는 따로 저장되지 않습니다.");
+        return new ResponseEntity<>(new ApiResponse<String>(true, "ok","테스트 메시지 입니다. 메시지는 따로 저장되지 않습니다."), HttpStatus.OK);
     }
 
     //프로젝트 지원 신청시 프로젝트 작성자에게 알림전송
