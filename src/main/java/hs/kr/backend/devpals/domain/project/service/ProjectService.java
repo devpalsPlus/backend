@@ -47,7 +47,7 @@ public class ProjectService {
     @Qualifier("emailExecutor")
     private final Executor emailExecutor;
 
-    private final Map<Long, ProjectAllDto> projectAllCache = new HashMap<>();
+    private final Map<Long, ProjectAllDto> projectAllCache = new LinkedHashMap<>();
 
     // 프로젝트 목록 조회
     @Transactional
@@ -57,7 +57,7 @@ public class ProjectService {
             String keyword, int page) {
 
         if (projectAllCache.isEmpty()) {
-            List<ProjectEntity> projects = projectRepository.findAll();
+            List<ProjectEntity> projects = projectRepository.findAllByOrderByCreatedAtDesc();
             projects.forEach(project -> {
                 if (!projectAllCache.containsKey(project.getId())) {
                     projectAllCache.put(project.getId(), convertToDto(project));
