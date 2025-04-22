@@ -48,7 +48,7 @@ public class ApplyService {
 
         ApplicantEntity applicant = ApplicantEntity.createApplicant(user, project, request);
         applicantRepository.save(applicant);
-        alarmService.sendAlarm(project,applicant, AlramFilter.APPLIED_PROJECTS);
+        alarmService.sendAlarm(project,applicant, AlramFilter.APPLICANT_CHECK);
 
         return ResponseEntity.ok(new ApiResponse<String>(true, "프로젝트 지원 되었습니다." , null));
     }

@@ -180,7 +180,7 @@ public class ProjectService {
         applicantRepository.saveAll(applicants);
 
         CompletableFuture.runAsync(() -> authEmailService.sendEmailsAsync(applicants, project), emailExecutor);
-        alarmService.sendAlarm(applicants,AlramFilter.APPLICANT_CHECK,projectId);
+        alarmService.sendAlarm(applicants,AlramFilter.APPLIED_PROJECTS,projectId);
         return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 모집 종료 성공", ProjectCloseResponse.fromEntity(project, methodTypeResponse)));
     }
 
@@ -207,7 +207,7 @@ public class ProjectService {
                     projects.forEach(project -> {
                         List<ApplicantEntity> applicants = projectApplicantsMap.get(project);
                         authEmailService.sendEmailsAsync(applicants, project);
-                        alarmService.sendAlarm(applicants,AlramFilter.APPLICANT_CHECK, project.getId());
+                        alarmService.sendAlarm(applicants,AlramFilter.APPLIED_PROJECTS, project.getId());
                     });
                 }, emailExecutor));
     }
