@@ -1,5 +1,6 @@
 package hs.kr.backend.devpals.domain.user.service;
 
+import hs.kr.backend.devpals.domain.project.service.ProjectService;
 import hs.kr.backend.devpals.domain.user.dto.UserResponse;
 import hs.kr.backend.devpals.domain.user.dto.UserUpdateRequest;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
@@ -26,6 +27,7 @@ public class UserProfileService {
     private final UserRepository userRepository;
     private final JwtTokenValidator jwtTokenValidator;
     private final AwsS3Client awsS3Client;
+    private final ProjectService projectService;
 
     //개인 정보 가져오기
     public ResponseEntity<ApiResponse<UserResponse>> getUserInfo(String token) {
@@ -57,6 +59,16 @@ public class UserProfileService {
         return ResponseEntity.ok(new ApiResponse<>(true, "사용자 정보를 조회했습니다.", userResponse));
     }
 
+    public ResponseEntity<ApiResponse<String>> userNicknameCheck(String token, String nickname) {
+        boolean exists = userRepository.existsByNickname(nickname);
+
+        if (exists) {
+            return ResponseEntity.ok(new ApiResponse<>(false, "중복된 닉네임입니다.", null));
+        } else {
+            return ResponseEntity.ok(new ApiResponse<>(true, "사용 가능한 닉네임입니다.", null));
+        }
+    }
+
     //유저 정보 업데이트
     @Transactional
     public ResponseEntity<ApiResponse<UserResponse>> userUpdateInfo(String token, UserUpdateRequest request) {
@@ -79,12 +91,15 @@ public class UserProfileService {
                 request.getNickname(),
                 request.getBio(),
                 request.getGithub(),
+                request.getBeginner(),
                 positionIds,
                 skillIds,
                 request.getCareer()
         );
 
         userRepository.save(user);
+
+        projectService.refreshProjectCacheByAuthor(userId);
 
         UserResponse userResponse = UserResponse.fromEntity(user, userFacade);
 

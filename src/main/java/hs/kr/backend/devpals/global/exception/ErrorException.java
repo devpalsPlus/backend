@@ -38,7 +38,10 @@ public enum ErrorException {
     INVALID_APPLICANT_PROJECT("해당 지원자를 프로젝트에서 찾을 수 없습니다."),
     PROJECT_DONE("마감한 공고는 지원자의 상태를 변경할 수 없습니다."),
     STATUS_NOT_FOUND("작성한 상태값이 존재하지 않습니다."),
-    EQUAL_STATUS("상태가 이미 동일합니다.");
+    EQUAL_STATUS("상태가 이미 동일합니다."),
+    COMMENT_NOT_FOUND("해당 프로젝트의 댓글을 찾을 수 없습니다."),
+    NOT_COMMENT_OWNER("작성자 및 프로젝트 작성자만 댓글을 삭제할 수 있습니다."),
+    INVALID_PROJECT_COMMENT("프로젝트와 댓글이 매칭되지 않습니다.");
 
     private final String message;
 

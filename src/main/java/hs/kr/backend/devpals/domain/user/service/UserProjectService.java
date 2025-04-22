@@ -1,10 +1,13 @@
 package hs.kr.backend.devpals.domain.user.service;
 
 import hs.kr.backend.devpals.domain.project.dto.ProjectApplyResponse;
-import hs.kr.backend.devpals.domain.project.dto.ProjectMineResponse;
+import hs.kr.backend.devpals.domain.project.dto.ProjectMyResponse;
+import hs.kr.backend.devpals.domain.project.dto.ProjectParticipationResponse;
 import hs.kr.backend.devpals.domain.project.entity.ApplicantEntity;
 import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
+import hs.kr.backend.devpals.domain.project.facade.ProjectFacade;
 import hs.kr.backend.devpals.domain.project.repository.ApplicantRepository;
+import hs.kr.backend.devpals.domain.project.repository.ProjectRepository;
 import hs.kr.backend.devpals.domain.user.dto.SkillTagResponse;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.facade.UserFacade;
@@ -28,20 +31,22 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserProjectService {
-    private final Map<Long, List<ProjectMineResponse>> projectMyCache = new HashMap<>();
+    private final Map<Long, List<ProjectMyResponse>> projectMyCache = new HashMap<>();
     private final Map<Long, List<ProjectApplyResponse>> projectMyApplyCache = new HashMap<>();
     private final JwtTokenValidator jwtTokenValidator;
     private final ApplicantRepository applicantRepository;
     private final UserRepository userRepository;
+    private final ProjectRepository projectRepository;
+    private final ProjectFacade projectFacade;
     private final UserFacade userFacade;
 
     @Transactional
-    public ResponseEntity<ApiResponse<List<ProjectMineResponse>>> getMyProject(String token) {
+    public ResponseEntity<ApiResponse<List<ProjectMyResponse>>> getMyProject(String token) {
 
         Long userId = jwtTokenValidator.getUserId(token);
 
         if (projectMyCache.containsKey(userId)) {
-            List<ProjectMineResponse> cachedProjects = new ArrayList<>(projectMyCache.get(userId));
+            List<ProjectMyResponse> cachedProjects = new ArrayList<>(projectMyCache.get(userId));
             return ResponseEntity.ok(new ApiResponse<>(true, "내가 참여한 프로젝트 조회 성공", cachedProjects));
         }
 
@@ -57,14 +62,14 @@ public class UserProjectService {
             return ResponseEntity.ok(new ApiResponse<>(true, "참여한 프로젝트가 없습니다.", new ArrayList<>()));
         }
 
-        List<ProjectMineResponse> myProjects = applications.stream()
+        List<ProjectMyResponse> myProjects = applications.stream()
                 .map(application -> {
                     ProjectEntity project = application.getProject();
 
                     List<Long> skillTagIds = project.getSkillTagsAsList();
                     List<SkillTagResponse> skillResponses = userFacade.getSkillTagResponses(skillTagIds);
 
-                    return ProjectMineResponse.fromEntity(project, skillResponses);
+                    return ProjectMyResponse.fromEntity(project, skillResponses);
                 })
                 .collect(Collectors.toList());
 
@@ -73,31 +78,37 @@ public class UserProjectService {
         return ResponseEntity.ok(new ApiResponse<>(true, "내가 참여한 프로젝트 조회 성공", myProjects));
     }
 
-    public ResponseEntity<ApiResponse<List<ProjectMineResponse>>> getUserProject(String token, Long userId) {
-
+    public ResponseEntity<ApiResponse<ProjectParticipationResponse>> getUserProject(String token, Long userId) {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
-        List<ApplicantEntity> applications = applicantRepository.findByUser(user)
-                .stream()
+        List<ApplicantEntity> acceptedApplications = applicantRepository.findByUser(user).stream()
                 .filter(application -> application.getStatus() == ApplicantStatus.ACCEPTED)
-                .collect(Collectors.toList());
+                .toList();
 
-        if (applications.isEmpty()) {
-            return ResponseEntity.ok(new ApiResponse<>(true, "사용자가 참여한 프로젝트가 없습니다.", new ArrayList<>()));
-        }
-
-        List<ProjectMineResponse> userProjects = applications.stream()
+        List<ProjectMyResponse> acceptedProjects = acceptedApplications.stream()
                 .map(application -> {
                     ProjectEntity project = application.getProject();
-                    List<Long> skillTagIds = project.getSkillTagsAsList();
-                    List<SkillTagResponse> skillResponses = userFacade.getSkillTagResponses(skillTagIds);
-                    return ProjectMineResponse.fromEntity(project, skillResponses);
+                    List<SkillTagResponse> skills = userFacade.getSkillTagResponses(project.getSkillTagIds());
+                    return ProjectMyResponse.fromEntity(project, skills);
                 })
-                .collect(Collectors.toList());
+                .toList();
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "사용자가 참여한 프로젝트 조회 성공", userProjects));
+        List<ProjectEntity> ownProjectsList = projectRepository.findProjectsByAuthorId(user.getId());
+
+        List<ProjectMyResponse> projects = ownProjectsList.stream()
+                .map(project -> {
+                    List<SkillTagResponse> skills = userFacade.getSkillTagResponses(project.getSkillTagIds());
+                    return ProjectMyResponse.fromEntity(project, skills);
+                })
+                .toList();
+
+
+        ProjectParticipationResponse result = ProjectParticipationResponse.from(acceptedProjects, projects);
+
+        return ResponseEntity.ok(new ApiResponse<>(true, "사용자의 참여/작성 프로젝트 조회 성공", result));
     }
+
 
     @Transactional
     public ResponseEntity<ApiResponse<List<ProjectApplyResponse>>> getMyProjectApply(String token) {

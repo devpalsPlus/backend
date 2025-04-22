@@ -14,14 +14,13 @@ import java.util.stream.Collectors;
 
 @Getter
 @Builder
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor
 public class ProjectApplicantResultResponse {
 
     private List<ProjectApplicantResultDto> accepted;
     private List<ProjectApplicantResultDto> rejected;
-    private static UserFacade userFacade;
 
-    public static ProjectApplicantResultResponse fromEntity(List<ApplicantEntity> applicants) {
+    public static ProjectApplicantResultResponse fromEntity(List<ApplicantEntity> applicants,UserFacade userFacade) {
         Map<Boolean, List<ProjectApplicantResultDto>> partitioned = applicants.stream()
                 .map(applicant -> ProjectApplicantResultDto.fromEntity(applicant, userFacade))
                 .collect(Collectors.partitioningBy(dto -> dto.getStatus().equals(ApplicantStatus.ACCEPTED)));
