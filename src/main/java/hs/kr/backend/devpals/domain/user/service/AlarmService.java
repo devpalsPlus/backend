@@ -23,6 +23,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -55,23 +57,21 @@ public class AlarmService {
     }
 
     // 지원 결과 알람 전송
-    public void sendAlarm(List<ApplicantEntity> applicants, AlramFilter alramFilter,Long targetId){
+    public void sendAlarm(List<ApplicantEntity> applicants, AlramFilter alramFilter,Long routingId){
         List<AlramEntity> alramEntities = applicants.stream()
-                .map(a -> new AlramEntity(a, makeMessage(a), alramFilter))
+                .map(a -> new AlramEntity(a, makeMessage(a), alramFilter,routingId))
                 .toList();
 
-        alarmRepository.saveAll(alramEntities);
+        List<AlramEntity> savedAlarmEntities = alarmRepository.saveAll(alramEntities);
 
-        alramEntities.forEach(a ->
-                sendToUser(UserAlarmDto.of(a.getUser()), a.getContent(),alramFilter.getValue(),targetId)
+        savedAlarmEntities.forEach(a ->
+                sendToUser(a.getUser().getId(), a)
         );
     }
 
     //테스트용 로직입니다 추후 삭제하겠습니다.
     public ResponseEntity<ApiResponse<String>> sendAlarmTest(String token, Integer alarmFilterId){
         Long userId = jwtTokenValidator.getUserId(token);
-        UserAlarmDto userAlarmDto =  UserAlarmDto.of(userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND)));
         String testMessage ="테스트 메시지 입니다. 메시지는 따로 저장되지 않습니다. " +
                 "전달되는 targetId의 경우 alarmFilter 값에 따라 0(전체), 1(지원한 프로젝트),2(지원자 확인)의 경우 아무 ProjectId," +
                 "3의경우 미구현이라 현재 유저 ID전달드리겠습니다.";
@@ -82,7 +82,7 @@ public class AlarmService {
             );
             targetId = first.getId();
         } else targetId = userId;
-        sendToUser(userAlarmDto, testMessage,alarmFilterId,targetId);
+        sendToUserTest(userId, testMessage,alarmFilterId,targetId);
         return new ResponseEntity<>(new ApiResponse<String>(true, "ok","테스트 메시지 입니다. 메시지는 따로 저장되지 않습니다."), HttpStatus.OK);
     }
 
@@ -90,8 +90,8 @@ public class AlarmService {
     public void sendAlarm(ProjectEntity project, ApplicantEntity applicant, AlramFilter alramFilter) {
         UserEntity author = userRepository.findById(project.getAuthorId()).orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
         String content = makeMessage(project, applicant);
-        alarmRepository.save(new AlramEntity(project,author,content,alramFilter));
-        sendToUser(UserAlarmDto.of(author),content,alramFilter.getValue(),project.getId());
+        AlramEntity saved = alarmRepository.save(new AlramEntity(project, author, content, alramFilter,project.getId()));
+        sendToUser(author.getId(),saved);
     }
 
     private String makeMessage(ProjectEntity project,ApplicantEntity applicant) {
@@ -105,21 +105,41 @@ public class AlarmService {
     }
 
     // 특정 사용자에게 알림 전송
-    private void sendToUser(UserAlarmDto userAlarmDto, String message,Integer alarmFilterValue,Long targetId) {
-        SseEmitter emitter = emitters.get(userAlarmDto.getUserId());
+    private void sendToUser(Long userId, AlramEntity alramEntity) {
+        SseEmitter emitter = emitters.get(userId);
+        if (emitter != null) {
+            try {
+                emitter.send(SseEmitter.event()
+                        .name("alarm")
+                        .data(Map.of(
+                                "message", alramEntity.getContent(),
+                                "createAt",alramEntity.getCreatedAt(),
+                                "alarmFilterId",alramEntity.getAlramFilter().getValue(),
+                                "routingId",alramEntity.getRoutingId()
+                        )));
+            } catch (IOException e) {
+                log.error("Error sending SSE to user {}: {}", userId, e.getMessage());
+                emitters.remove(userId);
+            }
+        }
+    }
+
+    // 테스트용 로직입니다 추후 삭제하겠습니다.
+    private void sendToUserTest(Long userId, String message, Integer alarmFilterValue,Long routingId) {
+        SseEmitter emitter = emitters.get(userId);
         if (emitter != null) {
             try {
                 emitter.send(SseEmitter.event()
                         .name("alarm")
                         .data(Map.of(
                                 "message", message,
-                                "nickName",userAlarmDto.getNickName(),
+                                "createAt", LocalDateTime.now(),
                                 "alarmFilterId",alarmFilterValue,
-                                "targetId",targetId
+                                "routingId",routingId
                         )));
             } catch (IOException e) {
-                log.error("Error sending SSE to user {}: {}", userAlarmDto.getUserId(), e.getMessage());
-                emitters.remove(userAlarmDto.getUserId());
+                log.error("Error sending SSE to user {}: {}", userId, e.getMessage());
+                emitters.remove(userId);
             }
         }
     }

@@ -15,21 +15,19 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class AlarmDto {
     private Long id;
-    private Long projectId;
-    private String nickName;
+    private Long routingId;
     private String content;
     private boolean enabled;
-    private AlramFilter alramFilter;
+    private Integer alarmFilterId;
     private LocalDateTime createdAt;
 
     public static AlarmDto fromEntity(AlramEntity entity) {
         return AlarmDto.builder()
                 .id(entity.getId())
-                .projectId(entity.getProject().getId())
-                .nickName(entity.getUser().getNickname())
+                .routingId(entity.getProject().getId())
                 .content(entity.getContent())
                 .enabled(entity.isEnabled())
-                .alramFilter(entity.getAlramFilter())
+                .alarmFilterId(entity.getAlramFilter().getValue())
                 .createdAt(entity.getCreatedAt())
                 .build();
     }

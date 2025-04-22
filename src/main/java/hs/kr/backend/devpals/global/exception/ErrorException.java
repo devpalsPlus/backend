@@ -6,6 +6,9 @@ import lombok.Getter;
 public enum ErrorException {
     ACCESS_TOKEN_NOT_EXPIRED("액세스 토큰이 아직 만료되지 않았습니다."),
     AUTHOR_ONLY("해당 공고의 기획자만 조회 가능합니다."),
+    ALARM_FILTER_NOT_FOUND("알람 필터값이 존재하지 않습니다."),
+    CAN_NOT_DELETE_ALARM("해당 알람을 삭제할 수 없습니다."),
+    ALARM_NOT_FOUND("알람이 존재하지 않습니다."),
     INVALID_PASSWORD("비밀번호가 올바르지 않습니다."),
     SERVER_ERROR("서버 오류가 발생했습니다."),
     UNAUTHORIZED("인증 권한이 없습니다."),
