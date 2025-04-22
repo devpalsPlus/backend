@@ -11,6 +11,7 @@ import hs.kr.backend.devpals.global.jwt.JwtTokenValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -36,7 +37,7 @@ public class UserAlarmService {
         }
 
 
-        if(AlramFilter.isValid(filterVal))
+        if(!AlramFilter.isValid(filterVal))
             throw new CustomException(ErrorException.ALARM_FILTER_NOT_FOUND);
 
         List<AlarmDto> filtered = (Objects.equals(filterVal, AlramFilter.ALL.getValue()))
@@ -51,9 +52,10 @@ public class UserAlarmService {
         return ResponseEntity.ok(new ApiResponse<>(true, "알림 조회 성공", reverseSorted));
     }
 
+    @Transactional
     public void deleteAlarmOneWeekBefore(){
         LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
-        alarmRepository.deleteAllOlderThan(sevenDaysAgo);
+        alarmRepository.deleteAllOlderThanExceptApplied(sevenDaysAgo);
     }
 
     public ResponseEntity<ApiResponse<String>> deleteAlarm(String token, Long alarmId) {
@@ -61,7 +63,7 @@ public class UserAlarmService {
         AlramEntity alramEntity
                 = alarmRepository.findByUserIdAndAlarmId(userId, alarmId).orElseThrow(() -> new CustomException(ErrorException.ALARM_NOT_FOUND));
         if(alramEntity.getAlramFilter().equals(AlramFilter.APPLIED_PROJECTS))
-            throw new CustomException(ErrorException.ALARM_FILTER_NOT_FOUND);
+            throw new CustomException(ErrorException.CAN_NOT_DELETE_ALARM);
         alarmRepository.delete(alramEntity);
         ApiResponse<String> response = new ApiResponse<>(true, "알람 삭제 성공", null);
         return ResponseEntity.ok(response);
