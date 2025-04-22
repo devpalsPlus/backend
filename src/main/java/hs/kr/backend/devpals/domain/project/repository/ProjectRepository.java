@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface ProjectRepository extends JpaRepository<ProjectEntity, Long> {
-    List<ProjectEntity> findAll();
+    List<ProjectEntity> findAllByOrderByCreatedAtDesc();
 
     @Query("SELECT p FROM ProjectEntity p WHERE p.recruitmentEndDate = :tomorrow AND p.isDone = false")
     List<ProjectEntity> findProjectsEndingTomorrow(@Param("tomorrow") LocalDate tomorrow);

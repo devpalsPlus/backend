@@ -9,7 +9,9 @@ import hs.kr.backend.devpals.domain.project.repository.ApplicantRepository;
 import hs.kr.backend.devpals.domain.project.repository.ProjectRepository;
 import hs.kr.backend.devpals.domain.user.dto.PositionTagResponse;
 import hs.kr.backend.devpals.domain.user.dto.SkillTagResponse;
+import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.facade.UserFacade;
+import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.domain.user.service.AlarmService;
 import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.common.enums.AlramFilter;
@@ -33,6 +35,7 @@ import java.util.stream.Collectors;
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
+    private final UserRepository userRepository;
     private final UserFacade userFacade;
     private final ProjectFacade projectFacade;
     private final JwtTokenValidator jwtTokenValidator;
@@ -44,16 +47,17 @@ public class ProjectService {
     @Qualifier("emailExecutor")
     private final Executor emailExecutor;
 
-    private final Map<Long, ProjectAllDto> projectAllCache = new HashMap<>();
+    private final Map<Long, ProjectAllDto> projectAllCache = new LinkedHashMap<>();
 
     // 프로젝트 목록 조회
+    @Transactional
     public ResponseEntity<ApiResponse<ProjectListResponse>> getProjectAll(
             List<Long> skillTagId, Long positionTagId,
             Long methodTypeId, Boolean isBeginner,
             String keyword, int page) {
 
         if (projectAllCache.isEmpty()) {
-            List<ProjectEntity> projects = projectRepository.findAll();
+            List<ProjectEntity> projects = projectRepository.findAllByOrderByCreatedAtDesc();
             projects.forEach(project -> {
                 if (!projectAllCache.containsKey(project.getId())) {
                     projectAllCache.put(project.getId(), convertToDto(project));
@@ -62,7 +66,7 @@ public class ProjectService {
         }
 
         List<ProjectAllDto> filteredProjects = projectAllCache.values().stream()
-                .filter(project -> isBeginner == null || project.getIsBeginner().equals(isBeginner))
+                .filter(project -> !isBeginner || project.getIsBeginner())
                 .filter(project -> keyword == null || keyword.isEmpty() ||
                         project.getTitle().toLowerCase().contains(keyword.toLowerCase()) ||
                         project.getDescription().toLowerCase().contains(keyword.toLowerCase()))
@@ -131,6 +135,7 @@ public class ProjectService {
     }
 
     // 특정 프로젝트 조회
+    @Transactional
     public ResponseEntity<ApiResponse<ProjectAllDto>> getProjectList(Long projectId) {
         ProjectAllDto project = projectAllCache.get(projectId);
         if (project == null) {
@@ -174,13 +179,18 @@ public class ProjectService {
                 .forEach(applicant -> applicant.updateStatus(ApplicantStatus.REJECTED));
 
         project.updateIsDone(true);
-        MethodTypeResponse methodTypeResponse = getMethodTypeResponse(project.getMethodTypeId());
         // 변경된 상태 저장
         projectRepository.save(project);
         applicantRepository.saveAll(applicants);
 
+        ProjectAllDto updatedProjectDto = convertToDto(project);
+        projectAllCache.put(projectId, updatedProjectDto);
+
         CompletableFuture.runAsync(() -> authEmailService.sendEmailsAsync(applicants, project), emailExecutor);
+
         alarmService.sendAlarm(applicants,AlramFilter.APPLICANT_CHECK,projectId);
+        MethodTypeResponse methodTypeResponse = projectFacade.getMethodTypeResponse(project.getMethodTypeId());
+
         return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 모집 종료 성공", ProjectCloseResponse.fromEntity(project, methodTypeResponse)));
     }
 
@@ -212,40 +222,27 @@ public class ProjectService {
                 }, emailExecutor));
     }
 
-    // 메소드 태그 변환 (ID 리스트 -> DTO 리스트)
-    private MethodTypeResponse getMethodTypeResponse(Long methodTypeId) {
-
-        return MethodTypeResponse.fromEntity(projectFacade.getMethodTypeById(methodTypeId));
-    }
-
-    // 스킬 태그 변환 (ID 리스트 -> DTO 리스트)
-    private List<SkillTagResponse> getSkillTagResponses(List<Long> skillTagIds) {
-        if (skillTagIds == null || skillTagIds.isEmpty()) {
-            return Collections.emptyList();
+    public void refreshProjectCacheByAuthor(Long authorId) {
+        List<ProjectEntity> projects = projectRepository.findProjectsByAuthorId(authorId);
+        for (ProjectEntity project : projects) {
+            ProjectAllDto updatedDto = convertToDto(project);
+            projectAllCache.put(project.getId(), updatedDto);
         }
-
-        return userFacade.getSkillTagsByIds(skillTagIds).stream()
-                .map(skill -> new SkillTagResponse(skill.getId(), skill.getName(), skill.getImg()))
-                .collect(Collectors.toList());
     }
 
 
-    // 포지션 태그 변환 (ID 리스트 -> DTO 리스트)
-    private List<PositionTagResponse> getPositionTagResponses(List<Long> positionTagIds) {
-        if (positionTagIds == null || positionTagIds.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        return userFacade.getPositionTagByIds(positionTagIds).stream()
-                .map(position -> new PositionTagResponse(position.getId(), position.getName()))
-                .collect(Collectors.toList());
-    }
     private ProjectAllDto convertToDto(ProjectEntity project) {
-        List<SkillTagResponse> skillResponses = getSkillTagResponses(project.getSkillTagIds());
-        List<PositionTagResponse> positionResponses = getPositionTagResponses(project.getPositionTagIds());
-        MethodTypeResponse methodTypeResponse = getMethodTypeResponse(project.getMethodTypeId());
+        List<SkillTagResponse> skillResponses = userFacade.getSkillTagResponses(project.getSkillTagIds());
+        List<PositionTagResponse> positionResponses = userFacade.getPositionTagResponses(project.getPositionTagIds());
+        MethodTypeResponse methodTypeResponse = projectFacade.getMethodTypeResponse(project.getMethodTypeId());
 
-        return ProjectAllDto.fromEntity(project, positionResponses, skillResponses, methodTypeResponse);
+
+        UserEntity userEntity = userRepository.findById(project.getAuthorId())
+                .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
+
+        ProjectUserResponse user = ProjectUserResponse.fromEntity(userEntity);
+
+        return ProjectAllDto.fromEntity(project, positionResponses, skillResponses, methodTypeResponse, user);
     }
 
 }

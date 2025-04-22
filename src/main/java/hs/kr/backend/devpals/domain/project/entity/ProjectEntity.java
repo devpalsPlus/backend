@@ -71,7 +71,7 @@ public class ProjectEntity {
     @Column(nullable = false)
     private LocalDateTime updatedAt = LocalDateTime.now();
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "INT DEFAULT 0")
     private int views;
 
     // Request 보내줘야 하는 값
@@ -82,7 +82,7 @@ public class ProjectEntity {
                 .totalMember(request.getTotalMember())
                 .startDate(request.getStartDate())
                 .estimatedPeriod(request.getEstimatedPeriod())
-                .views(request.getViews())
+                .views(0)
                 .authorId(userId)
                 .isBeginner(request.getIsBeginner() != null ? request.getIsBeginner() : false)
                 .isDone(request.getIsDone() != null ? request.getIsDone() : false)

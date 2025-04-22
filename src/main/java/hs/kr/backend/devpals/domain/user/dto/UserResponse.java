@@ -8,6 +8,7 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Getter
@@ -27,8 +28,8 @@ public class UserResponse {
     private LocalDateTime createdAt;
 
     public static UserResponse fromEntity(UserEntity user, UserFacade userFacade) {
-        List<Long> positionIds = user.getPositionIds();
-        List<Long> skillIds = user.getSkillIds();
+        List<Long> positionIds = Optional.ofNullable(user.getPositionIds()).orElse(List.of());
+        List<Long> skillIds = Optional.ofNullable(user.getSkillIds()).orElse(List.of());
 
         List<PositionTagResponse> positionResponses = userFacade.getPositionTagByIds(positionIds).stream()
                 .map(PositionTagResponse::fromEntity)
