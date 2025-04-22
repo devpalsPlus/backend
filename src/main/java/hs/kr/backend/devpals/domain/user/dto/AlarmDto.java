@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 public class AlarmDto {
     private Long id;
     private Long projectId;
-    private Long userId;
+    private String nickName;
     private String content;
     private boolean enabled;
     private AlramFilter alramFilter;
@@ -26,7 +26,7 @@ public class AlarmDto {
         return AlarmDto.builder()
                 .id(entity.getId())
                 .projectId(entity.getProject().getId())
-                .userId(entity.getUser().getId())
+                .nickName(entity.getUser().getNickname())
                 .content(entity.getContent())
                 .enabled(entity.isEnabled())
                 .alramFilter(entity.getAlramFilter())
