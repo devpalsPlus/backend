@@ -10,6 +10,7 @@ import hs.kr.backend.devpals.domain.project.repository.ProjectRepository;
 import hs.kr.backend.devpals.domain.project.repository.RecommentRepository;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
+import hs.kr.backend.devpals.domain.user.service.AlarmService;
 import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProjectCommentService {
     private final JwtTokenValidator jwtTokenValidator;
+    private final AlarmService alarmService;
     private final CommentRepoisitory commentRepoisitory;
     private final RecommentRepository recommentRepository;
     private final ProjectRepository projectRepository;
@@ -43,6 +45,7 @@ public class ProjectCommentService {
 
         CommentEntity comment = CommentEntity.from(dto, project, user);
         commentRepoisitory.save(comment);
+        alarmService.sendAlarm(comment,project,user);
 
         return ResponseEntity.ok(new ApiResponse<>(true, "댓글 작성 성공", null));
     }
@@ -124,6 +127,7 @@ public class ProjectCommentService {
         RecommentEntity recomment = RecommentEntity.from(dto, project, user, comment);
 
         recommentRepository.save(recomment);
+        alarmService.sendAlarm(recomment,comment,project);
 
         return ResponseEntity.ok(new ApiResponse<>(true, "대댓글 작성 성공", null));
     }
