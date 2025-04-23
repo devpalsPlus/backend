@@ -1,6 +1,7 @@
 package hs.kr.backend.devpals.domain.user.facade;
 
 import hs.kr.backend.devpals.domain.user.dto.PositionTagRequest;
+import hs.kr.backend.devpals.domain.user.dto.PositionTagResponse;
 import hs.kr.backend.devpals.domain.user.dto.SkillTagRequest;
 import hs.kr.backend.devpals.domain.user.dto.SkillTagResponse;
 import hs.kr.backend.devpals.domain.user.entity.PositionTagEntity;
@@ -13,6 +14,7 @@ import hs.kr.backend.devpals.global.exception.ErrorException;
 import hs.kr.backend.devpals.infra.Aws.AwsS3Client;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.aspectj.weaver.Position;
 import org.aspectj.weaver.patterns.AndPointcut;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -155,6 +157,17 @@ public class UserFacade {
 
         return skillEntities.stream()
                 .map(skill -> new SkillTagResponse(skill.getId(), skill.getName(), skill.getImg()))
+                .collect(Collectors.toList());
+    }
+
+    public List<PositionTagResponse> getPositionTagResponses(List<Long> positionTagIds) {
+        List<PositionTagEntity> positionEntities = getPositionTagByIds(positionTagIds);
+        if (positionEntities == null || positionEntities.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return positionEntities.stream()
+                .map(position -> new PositionTagResponse(position.getId(), position.getName()))
                 .collect(Collectors.toList());
     }
 

@@ -6,6 +6,9 @@ import lombok.Getter;
 public enum ErrorException {
     ACCESS_TOKEN_NOT_EXPIRED("액세스 토큰이 아직 만료되지 않았습니다."),
     AUTHOR_ONLY("해당 공고의 기획자만 조회 가능합니다."),
+    ALARM_FILTER_NOT_FOUND("알람 필터값이 존재하지 않습니다."),
+    CAN_NOT_DELETE_ALARM("해당 알람을 삭제할 수 없습니다."),
+    ALARM_NOT_FOUND("알람이 존재하지 않습니다."),
     INVALID_PASSWORD("비밀번호가 올바르지 않습니다."),
     SERVER_ERROR("서버 오류가 발생했습니다."),
     UNAUTHORIZED("인증 권한이 없습니다."),
@@ -35,7 +38,10 @@ public enum ErrorException {
     INVALID_APPLICANT_PROJECT("해당 지원자를 프로젝트에서 찾을 수 없습니다."),
     PROJECT_DONE("마감한 공고는 지원자의 상태를 변경할 수 없습니다."),
     STATUS_NOT_FOUND("작성한 상태값이 존재하지 않습니다."),
-    EQUAL_STATUS("상태가 이미 동일합니다.");
+    EQUAL_STATUS("상태가 이미 동일합니다."),
+    COMMENT_NOT_FOUND("해당 프로젝트의 댓글을 찾을 수 없습니다."),
+    NOT_COMMENT_OWNER("작성자 및 프로젝트 작성자만 댓글을 삭제할 수 있습니다."),
+    INVALID_PROJECT_COMMENT("프로젝트와 댓글이 매칭되지 않습니다.");
 
     private final String message;
 
