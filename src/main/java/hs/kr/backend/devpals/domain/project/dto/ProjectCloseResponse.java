@@ -38,7 +38,7 @@ public class ProjectCloseResponse {
                 .startDate(project.getStartDate())
                 .estimatedPeriod(project.getEstimatedPeriod())
                 .methodType(methodTypeResponse)
-                .authorId(project.getAuthorId())
+                .authorId(project.getUserId())
                 .views(project.getViews())
                 .isBeginner(project.isBeginner())
                 .isDone(project.isDone())

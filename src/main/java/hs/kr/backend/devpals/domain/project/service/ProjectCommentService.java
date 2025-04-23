@@ -69,7 +69,7 @@ public class ProjectCommentService {
         }
 
         Long commentOwnerId = comment.getUser().getId();
-        Long projectAuthorId = comment.getProject().getAuthorId();
+        Long projectAuthorId = comment.getProject().getUserId();
 
         if (!Objects.equals(userId, commentOwnerId) && !Objects.equals(userId, projectAuthorId)) {
             throw new CustomException(ErrorException.NOT_COMMENT_OWNER);
@@ -91,7 +91,7 @@ public class ProjectCommentService {
         }
 
         Long commentOwnerId = comment.getUser().getId();
-        Long projectAuthorId = comment.getProject().getAuthorId();
+        Long projectAuthorId = comment.getProject().getUserId();
 
         if (!Objects.equals(commentOwnerId, userId) && !Objects.equals(projectAuthorId, userId)) {
             throw new CustomException(ErrorException.NOT_COMMENT_OWNER);

@@ -107,7 +107,7 @@ public class ProjectService {
         ProjectEntity project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new CustomException(ErrorException.PROJECT_NOT_FOUND));
 
-        if (!project.getAuthorId().equals(userId)) {
+        if (!project.getUserId().equals(userId)) {
             throw new CustomException(ErrorException.FAIL_PROJECT_UPDATE);
         }
 
@@ -146,7 +146,7 @@ public class ProjectService {
 
     public ResponseEntity<ApiResponse<List<ProjectAuthoredResponse>>> getMyProject(String token) {
         Long userId = jwtTokenValidator.getUserId(token);
-        List<ProjectEntity> projects = projectRepository.findProjectsByAuthorId(userId);
+        List<ProjectEntity> projects = projectRepository.findProjectsByUserId(userId);
         List<ProjectAuthoredResponse> projectAuthoredResponses = projects.stream()
                 .map(project -> ProjectAuthoredResponse.fromEntity(
                         project,
@@ -223,7 +223,7 @@ public class ProjectService {
     }
 
     public void refreshProjectCacheByAuthor(Long authorId) {
-        List<ProjectEntity> projects = projectRepository.findProjectsByAuthorId(authorId);
+        List<ProjectEntity> projects = projectRepository.findProjectsByUserId(authorId);
         for (ProjectEntity project : projects) {
             ProjectAllDto updatedDto = convertToDto(project);
             projectAllCache.put(project.getId(), updatedDto);
@@ -237,7 +237,7 @@ public class ProjectService {
         MethodTypeResponse methodTypeResponse = projectFacade.getMethodTypeResponse(project.getMethodTypeId());
 
 
-        UserEntity userEntity = userRepository.findById(project.getAuthorId())
+        UserEntity userEntity = userRepository.findById(project.getUserId())
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
         ProjectUserResponse user = ProjectUserResponse.fromEntity(userEntity);
