@@ -78,13 +78,13 @@ public class AlarmService {
     }
 
     private String makeMessage(ProjectEntity project,ApplicantEntity applicant) {
-        return project.getTitle()+" 프로젝트에 "+ applicant.getUser().getNickname() + "님이 지원하셨습니다.";
+        return "\""+project.getTitle()+"\" 프로젝트에 "+ applicant.getUser().getNickname() + "님이 지원하셨습니다.";
     }
 
     private String makeMessage(ApplicantEntity applicant) {
         String result = applicant.getStatus().equals(ApplicantStatus.ACCEPTED) ? "합격" : "불합격";
 
-        return "지원자님은 "+applicant.getProject().getTitle()+" 프로젝트에 "+ result +" 하셨습니다.";
+        return "지원자님은 \""+applicant.getProject().getTitle()+"\" 프로젝트에 "+ result +" 하셨습니다.";
     }
 
     // 특정 사용자에게 알림 전송
