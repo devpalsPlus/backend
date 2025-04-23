@@ -88,7 +88,7 @@ public class AlarmService {
 
     //프로젝트 지원 신청시 프로젝트 작성자에게 알림전송
     public void sendAlarm(ProjectEntity project, ApplicantEntity applicant, AlramFilter alramFilter) {
-        UserEntity author = userRepository.findById(project.getAuthorId()).orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
+        UserEntity author = userRepository.findById(project.getUserId()).orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
         String content = makeMessage(project, applicant);
         AlramEntity saved = alarmRepository.save(new AlramEntity(project, author, content, alramFilter,project.getId()));
         sendToUser(author.getId(),saved);
