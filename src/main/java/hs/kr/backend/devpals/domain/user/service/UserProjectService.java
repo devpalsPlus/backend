@@ -94,7 +94,7 @@ public class UserProjectService {
                 })
                 .toList();
 
-        List<ProjectEntity> ownProjectsList = projectRepository.findProjectsByAuthorId(user.getId());
+        List<ProjectEntity> ownProjectsList = projectRepository.findProjectsByUserId(user.getId());
 
         List<ProjectMyResponse> projects = ownProjectsList.stream()
                 .map(project -> {

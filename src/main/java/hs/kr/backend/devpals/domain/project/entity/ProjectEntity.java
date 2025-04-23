@@ -41,7 +41,7 @@ public class ProjectEntity {
 //    private MethodType method;
 
     @Column(nullable = false)
-    private Long authorId;
+    private Long userId;
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean isBeginner;
@@ -83,7 +83,7 @@ public class ProjectEntity {
                 .startDate(request.getStartDate())
                 .estimatedPeriod(request.getEstimatedPeriod())
                 .views(0)
-                .authorId(userId)
+                .userId(userId)
                 .isBeginner(request.getIsBeginner() != null ? request.getIsBeginner() : false)
                 .isDone(request.getIsDone() != null ? request.getIsDone() : false)
                 .recruitmentStartDate(request.getRecruitmentStartDate())
