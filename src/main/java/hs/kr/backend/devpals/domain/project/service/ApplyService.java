@@ -11,7 +11,7 @@ import hs.kr.backend.devpals.domain.user.facade.UserFacade;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.domain.user.service.AlarmService;
 import hs.kr.backend.devpals.global.common.ApiResponse;
-import hs.kr.backend.devpals.global.common.enums.AlramFilter;
+import hs.kr.backend.devpals.global.common.enums.AlarmFilter;
 import hs.kr.backend.devpals.global.common.enums.ApplicantStatus;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
@@ -52,7 +52,7 @@ public class ApplyService {
 
         ApplicantEntity applicant = ApplicantEntity.createApplicant(user, project, request);
         applicantRepository.save(applicant);
-        alarmService.sendAlarm(project,applicant, AlramFilter.APPLICANT_CHECK);
+        alarmService.sendAlarm(project,applicant);
 
         return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 지원 되었습니다." , null));
     }
