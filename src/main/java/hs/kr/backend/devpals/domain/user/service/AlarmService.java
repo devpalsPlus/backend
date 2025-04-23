@@ -124,7 +124,6 @@ public class AlarmService {
 
     private String makeMessage(ApplicantEntity applicant) {
         String result = applicant.getStatus().equals(ApplicantStatus.ACCEPTED) ? "합격" : "불합격";
-
         return "내가 지원한 '"+applicant.getProject().getTitle()+"'에 "+ result +"하셨습니다.";
     }
 
