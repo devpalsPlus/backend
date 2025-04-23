@@ -40,6 +40,7 @@ public enum ErrorException {
     STATUS_NOT_FOUND("작성한 상태값이 존재하지 않습니다."),
     EQUAL_STATUS("상태가 이미 동일합니다."),
     COMMENT_NOT_FOUND("해당 프로젝트의 댓글을 찾을 수 없습니다."),
+    RECOMMENT_NOT_FOUND("해당 프로젝트의 대댓글을 찾을 수 없습니다."),
     NOT_COMMENT_OWNER("작성자 및 프로젝트 작성자만 댓글을 삭제할 수 있습니다."),
     INVALID_PROJECT_COMMENT("프로젝트와 댓글이 매칭되지 않습니다.");
 

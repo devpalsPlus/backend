@@ -117,6 +117,10 @@ public class ProjectCommentService {
         CommentEntity comment = commentRepoisitory.findById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorException.COMMENT_NOT_FOUND));
 
+        if (!comment.getProject().getId().equals(projectId)) {
+            return ResponseEntity.ok(new ApiResponse<>(false, "해당 프로젝트의 댓글이 아님", null));
+        }
+
         RecommentEntity recomment = RecommentEntity.from(dto, project, user, comment);
 
         recommentRepository.save(recomment);
@@ -138,10 +142,10 @@ public class ProjectCommentService {
         Long userId = jwtTokenValidator.getUserId(token);
 
         RecommentEntity recomment = recommentRepository.findById(recommentId)
-                .orElseThrow(() -> new CustomException(ErrorException.COMMENT_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorException.RECOMMENT_NOT_FOUND));
 
         if (!recomment.getUser().getId().equals(userId)) {
-            throw new CustomException(ErrorException.NOT_COMMENT_OWNER);
+             return ResponseEntity.ok(new ApiResponse<>(false, "대댓글 작성자 및 프로젝트 작성자만 수정 가능", null));
         }
 
         recomment.updateContent(dto.getContent());
@@ -153,10 +157,10 @@ public class ProjectCommentService {
         Long userId = jwtTokenValidator.getUserId(token);
 
         RecommentEntity recomment = recommentRepository.findById(recommentId)
-                .orElseThrow(() -> new CustomException(ErrorException.COMMENT_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorException.RECOMMENT_NOT_FOUND));
 
         if (!recomment.getUser().getId().equals(userId)) {
-            throw new CustomException(ErrorException.NOT_COMMENT_OWNER);
+            return ResponseEntity.ok(new ApiResponse<>(false, "대댓글 작성자 및 프로젝트 작성자만 삭제 가능", null));
         }
 
         recommentRepository.delete(recomment);
