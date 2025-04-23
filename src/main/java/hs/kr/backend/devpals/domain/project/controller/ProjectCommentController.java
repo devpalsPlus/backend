@@ -134,7 +134,7 @@ public class ProjectCommentController {
         return projectCommentService.getRecomments(commentId);
     }
 
-    @PatchMapping("/{projectId}/recomment/{recommentId}")
+    @PatchMapping("/recomment/{recommentId}")
     @Operation(summary = "대댓글 수정", description = "작성한 대댓글을 수정합니다.")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "대댓글 수정 성공")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -153,7 +153,7 @@ public class ProjectCommentController {
         return projectCommentService.updateRecomment(token, recommentId, dto);
     }
 
-    @DeleteMapping("/{projectId}/recomment/{recommentId}")
+    @DeleteMapping("/recomment/{recommentId}")
     @Operation(summary = "대댓글 삭제", description = "작성한 대댓글을 삭제합니다.")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "대댓글 삭제 성공")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -167,6 +167,7 @@ public class ProjectCommentController {
     )
     public ResponseEntity<ApiResponse<String>> deleteRecomment(
             @RequestHeader("Authorization") String token,
+
             @PathVariable Long recommentId) {
         return projectCommentService.deleteRecomment(token, recommentId);
     }
