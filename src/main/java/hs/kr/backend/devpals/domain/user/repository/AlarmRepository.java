@@ -17,7 +17,7 @@ public interface AlarmRepository extends JpaRepository<AlarmEntity, Long> {
     List<AlarmEntity> findByReceiverId(@Param("receiverId") Long receiverId);
 
     @Query("SELECT a FROM AlarmEntity a WHERE a.receiver.id = :receiverId AND a.id = :alarmId")
-    Optional<AlarmEntity> findByUserIdAndAlarmId(@Param("receiverId") Long receiverId, @Param("alarmId") Long alarmId);
+    Optional<AlarmEntity> findByReceiverIdAndAlarmId(@Param("receiverId") Long receiverId, @Param("alarmId") Long alarmId);
 
     @Modifying
     @Query("DELETE FROM AlarmEntity a WHERE a.createdAt < :threshold AND TYPE(a) <> ApplicantAlarmEntity")

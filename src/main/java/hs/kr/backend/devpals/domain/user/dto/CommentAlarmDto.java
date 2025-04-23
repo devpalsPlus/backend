@@ -21,7 +21,7 @@ public class CommentAlarmDto extends AlarmDto{
 
     //대댓글이 존재하면 유저id 반환 없으면 0 반환
     private Long getReCommentUserIdIfNotNull(CommentAlarmEntity entity) {
-        if(entity.getRecomment() != null) return entity.getRecomment().getUser().getId();
+        if(entity.getRecomment() != null && entity.getRecomment().getUser() != null) return entity.getRecomment().getUser().getId();
         else return 0L;
     }
 }
