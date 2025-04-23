@@ -49,7 +49,7 @@ public class ProjectAuthoredResponse {
                 .totalMember(project.getTotalMember())
                 .startDate(project.getStartDate())
                 .estimatedPeriod(project.getEstimatedPeriod())
-                .authorId(project.getAuthorId()) // Author 엔티티의 ID
+                .authorId(project.getUserId())
                 .views(project.getViews())
                 .isBeginner(project.isBeginner())
                 .isDone(project.isDone())

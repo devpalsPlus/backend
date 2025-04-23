@@ -33,7 +33,6 @@ CREATE TABLE `devpals`.`User` (
                                   refreshToken TEXT NOT NULL,
                                   createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                   updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                  CONSTRAINT fk_User_positionTag FOREIGN KEY (positionTagId) REFERENCES PositionTag(id)
 );
 
 
@@ -45,8 +44,8 @@ CREATE TABLE `devpals`.`Project` (
                                      totalMember INT NOT NULL,
                                      startDate DATE NOT NULL,
                                      estimatedPeriod VARCHAR(50),
-                                     methodTypeId INT NOT NULL,
-                                     authorId INT NOT NULL,
+                                     methodTypeId BIGINT NOT NULL,
+                                     userId BIGINT NOT NULL,
                                      views INT DEFAULT 0,
                                      isBeginner BOOLEAN DEFAULT FALSE,
                                      isDone BOOLEAN DEFAULT FALSE,
@@ -56,14 +55,14 @@ CREATE TABLE `devpals`.`Project` (
                                      skillTagIds text,
                                      createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                      updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                     FOREIGN KEY (authorId) REFERENCES User(id) ON DELETE CASCADE,
+                                     FOREIGN KEY (userId) REFERENCES User(id) ON DELETE CASCADE,
                                      FOREIGN KEY (methodId) REFERENCES Method(id) ON DELETE CASCADE
 );
 
 CREATE TABLE `devpals`.`Applicant` (
                                        id INT AUTO_INCREMENT PRIMARY KEY,
-                                       userId INT NOT NULL,
-                                       projectId INT NOT NULL,
+                                       userId BIGINT NOT NULL,
+                                       projectId BIGINT NOT NULL,
                                        message TEXT,
                                        email VARCHAR(255),
                                        phoneNumber VARCHAR(15),
@@ -76,10 +75,34 @@ CREATE TABLE `devpals`.`Applicant` (
 );
 
 CREATE TABLE `devpals`.`Authenticode` (
-                                          id INT AUTO_INCREMENT PRIMARY KEY,
+                                          id BIGINT AUTO_INCREMENT PRIMARY KEY,
                                           userEmail VARCHAR(255) NOT NULL,
                                           code VARCHAR(20) NOT NULL,
                                           expiresAt TIMESTAMP NOT NULL,
                                           isUsed BOOLEAN DEFAULT FALSE
+);
+
+CREATE TABLE Comment (
+                         id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                         projectId BIGINT NOT NULL,
+                         userId BIGINT NOT NULL,
+                         content VARCHAR(255) NOT NULL,
+                         createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                         updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                         FOREIGN KEY (projectId) REFERENCES Project(id) ON DELETE CASCADE,
+                         FOREIGN KEY (userId) REFERENCES User(id) ON DELETE CASCADE
+);
+
+CREATE TABLE Recomment (
+                           id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                           projectId BIGINT NOT NULL,
+                           userId BIGINT NOT NULL,
+                           commentId BIGINT NOT NULL,
+                           content VARCHAR(255) NOT NULL,
+                           createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                           updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                           FOREIGN KEY (projectId) REFERENCES Project(id) ON DELETE CASCADE,
+                           FOREIGN KEY (userId) REFERENCES User(id) ON DELETE CASCADE,
+                           FOREIGN KEY (commentId) REFERENCES Comment(id) ON DELETE CASCADE
 );
 

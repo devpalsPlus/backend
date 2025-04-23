@@ -1,7 +1,10 @@
 package hs.kr.backend.devpals.domain.project.entity;
 
-import hs.kr.backend.devpals.domain.project.dto.CommentDTO;
+import hs.kr.backend.devpals.domain.project.dto.RecommentDTO;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,12 +14,13 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "Comment")
 @Getter
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-public class CommentEntity {
+@AllArgsConstructor
+@Table(name="Recomment")
+public class RecommentEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -29,6 +33,10 @@ public class CommentEntity {
     @JoinColumn(name = "userId", nullable = false)
     private UserEntity user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "commentId", nullable = false)
+    private CommentEntity comment;
+
     @Column(nullable = false, length = 255)
     private String content;
 
@@ -38,18 +46,19 @@ public class CommentEntity {
     @Column(nullable = false)
     private LocalDateTime updatedAt = LocalDateTime.now();
 
-    public void updateContent(String newContent) {
-        this.content = newContent;
+    public void updateContent(String content) {
+        this.content = content;
+        this.updatedAt = LocalDateTime.now();
     }
 
-    public static CommentEntity from(CommentDTO dto, ProjectEntity project, UserEntity user) {
-        return CommentEntity.builder()
+    public static RecommentEntity from(RecommentDTO dto, ProjectEntity project, UserEntity user, CommentEntity comment) {
+        return RecommentEntity.builder()
                 .project(project)
                 .user(user)
+                .comment(comment)
                 .content(dto.getContent())
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
     }
-    
 }

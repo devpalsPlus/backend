@@ -1,10 +1,13 @@
 package hs.kr.backend.devpals.domain.project.service;
 
 import hs.kr.backend.devpals.domain.project.dto.CommentDTO;
+import hs.kr.backend.devpals.domain.project.dto.RecommentDTO;
 import hs.kr.backend.devpals.domain.project.entity.CommentEntity;
 import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
+import hs.kr.backend.devpals.domain.project.entity.RecommentEntity;
 import hs.kr.backend.devpals.domain.project.repository.CommentRepoisitory;
 import hs.kr.backend.devpals.domain.project.repository.ProjectRepository;
+import hs.kr.backend.devpals.domain.project.repository.RecommentRepository;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.common.ApiResponse;
@@ -26,6 +29,7 @@ import java.util.stream.Collectors;
 public class ProjectCommentService {
     private final JwtTokenValidator jwtTokenValidator;
     private final CommentRepoisitory commentRepoisitory;
+    private final RecommentRepository recommentRepository;
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
 
@@ -69,7 +73,7 @@ public class ProjectCommentService {
         }
 
         Long commentOwnerId = comment.getUser().getId();
-        Long projectAuthorId = comment.getProject().getAuthorId();
+        Long projectAuthorId = comment.getProject().getUserId();
 
         if (!Objects.equals(userId, commentOwnerId) && !Objects.equals(userId, projectAuthorId)) {
             throw new CustomException(ErrorException.NOT_COMMENT_OWNER);
@@ -91,7 +95,7 @@ public class ProjectCommentService {
         }
 
         Long commentOwnerId = comment.getUser().getId();
-        Long projectAuthorId = comment.getProject().getAuthorId();
+        Long projectAuthorId = comment.getProject().getUserId();
 
         if (!Objects.equals(commentOwnerId, userId) && !Objects.equals(projectAuthorId, userId)) {
             throw new CustomException(ErrorException.NOT_COMMENT_OWNER);
@@ -100,5 +104,62 @@ public class ProjectCommentService {
         commentRepoisitory.delete(comment);
 
         return ResponseEntity.ok(new ApiResponse<>(true, "댓글 삭제 성공", null));
+    }
+
+    @Transactional
+    public ResponseEntity<ApiResponse<String>> writeRecomment(String token, Long projectId, Long commentId, RecommentDTO dto) {
+        Long userId = jwtTokenValidator.getUserId(token);
+
+        ProjectEntity project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new CustomException(ErrorException.PROJECT_NOT_FOUND));
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
+        CommentEntity comment = commentRepoisitory.findById(commentId)
+                .orElseThrow(() -> new CustomException(ErrorException.COMMENT_NOT_FOUND));
+
+        RecommentEntity recomment = RecommentEntity.from(dto, project, user, comment);
+
+        recommentRepository.save(recomment);
+
+        return ResponseEntity.ok(new ApiResponse<>(true, "대댓글 작성 성공", null));
+    }
+
+    public ResponseEntity<ApiResponse<List<RecommentDTO>>> getRecomments(Long commentId) {
+        List<RecommentEntity> recomments = recommentRepository.findAllByCommentId(commentId);
+        List<RecommentDTO> result = recomments.stream()
+                .map(RecommentDTO::fromEntity)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(new ApiResponse<>(true, "대댓글 조회 성공", result));
+    }
+
+    @Transactional
+    public ResponseEntity<ApiResponse<String>> updateRecomment(String token, Long recommentId, RecommentDTO dto) {
+        Long userId = jwtTokenValidator.getUserId(token);
+
+        RecommentEntity recomment = recommentRepository.findById(recommentId)
+                .orElseThrow(() -> new CustomException(ErrorException.COMMENT_NOT_FOUND));
+
+        if (!recomment.getUser().getId().equals(userId)) {
+            throw new CustomException(ErrorException.NOT_COMMENT_OWNER);
+        }
+
+        recomment.updateContent(dto.getContent());
+        return ResponseEntity.ok(new ApiResponse<>(true, "대댓글 수정 성공", null));
+    }
+
+    @Transactional
+    public ResponseEntity<ApiResponse<String>> deleteRecomment(String token, Long recommentId) {
+        Long userId = jwtTokenValidator.getUserId(token);
+
+        RecommentEntity recomment = recommentRepository.findById(recommentId)
+                .orElseThrow(() -> new CustomException(ErrorException.COMMENT_NOT_FOUND));
+
+        if (!recomment.getUser().getId().equals(userId)) {
+            throw new CustomException(ErrorException.NOT_COMMENT_OWNER);
+        }
+
+        recommentRepository.delete(recomment);
+        return ResponseEntity.ok(new ApiResponse<>(true, "대댓글 삭제 성공", null));
     }
 }
