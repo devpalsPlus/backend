@@ -25,7 +25,7 @@ public class UserAlarmController {
     private final AlarmService alarmService;
 
     @GetMapping("/alarm")
-    @Operation(summary = "알림 가져오기", description = "알림을 가져옵니다(해당 api 구현된것이 아닙니다 테스트용도로 만들었어요!)")
+    @Operation(summary = "알림 가져오기", description = "알림을 가져옵니다(현재 시범운영중입니다 필요한 데이터가 더 있을경우 말씀주세요)")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "알림 가져오기 성공")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(
             responseCode = "400",
@@ -72,7 +72,7 @@ public class UserAlarmController {
             )
     )
     @GetMapping(value = "/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter connect(@RequestParam("Authorization") String token) {
+    public SseEmitter connect(@RequestHeader("Authorization") String token) {
         return alarmService.createEmitter(token);
     }
 
