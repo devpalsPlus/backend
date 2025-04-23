@@ -63,7 +63,7 @@ public class UserAlarmService {
     public ResponseEntity<ApiResponse<String>> deleteAlarm(String token, Long alarmId) {
         Long userId = jwtTokenValidator.getUserId(token);
         AlarmEntity alarmEntity
-                = alarmRepository.findByUserIdAndAlarmId(userId, alarmId).orElseThrow(() -> new CustomException(ErrorException.ALARM_NOT_FOUND));
+                = alarmRepository.findByReceiverIdAndAlarmId(userId, alarmId).orElseThrow(() -> new CustomException(ErrorException.ALARM_NOT_FOUND));
         if(alarmEntity.getAlarmFilterIntValue().equals(AlarmFilter.APPLIED_PROJECTS.getValue()))
             throw new CustomException(ErrorException.CAN_NOT_DELETE_ALARM);
         alarmRepository.delete(alarmEntity);
