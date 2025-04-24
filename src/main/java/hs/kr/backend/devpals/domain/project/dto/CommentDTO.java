@@ -28,14 +28,14 @@ public class CommentDTO {
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Schema(description = "대댓글 수", example = "0", accessMode = Schema.AccessMode.READ_ONLY)
-    private int commentCount;
+    private int recommentCount;
 
-    public static CommentDTO fromEntity(CommentEntity comment) {
+    public static CommentDTO fromEntity(CommentEntity comment, int recommentCount) {
         return CommentDTO.builder()
                 .id(comment.getId())
                 .content(comment.getContent())
                 .user(ProjectUserResponse.fromEntity(comment.getUser()))
-                .commentCount(0)
+                .recommentCount(recommentCount)
                 .build();
     }
 }
