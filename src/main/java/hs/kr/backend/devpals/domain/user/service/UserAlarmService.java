@@ -51,7 +51,9 @@ public class UserAlarmService {
         List<AlarmDto> reverseSorted
                 = filtered.stream().sorted(Comparator.comparing(AlarmDto::getCreatedAt).reversed()).toList();
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "알림 조회 성공", reverseSorted));
+        String answer = reverseSorted.isEmpty() ? "알림이 존재하지 않습니다." : "알림 조회 성공";
+        reverseSorted = reverseSorted.isEmpty() ? null : reverseSorted;
+        return ResponseEntity.ok(new ApiResponse<>(true, answer, reverseSorted));
     }
 
     @Transactional
