@@ -25,7 +25,11 @@ public class UserAlarmController {
     private final AlarmService alarmService;
 
     @GetMapping("/alarm")
-    @Operation(summary = "알림 가져오기", description = "알림을 가져옵니다(현재 시범운영중입니다 필요한 데이터가 더 있을경우 말씀주세요)")
+    @Operation(summary = "알림 가져오기", description = "알림을 가져옵니다. 데이터가 존재하지 않을경우 아래와 같이 값을 전달합니다 {\n" +
+            "    \"success\": true,\n" +
+            "    \"message\": \"알림이 존재하지 않습니다.\",\n" +
+            "    \"data\": null\n" +
+            "}")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "알림 가져오기 성공")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(
             responseCode = "400",
