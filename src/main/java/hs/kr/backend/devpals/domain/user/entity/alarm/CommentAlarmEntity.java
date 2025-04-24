@@ -7,6 +7,8 @@ import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import static hs.kr.backend.devpals.domain.user.entity.alarm.constants.AlarmFilterConstants.*;
 
@@ -19,14 +21,17 @@ public class CommentAlarmEntity extends AlarmEntity {
 // 댓글 알람 -> 공고에 댓글을 달았을 시, 댓글에 답변을 달았을 시 전달되는 알람
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "project_id", nullable = false)
     private ProjectEntity project;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "comment_id", nullable = false)
     private CommentEntity comment;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "recomment_id")
     private RecommentEntity recomment;
 
