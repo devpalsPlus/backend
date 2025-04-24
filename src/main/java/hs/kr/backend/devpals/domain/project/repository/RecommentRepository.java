@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface RecommentRepository extends JpaRepository<RecommentEntity, Long> {
     List<RecommentEntity> findAllByCommentId(Long commentId);
+    int countByCommentId(Long commentId);
 }

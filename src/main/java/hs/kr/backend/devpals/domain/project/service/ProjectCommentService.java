@@ -57,8 +57,11 @@ public class ProjectCommentService {
 
         List<CommentEntity> comments = commentRepoisitory.findAllByProjectId(projectId);
 
-        List<CommentDTO> response = commentRepoisitory.findAllByProjectId(projectId).stream()
-                .map(CommentDTO::fromEntity)
+        List<CommentDTO> response = comments.stream()
+                .map(comment -> {
+                    int recommentCount = recommentRepository.countByCommentId(comment.getId());
+                    return CommentDTO.fromEntity(comment, recommentCount);
+                })
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(new ApiResponse<>(true, "댓글 가져오기 성공", response));
