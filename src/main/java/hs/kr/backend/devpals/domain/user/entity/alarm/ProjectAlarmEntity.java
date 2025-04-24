@@ -5,6 +5,8 @@ import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import static hs.kr.backend.devpals.domain.user.entity.alarm.constants.AlarmFilterConstants.*;
 
@@ -16,10 +18,12 @@ public class ProjectAlarmEntity extends AlarmEntity{
 //공고에 지원자가 지원할 시 공고생성자가 수신받는 알림
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "project_id", nullable = false)
     private ProjectEntity project;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "applicant_id", nullable = false)
     private ApplicantEntity applicant;
 
