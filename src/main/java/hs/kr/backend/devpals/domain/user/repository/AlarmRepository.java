@@ -22,4 +22,8 @@ public interface AlarmRepository extends JpaRepository<AlarmEntity, Long> {
     @Modifying
     @Query("DELETE FROM AlarmEntity a WHERE a.createdAt < :threshold AND TYPE(a) <> ApplicantAlarmEntity")
     void deleteAllOlderThanExceptApplied(@Param("threshold") LocalDateTime threshold);
+
+    @Query("SELECT DISTINCT a.receiver.id FROM AlarmEntity a WHERE a.createdAt < :date AND TYPE(a) <> ApplicantAlarmEntity")
+    List<Long> findUserIdsWithAlarmsOlderThan(@Param("date") LocalDateTime date);
+
 }
