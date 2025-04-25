@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import static hs.kr.backend.devpals.domain.user.entity.alarm.constants.AlarmFilterConstants.APPLIED_PROJECTS;
-import static hs.kr.backend.devpals.domain.user.entity.alarm.constants.AlarmFilterConstants.APPLIED_PROJECT_INT_VALUE;
+import static hs.kr.backend.devpals.global.constants.AlarmFilterConstants.APPLIED_PROJECTS;
+import static hs.kr.backend.devpals.global.constants.AlarmFilterConstants.APPLIED_PROJECT_INT_VALUE;
 
 @Entity
 @DiscriminatorValue(APPLIED_PROJECTS)
