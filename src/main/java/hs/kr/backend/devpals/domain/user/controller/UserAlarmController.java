@@ -41,12 +41,8 @@ public class UserAlarmController {
                             @ExampleObject(
                                     name = "댓글 알람 응답",
                                     value = "{\"success\": true, \"message\": \"알림을 가져왔습니다.\", \"data\": [{\"id\": 2, \"routingId\": 2, \"content\": \"댓글 알림 내용\", \"enabled\": true, \"alarmFilterId\": 2, \"createdAt\": \"2025-04-25T11:00:00\", \"replier\": 1, \"reCommentUserId\": 2}]}",
-                                    description = "replier 값은 Integer로 설정되어 있으며 아래와 같이 설정되어 있습니다. \n" +
-                                                    "    ALL(\"전체\",0),\n" +
-                                                    "    COMMENT(\"댓글\",1),\n" +
-                                                    "    RECOMMENT(\"댓글 답글\",2),\n" +
-                                                    "    INQUIRY(\"문의 답글(현재 미구현)\",3),\n" +
-                                                    "    REPORT(\"신고 답글(현재 미구현)\",4);"
+                                    description = "replier 값은 Integer로 설정되어 있습니다. " +
+                                            "전체: 0 ,댓글: 1, 댓글 답글: 2, 문의 답글(현재 미구현): 3, 신고 답글(현재 미구현): 4"
                             )
                     }
             )
