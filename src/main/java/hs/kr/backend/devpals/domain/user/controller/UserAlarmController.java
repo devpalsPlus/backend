@@ -27,8 +27,8 @@ public class UserAlarmController {
 
     @GetMapping("/alarm")
     @Operation(summary = "알림 가져오기", description = "알람 데이터는 기본 알람(AlarmDto)과 댓글 알람(CommentAlarmDto) 두 가지 타입으로 응답될 수 있습니다.\"\n" +
-            ")"
-    +"")
+            ")")
+
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "알림 가져오기 성공",
             content = @Content(
                     mediaType = "application/json",
@@ -36,11 +36,17 @@ public class UserAlarmController {
                     examples = {
                             @ExampleObject(
                                     name = "기본 알람 응답",
-                                    value = "{\"success\": true, \"message\": \"알림을 가져왔습니다.\", \"data\": [{\"id\": 1, \"routingId\": 100, \"content\": \"기본 알림 내용\", \"enabled\": true, \"alarmFilterId\": 1, \"createdAt\": \"2025-04-25T10:00:00\"}]}"
+                                    value = "{\"success\": true, \"message\": \"알림을 가져왔습니다.\", \"data\": [{\"id\": 1, \"routingId\": 1, \"content\": \"기본 알림 내용\", \"enabled\": true, \"alarmFilterId\": 1, \"createdAt\": \"2025-04-25T10:00:00\"}]}"
                             ),
                             @ExampleObject(
                                     name = "댓글 알람 응답",
-                                    value = "{\"success\": true, \"message\": \"알림을 가져왔습니다.\", \"data\": [{\"id\": 2, \"routingId\": 200, \"content\": \"댓글 알림 내용\", \"enabled\": true, \"alarmFilterId\": 2, \"createdAt\": \"2025-04-25T11:00:00\", \"replier\": true, \"reCommentUserId\": 50}]}"
+                                    value = "{\"success\": true, \"message\": \"알림을 가져왔습니다.\", \"data\": [{\"id\": 2, \"routingId\": 2, \"content\": \"댓글 알림 내용\", \"enabled\": true, \"alarmFilterId\": 2, \"createdAt\": \"2025-04-25T11:00:00\", \"replier\": 1, \"reCommentUserId\": 2}]}",
+                                    description = "replier 값은 Integer로 설정되어 있으며 아래와 같이 설정되어 있습니다. \n" +
+                                                    "    ALL(\"전체\",0),\n" +
+                                                    "    COMMENT(\"댓글\",1),\n" +
+                                                    "    RECOMMENT(\"댓글 답글\",2),\n" +
+                                                    "    INQUIRY(\"문의 답글(현재 미구현)\",3),\n" +
+                                                    "    REPORT(\"신고 답글(현재 미구현)\",4);"
                             )
                     }
             )
