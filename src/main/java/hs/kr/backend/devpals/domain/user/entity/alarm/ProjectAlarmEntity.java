@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import static hs.kr.backend.devpals.domain.user.entity.alarm.constants.AlarmFilterConstants.*;
+import static hs.kr.backend.devpals.global.constants.AlarmFilterConstants.*;
 
 @Entity
 @DiscriminatorValue(APPLICANT_CHECK)

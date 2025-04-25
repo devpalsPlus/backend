@@ -5,17 +5,19 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import static hs.kr.backend.devpals.global.common.enums.ReplierFilter.*;
+
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommentAlarmDto extends AlarmDto{
 
-    private Boolean replier;
+    private Integer replier;
     private Long reCommentUserId;
 
     public CommentAlarmDto(CommentAlarmEntity entity) {
         super(entity.getId(), entity.getRoutingId(), entity.getContent(), entity.isEnabled(), entity.getAlarmFilterIntValue(), entity.getCreatedAt());
-        this.replier = entity.getReplier();
+        this.replier = entity.getReplier() ? RECOMMENT.getValue() : COMMENT.getValue();
         this.reCommentUserId = getReCommentUserIdIfNotNull(entity);
     }
 

@@ -1,4 +1,4 @@
-package hs.kr.backend.devpals.domain.user.entity.alarm.constants;
+package hs.kr.backend.devpals.global.constants;
 
 public class AlarmFilterConstants {
     public static final String APPLIED_PROJECTS = "APPLIED_PROJECTS";
