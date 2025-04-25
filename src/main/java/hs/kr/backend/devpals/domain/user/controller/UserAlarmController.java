@@ -26,12 +26,27 @@ public class UserAlarmController {
     private final AlarmService alarmService;
 
     @GetMapping("/alarm")
-    @Operation(summary = "알림 가져오기", description = "알림을 가져옵니다. 데이터가 존재하지 않을경우 아래와 같이 값을 전달합니다 {\n" +
-            "    \"success\": true,\n" +
-            "    \"message\": \"알림이 존재하지 않습니다.\",\n" +
-            "    \"data\": null\n" +
-            "}")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "알림 가져오기 성공")
+    @Operation(summary = "알림 가져오기", description = "알람 데이터는 기본 알람(AlarmDto)과 댓글 알람(CommentAlarmDto) 두 가지 타입으로 응답될 수 있습니다.\"\n" +
+            ")")
+
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "알림 가져오기 성공",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ApiResponse.class),
+                    examples = {
+                            @ExampleObject(
+                                    name = "기본 알람 응답",
+                                    value = "{\"success\": true, \"message\": \"알림을 가져왔습니다.\", \"data\": [{\"id\": 1, \"routingId\": 1, \"content\": \"기본 알림 내용\", \"enabled\": true, \"alarmFilterId\": 1, \"createdAt\": \"2025-04-25T10:00:00\"}]}"
+                            ),
+                            @ExampleObject(
+                                    name = "댓글 알람 응답",
+                                    value = "{\"success\": true, \"message\": \"알림을 가져왔습니다.\", \"data\": [{\"id\": 2, \"routingId\": 2, \"content\": \"댓글 알림 내용\", \"enabled\": true, \"alarmFilterId\": 2, \"createdAt\": \"2025-04-25T11:00:00\", \"replier\": 1, \"reCommentUserId\": 2}]}",
+                                    description = "replier 값은 Integer로 설정되어 있습니다. " +
+                                            "전체: 0 ,댓글: 1, 댓글 답글: 2, 문의 답글(현재 미구현): 3, 신고 답글(현재 미구현): 4"
+                            )
+                    }
+            )
+    )
     @io.swagger.v3.oas.annotations.responses.ApiResponse(
             responseCode = "400",
             description = "알림 가져오기 실패",
@@ -47,7 +62,7 @@ public class UserAlarmController {
         return userAlarmService.getUserAlarm(token, filter);
     }
 
-    @PutMapping("/alarm")
+    @PatchMapping("/alarm")
     @Operation(summary = "알림 수정하기", description = "알림 enable을 수정합니다.")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "알림 수정하기 성공")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(
