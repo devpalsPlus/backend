@@ -41,6 +41,8 @@ public class UserAlarmService {
 
         refreshCacheUserAlarm(receiverId);
 
+        alarmRepository.save(alarm);
+
 
         ApiResponse<AlarmDto> response = new ApiResponse<>(true, "알람 수정 성공", AlarmDto.fromEntity(alarm));
         return ResponseEntity.ok(response);
