@@ -30,10 +30,6 @@ public enum ReplierFilter {
     }
 
     @JsonValue
-    public String getDisplayName() {
-        return displayName;
-    }
-    @JsonValue
     public Integer getValue() {
         return value;
     }
