@@ -38,7 +38,6 @@ public class ReportService {
     private final ProjectRepository projectRepository;
     private final CommentRepoisitory commentRepoisitory;
     private final RecommentRepository recommentRepository;
-    private final InquiryRepository inquiryRepository;
     private final AlarmService alarmService;
 
     @Transactional
