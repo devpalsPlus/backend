@@ -26,7 +26,11 @@ public class InquiryDto {
     @Schema(description = "문의 카테고리", example = "오류/버그 신고")
     private String category;
 
-    @Schema(description = "등록된 이미지 URL 목록", example = "[\"https://devpal.s3.ap-northeast-2.amazonaws.com/devpals_inquiry1-1-1.png\", \"https://...\"]")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Schema(description = "등록된 이미지 URL 목록",
+            example = "[\"https://devpal.s3.ap-northeast-2.amazonaws.com/devpals_inquiry1-1-1.png\", \"https://...\"]",
+            accessMode = Schema.AccessMode.READ_ONLY
+    )
     private List<String> imageUrls;
 
     public static InquiryDto fromEntity(List<String> imageUrls, String title, String content, String category) {

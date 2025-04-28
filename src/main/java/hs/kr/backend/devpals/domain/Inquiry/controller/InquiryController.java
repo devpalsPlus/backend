@@ -37,14 +37,24 @@ public class InquiryController {
     }
 
     @GetMapping("/{inquiryId}")
-    @Operation(summary = "문의 조회", description = "특정 문의를 상세 조회합니다.")
+    @Operation(summary = "문의 조회", description = "특정 문의를 상세 조회합니다.",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "문의 조회 성공"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청 - 유효하지 않은 파일 타입, 토큰 오류 등 발생")
+            }
+    )
     public ResponseEntity<ApiResponse<InquiryDto>> getInquiry(
             @PathVariable Long inquiryId) {
         return inquiryService.getInquiry(inquiryId);
     }
 
     @DeleteMapping("/{inquiryId}")
-    @Operation(summary = "문의 삭제", description = "특정 문의를 삭제합니다.")
+    @Operation(summary = "문의 삭제", description = "특정 문의를 삭제합니다.",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "문의 삭제 성공"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청 - 토큰 오류 등 발생")
+            }
+    )
     public ResponseEntity<ApiResponse<String>> deleteInquiry(
             @RequestHeader("Authorization") String token,
             @PathVariable Long inquiryId) {
