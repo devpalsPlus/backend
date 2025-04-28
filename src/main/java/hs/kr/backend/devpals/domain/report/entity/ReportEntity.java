@@ -5,7 +5,6 @@ import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.global.common.enums.ReportFilter;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -34,7 +33,7 @@ public class ReportEntity {
     private ReportFilter reportFilter;
 
     @Column(nullable = false, length = 255)
-    private String reportReason;
+    private String reason;
 
     @Column(nullable = false)
     private String detail;
@@ -49,7 +48,7 @@ public class ReportEntity {
     public ReportEntity(ReportRequest request, UserEntity reporter) {
         this.reporter = reporter;
         this.reportFilter = ReportFilter.fromValue(request.getReportFilter());
-        this.reportReason = request.getReportReason();
+        this.reason = request.getReason();
         this.detail = request.getDetail();
         this.reportTargetId = request.getReportTargetId();
     }

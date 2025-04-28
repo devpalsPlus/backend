@@ -62,7 +62,6 @@ public class ReportService {
             case PROJECT -> processProjectWarning(report);
             case COMMENT -> processCommentWarning(report);
             case RECOMMENT -> processRecommentWarning(report);
-            case INQUIRY -> processInquiryWarning(report);
             default -> throw new IllegalArgumentException("지원하지 않는 신고 유형입니다: " + report.getReportFilter());
         }
     }
@@ -134,21 +133,6 @@ public class ReportService {
         }
     }
 
-    private void processInquiryWarning(ReportEntity report) {
-        Long targetId = report.getReportTargetId();
-        InquiryEntity inquiry = inquiryRepository.findById(targetId)
-                .orElseThrow(() -> new CustomException(ErrorException.INQUIRY_NOT_FOUND));
-
-        List<ReportEntity> reports = reportRepository.findByReportFilterAndReportTargetId(
-                ReportFilter.INQUIRY, targetId);
-
-        if (reports.size() >= REPORT_COUNT) {
-            // 문의의 경고 카운트 증가
-            inquiry.increaseWarning();
-            inquiryRepository.save(inquiry);
-            alarmService.sendReportAlarm(inquiry,report);
-        }
-    }
 
 
     private void validation(Integer reportFilter, Long id) {
@@ -160,8 +144,6 @@ public class ReportService {
             commentRepoisitory.findById(id).orElseThrow(() -> new CustomException(ErrorException.COMMENT_NOT_FOUND));
         if(reportFilter.equals(ReportFilter.RECOMMENT.getValue()))
             recommentRepository.findById(id).orElseThrow(() -> new CustomException(ErrorException.RECOMMENT_NOT_FOUND));
-        if(reportFilter.equals(ReportFilter.INQUIRY.getValue()))
-            inquiryRepository.findById(id).orElseThrow(() -> new CustomException(ErrorException.INQUIRY_NOT_FOUND));
     }
 
 }

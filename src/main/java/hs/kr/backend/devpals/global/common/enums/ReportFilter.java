@@ -4,7 +4,7 @@ import lombok.Getter;
 
 
 public enum ReportFilter {
-    ALL(0),USER(1),PROJECT(2),COMMENT(3),RECOMMENT(4),INQUIRY(5);
+    ALL(0),USER(1),PROJECT(2),COMMENT(3),RECOMMENT(4);
 
     private final Integer value;
 
