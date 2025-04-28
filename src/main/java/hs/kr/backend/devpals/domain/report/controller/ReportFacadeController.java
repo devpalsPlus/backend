@@ -51,7 +51,7 @@ public class ReportFacadeController {
             )
     )
     public ResponseEntity<ApiResponse<List<ReportTagEntity>>> getReportTag() {
-        return reportFacade.getReportTag();
+        return reportFacade.getReportTagAPI();
     }
 
     @DeleteMapping("/report-tag")
