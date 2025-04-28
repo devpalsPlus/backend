@@ -1,6 +1,6 @@
-package hs.kr.backend.devpals.domain.user.dto;
+package hs.kr.backend.devpals.domain.report.dto;
 
-import hs.kr.backend.devpals.domain.project.entity.ReportEntity;
+import hs.kr.backend.devpals.domain.report.entity.ReportEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -1,6 +1,6 @@
-package hs.kr.backend.devpals.domain.project.entity;
+package hs.kr.backend.devpals.domain.report.entity;
 
-import hs.kr.backend.devpals.domain.user.dto.ReportRequest;
+import hs.kr.backend.devpals.domain.report.dto.ReportRequest;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.global.common.enums.ReportFilter;
 import jakarta.persistence.*;

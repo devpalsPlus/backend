@@ -2,7 +2,7 @@ package hs.kr.backend.devpals.domain.user.entity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hs.kr.backend.devpals.domain.project.entity.ReportEntity;
+import hs.kr.backend.devpals.domain.report.entity.ReportEntity;
 import hs.kr.backend.devpals.domain.user.convert.LongListConverter;
 import hs.kr.backend.devpals.domain.user.dto.CareerDto;
 import hs.kr.backend.devpals.global.exception.CustomException;
@@ -10,7 +10,6 @@ import hs.kr.backend.devpals.global.exception.ErrorException;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLRestriction;
-import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
 import java.util.*;

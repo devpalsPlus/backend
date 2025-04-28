@@ -1,7 +1,7 @@
-package hs.kr.backend.devpals.domain.user.repository;
+package hs.kr.backend.devpals.domain.report.repository;
 
 
-import hs.kr.backend.devpals.domain.project.entity.ReportEntity;
+import hs.kr.backend.devpals.domain.report.entity.ReportEntity;
 import hs.kr.backend.devpals.global.common.enums.ReportFilter;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

@@ -1,10 +1,9 @@
-package hs.kr.backend.devpals.domain.project.controller;
+package hs.kr.backend.devpals.domain.report.controller;
 
 
-import hs.kr.backend.devpals.domain.project.dto.ProjectAllDto;
-import hs.kr.backend.devpals.domain.project.service.ReportService;
-import hs.kr.backend.devpals.domain.user.dto.ReportRequest;
-import hs.kr.backend.devpals.domain.user.dto.ReportResponse;
+import hs.kr.backend.devpals.domain.report.service.ReportService;
+import hs.kr.backend.devpals.domain.report.dto.ReportRequest;
+import hs.kr.backend.devpals.domain.report.dto.ReportResponse;
 import hs.kr.backend.devpals.global.common.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

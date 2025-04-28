@@ -2,6 +2,7 @@ package hs.kr.backend.devpals.domain.user.entity.alarm;
 
 import hs.kr.backend.devpals.domain.Inquiry.entity.InquiryEntity;
 import hs.kr.backend.devpals.domain.project.entity.*;
+import hs.kr.backend.devpals.domain.report.entity.ReportEntity;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.NoArgsConstructor;

@@ -1,7 +1,7 @@
 package hs.kr.backend.devpals.domain.Inquiry.entity;
 
 import hs.kr.backend.devpals.domain.Inquiry.dto.InquiryDto;
-import hs.kr.backend.devpals.domain.project.entity.ReportEntity;
+import hs.kr.backend.devpals.domain.report.entity.ReportEntity;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

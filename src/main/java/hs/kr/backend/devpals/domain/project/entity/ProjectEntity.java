@@ -1,11 +1,11 @@
 package hs.kr.backend.devpals.domain.project.entity;
 
 import hs.kr.backend.devpals.domain.project.dto.ProjectAllDto;
+import hs.kr.backend.devpals.domain.report.entity.ReportEntity;
 import hs.kr.backend.devpals.domain.user.convert.LongListConverter;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLRestriction;
-import org.hibernate.annotations.Where;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

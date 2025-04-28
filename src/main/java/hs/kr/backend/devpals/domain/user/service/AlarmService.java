@@ -6,10 +6,11 @@ import hs.kr.backend.devpals.domain.project.entity.*;
 import hs.kr.backend.devpals.domain.project.repository.CommentRepoisitory;
 import hs.kr.backend.devpals.domain.project.repository.ProjectRepository;
 import hs.kr.backend.devpals.domain.project.repository.RecommentRepository;
+import hs.kr.backend.devpals.domain.report.entity.ReportEntity;
 import hs.kr.backend.devpals.domain.user.entity.alarm.*;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.repository.AlarmRepository;
-import hs.kr.backend.devpals.domain.user.repository.ReportRepository;
+import hs.kr.backend.devpals.domain.report.repository.ReportRepository;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.common.enums.ApplicantStatus;
@@ -28,7 +29,6 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -110,7 +110,7 @@ public class AlarmService {
 
 
     //경고누적횟수가 넘을 경우 알람
-    public void sendAlarm(ReportEntity savedReport,Integer reportCount,Object targetEntity) {
+    public void sendAlarm(ReportEntity savedReport, Integer reportCount, Object targetEntity) {
         switch (savedReport.getReportFilter()) {
             case USER -> {
                 UserEntity user = (UserEntity) targetEntity;

@@ -1,22 +1,20 @@
-package hs.kr.backend.devpals.domain.project.service;
+package hs.kr.backend.devpals.domain.report.service;
 
 import hs.kr.backend.devpals.domain.Inquiry.entity.InquiryEntity;
 import hs.kr.backend.devpals.domain.Inquiry.repository.InquiryRepository;
-import hs.kr.backend.devpals.domain.project.dto.ProjectAllDto;
 import hs.kr.backend.devpals.domain.project.entity.CommentEntity;
 import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
 import hs.kr.backend.devpals.domain.project.entity.RecommentEntity;
-import hs.kr.backend.devpals.domain.project.entity.ReportEntity;
+import hs.kr.backend.devpals.domain.report.entity.ReportEntity;
 import hs.kr.backend.devpals.domain.project.repository.CommentRepoisitory;
 import hs.kr.backend.devpals.domain.project.repository.ProjectRepository;
 import hs.kr.backend.devpals.domain.project.repository.RecommentRepository;
-import hs.kr.backend.devpals.domain.user.dto.ReportRequest;
-import hs.kr.backend.devpals.domain.user.dto.ReportResponse;
+import hs.kr.backend.devpals.domain.report.dto.ReportRequest;
+import hs.kr.backend.devpals.domain.report.dto.ReportResponse;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
-import hs.kr.backend.devpals.domain.user.repository.ReportRepository;
+import hs.kr.backend.devpals.domain.report.repository.ReportRepository;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.domain.user.service.AlarmService;
-import hs.kr.backend.devpals.domain.user.service.UserAlarmService;
 import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.common.enums.ReportFilter;
 import hs.kr.backend.devpals.global.exception.CustomException;
