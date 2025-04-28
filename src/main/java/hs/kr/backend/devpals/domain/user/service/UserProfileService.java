@@ -116,7 +116,7 @@ public class UserProfileService {
 
         // 파일 확장자 검증
         String originalFilename = file.getOriginalFilename();
-        if (originalFilename == null || !isValidImageFile(originalFilename)) {
+        if (originalFilename == null || !awsS3Client.isValidImageFile(originalFilename)) {
             throw new CustomException(ErrorException.INVALID_FILE_TYPE);
         }
 
@@ -140,11 +140,4 @@ public class UserProfileService {
         return ResponseEntity.ok(new ApiResponse<>(true, "프로필 이미지가 변경되었습니다.", fileUrl));
     }
 
-    // 파일 타입 검증
-    private boolean isValidImageFile(String fileName) {
-        String lowerCaseFileName = fileName.toLowerCase();
-        return lowerCaseFileName.endsWith(".jpg") ||
-                lowerCaseFileName.endsWith(".jpeg") ||
-                lowerCaseFileName.endsWith(".png");
-    }
 }
