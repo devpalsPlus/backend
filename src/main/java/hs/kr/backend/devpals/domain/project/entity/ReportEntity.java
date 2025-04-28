@@ -1,6 +1,7 @@
 package hs.kr.backend.devpals.domain.project.entity;
 
-import hs.kr.backend.devpals.global.common.enums.ApplicantStatus;
+import hs.kr.backend.devpals.domain.user.dto.ReportRequest;
+import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.global.common.enums.ReportFilter;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -23,11 +24,15 @@ public class ReportEntity {
     private Long id;
 
     @Column(nullable = false)
-    private Long reportedId;
+    private Long reportTargetId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reporterId", nullable = false)
+    private UserEntity reporter;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ReportFilter status;
+    private ReportFilter reportFilter;
 
     @Column(nullable = false, length = 255)
     private String reportReason;
@@ -42,6 +47,11 @@ public class ReportEntity {
     private LocalDateTime updatedAt = LocalDateTime.now();
 
 
-
-
+    public ReportEntity(ReportRequest request, UserEntity reporter) {
+        this.reporter = reporter;
+        this.reportFilter = ReportFilter.fromValue(request.getReportFilter());
+        this.reportReason = request.getReportReason();
+        this.detail = request.getDetail();
+        this.reportTargetId = request.getReportTargetId();
+    }
 }
