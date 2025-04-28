@@ -1,4 +1,5 @@
 package hs.kr.backend.devpals.domain.user.entity.alarm;
 
-public class InquirtAlarmEntity {
+//TODO: 추후구현
+public class InquiryAlarmEntity {
 }

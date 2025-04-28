@@ -31,7 +31,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReportService {
 
-    public static final int REPORT_COUNT = 1;
+    public static final int REPORT_COUNT = 1; //현재 테스트용으로 설정
     private final ReportRepository reportRepository;
     private final JwtTokenValidator jwtTokenValidator;
     private final UserRepository userRepository;

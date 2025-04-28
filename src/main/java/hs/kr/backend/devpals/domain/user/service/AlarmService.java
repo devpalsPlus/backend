@@ -1,16 +1,12 @@
 package hs.kr.backend.devpals.domain.user.service;
 
 import hs.kr.backend.devpals.domain.Inquiry.entity.InquiryEntity;
-import hs.kr.backend.devpals.domain.Inquiry.repository.InquiryRepository;
 import hs.kr.backend.devpals.domain.project.entity.*;
-import hs.kr.backend.devpals.domain.project.repository.CommentRepoisitory;
 import hs.kr.backend.devpals.domain.project.repository.ProjectRepository;
-import hs.kr.backend.devpals.domain.project.repository.RecommentRepository;
 import hs.kr.backend.devpals.domain.report.entity.ReportEntity;
 import hs.kr.backend.devpals.domain.user.entity.alarm.*;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.repository.AlarmRepository;
-import hs.kr.backend.devpals.domain.report.repository.ReportRepository;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.common.enums.ApplicantStatus;
@@ -41,10 +37,6 @@ public class AlarmService {
     private final AlarmRepository alarmRepository;
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
-    private final CommentRepoisitory commentRepoisitory;
-    private final RecommentRepository recommentRepository;
-    private final InquiryRepository inquiryRepository;
-    private final ReportRepository reportRepository;
 
 
     // 새 SSE 연결 생성
@@ -106,33 +98,6 @@ public class AlarmService {
         CommentAlarmEntity commentAlarmEntity = new CommentAlarmEntity(comment, content, project, recomment,receiver);
         AlarmEntity saved = alarmRepository.save(commentAlarmEntity);
         sendToUser(receiver.getId(),saved);
-    }
-
-
-    //경고누적횟수가 넘을 경우 알람
-    public void sendAlarm(ReportEntity savedReport, Integer reportCount, Object targetEntity) {
-        switch (savedReport.getReportFilter()) {
-            case USER -> {
-                UserEntity user = (UserEntity) targetEntity;
-                // user 객체를 사용한 알람 로직
-            }
-            case PROJECT -> {
-                ProjectEntity project = (ProjectEntity) targetEntity;
-                // project 객체를 사용한 알람 로직
-            }
-            case COMMENT -> {
-                CommentEntity comment = (CommentEntity) targetEntity;
-                // comment 객체를 사용한 알람 로직
-            }
-            case RECOMMENT -> {
-                RecommentEntity recomment = (RecommentEntity) targetEntity;
-                // recomment 객체를 사용한 알람 로직
-            }
-            case INQUIRY -> {
-                InquiryEntity inquiry = (InquiryEntity) targetEntity;
-                // inquiry 객체를 사용한 알람 로직
-            }
-        }
     }
 
 
@@ -241,21 +206,6 @@ public class AlarmService {
         }
     }
 
-
-    // 대상 사용자 찾기 (엔티티 타입에 따라 다름)
-    private UserEntity getTargetUser(ReportEntity report, Object targetEntity) {
-        if (targetEntity == null) {
-            return null;
-        }
-        return switch (report.getReportFilter()) {
-            case USER -> (UserEntity) targetEntity;
-            case PROJECT -> userRepository.findById(((ProjectEntity) targetEntity).getUserId()).orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND)); // 프로젝트 작성자
-            case COMMENT -> ((CommentEntity) targetEntity).getUser(); // 댓글 작성자
-            case RECOMMENT -> ((RecommentEntity) targetEntity).getUser(); // 대댓글 작성자
-            case INQUIRY -> ((InquiryEntity) targetEntity).getUser(); // 문의 작성자
-            default -> throw new IllegalArgumentException("지원하지 않는 신고 유형입니다: " + report.getReportFilter());
-        };
-    }
 
     //연결 확인후 문제 있을시 연결 제거
     @Scheduled(fixedRate = 300000) // 5분마다 실행

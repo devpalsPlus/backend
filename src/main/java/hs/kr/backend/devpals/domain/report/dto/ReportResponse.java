@@ -12,7 +12,7 @@ public class ReportResponse {
 
     private Long id;
     private Long reportTargetId;
-    private Integer ReportFilter;
+    private Integer reportFilter;
     private String reportReason;
     private String detail;
 
