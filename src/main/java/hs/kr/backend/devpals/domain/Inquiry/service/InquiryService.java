@@ -6,7 +6,6 @@ import hs.kr.backend.devpals.domain.Inquiry.entity.InquiryImageEntity;
 import hs.kr.backend.devpals.domain.Inquiry.repository.InquiryRepository;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
-import hs.kr.backend.devpals.domain.user.service.AlarmService;
 import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
@@ -27,7 +26,6 @@ public class InquiryService {
     private final AwsS3Client awsS3Client;
     private final JwtTokenValidator jwtTokenValidator;
     private final UserRepository userRepository;
-    private final AlarmService alarmService;
 
     @Transactional
     public ResponseEntity<ApiResponse<String>> createInquiry(String token, InquiryDto request, List<MultipartFile> images) {

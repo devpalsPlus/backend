@@ -38,6 +38,8 @@ public class CommentEntity {
 
     @Column(nullable = false, length = 255)
     private String content;
+
+    @Builder.Default
     @Column(nullable = false)
     private Integer warning = 0;
 

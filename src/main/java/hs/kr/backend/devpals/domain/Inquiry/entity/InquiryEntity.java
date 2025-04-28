@@ -39,6 +39,7 @@ public class InquiryEntity {
     @Column(nullable = false, length = 255)
     private String category;
 
+    @Builder.Default
     @Column(nullable = false)
     private Integer warning = 0;
 
@@ -51,7 +52,7 @@ public class InquiryEntity {
 
     @OneToMany(cascade = CascadeType.REMOVE,fetch = FetchType.LAZY)
     @JoinColumn(name = "reportTargetId", referencedColumnName = "id")
-    @SQLRestriction("report_filter = 'USER'")  // @Where 대신 @SQLRestriction 사용
+    @SQLRestriction("report_filter = 'INQUIRY'")  // @Where 대신 @SQLRestriction 사용
     private List<ReportEntity> receivedReports = new ArrayList<>();
 
     @Column(nullable = false, updatable = false)

@@ -77,6 +77,7 @@ public class ProjectEntity {
     @Column(nullable = false, columnDefinition = "INT DEFAULT 0")
     private int views;
 
+    @Builder.Default
     @Column(nullable = false)
     private Integer warning = 0;
 
