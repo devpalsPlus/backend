@@ -1,15 +1,11 @@
 package hs.kr.backend.devpals.domain.user.service;
 
-import hs.kr.backend.devpals.domain.project.entity.ApplicantEntity;
-import hs.kr.backend.devpals.domain.project.entity.CommentEntity;
-import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
-import hs.kr.backend.devpals.domain.project.entity.RecommentEntity;
+import hs.kr.backend.devpals.domain.Inquiry.entity.InquiryEntity;
+import hs.kr.backend.devpals.domain.project.entity.*;
 import hs.kr.backend.devpals.domain.project.repository.ProjectRepository;
-import hs.kr.backend.devpals.domain.user.entity.alarm.AlarmEntity;
+import hs.kr.backend.devpals.domain.report.entity.ReportEntity;
+import hs.kr.backend.devpals.domain.user.entity.alarm.*;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
-import hs.kr.backend.devpals.domain.user.entity.alarm.ApplicantAlarmEntity;
-import hs.kr.backend.devpals.domain.user.entity.alarm.CommentAlarmEntity;
-import hs.kr.backend.devpals.domain.user.entity.alarm.ProjectAlarmEntity;
 import hs.kr.backend.devpals.domain.user.repository.AlarmRepository;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.common.ApiResponse;
@@ -114,6 +110,43 @@ public class AlarmService {
         sendToUser(project.getUserId(),saved);
     }
 
+    public void sendReportAlarm(UserEntity receiver,ReportEntity report) {
+        String message = makeReportMessage(receiver.getWarning());
+        ReportAlarmEntity reportAlarmEntity = new ReportAlarmEntity(receiver, message, report);
+        alarmRepository.save(reportAlarmEntity);
+        sendToUser(receiver.getId(),reportAlarmEntity);
+    }
+    public void sendReportAlarm(ProjectEntity project,ReportEntity report) {
+        String message = makeReportMessage(project.getWarning());
+        UserEntity receiver = userRepository.findById(project.getUserId()).orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
+        ReportAlarmEntity reportAlarmEntity = new ReportAlarmEntity(project, receiver,message, report);
+        alarmRepository.save(reportAlarmEntity);
+        sendToUser(receiver.getId(),reportAlarmEntity);
+    }
+
+    public void sendReportAlarm(CommentEntity comment,ReportEntity report) {
+        String message = makeReportMessage(comment.getWarning());
+        ReportAlarmEntity reportAlarmEntity = new ReportAlarmEntity(comment,message, report);
+        alarmRepository.save(reportAlarmEntity);
+        sendToUser(comment.getUser().getId(),reportAlarmEntity);
+    }
+    public void sendReportAlarm(RecommentEntity recomment,ReportEntity report) {
+        String message = makeReportMessage(recomment.getWarning());
+        ReportAlarmEntity reportAlarmEntity = new ReportAlarmEntity(recomment,message, report);
+        alarmRepository.save(reportAlarmEntity);
+        sendToUser(recomment.getUser().getId(),reportAlarmEntity);
+    }
+    public void sendReportAlarm(InquiryEntity inquiry,ReportEntity report) {
+        String message = makeReportMessage(inquiry.getWarning());
+        ReportAlarmEntity reportAlarmEntity = new ReportAlarmEntity(inquiry,message, report);
+        alarmRepository.save(reportAlarmEntity);
+        sendToUser(inquiry.getUser().getId(),reportAlarmEntity);
+    }
+
+    private String makeReportMessage(Integer warning) {
+        return "신고횟수누적으로 "+ warning+"차 경고처리 되었습니다.";
+    }
+
     private String makeMessage(ProjectEntity project,ApplicantEntity applicant) {
         return "모집중인 '"+project.getTitle()+ "'에 " + applicant.getUser().getNickname() + " 님이 지원하셨습니다.";
     }
@@ -131,6 +164,7 @@ public class AlarmService {
     private String makeMessage(ProjectEntity project, RecommentEntity recomment) {
         return "'"+project.getTitle()+ "'에 작성자의 답변이 달렸습니다.";
     }
+
 
     // 특정 사용자에게 알림 전송
     private void sendToUser(Long userId, AlarmEntity alarmEntity) {
@@ -171,6 +205,7 @@ public class AlarmService {
             }
         }
     }
+
 
     //연결 확인후 문제 있을시 연결 제거
     @Scheduled(fixedRate = 300000) // 5분마다 실행

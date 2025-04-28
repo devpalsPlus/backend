@@ -53,4 +53,8 @@ public abstract class AlarmEntity {
     }
 
     public abstract Integer getAlarmFilterIntValue();
+
+    public void updateEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
 }

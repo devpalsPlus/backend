@@ -1,6 +1,8 @@
 package hs.kr.backend.devpals.domain.Inquiry.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import hs.kr.backend.devpals.domain.Inquiry.entity.InquiryEntity;
+import hs.kr.backend.devpals.domain.Inquiry.entity.InquiryImageEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,11 +35,16 @@ public class InquiryDto {
     )
     private List<String> imageUrls;
 
-    public static InquiryDto fromEntity(List<String> imageUrls, String title, String content, String category) {
+    public static InquiryDto fromEntity(InquiryEntity inquiry) {
+        List<String> imageUrls = inquiry.getImages()
+                .stream()
+                .map(InquiryImageEntity::getImageUrl)
+                .toList();
+
         return InquiryDto.builder()
-                .title(title)
-                .content(content)
-                .category(category)
+                .title(inquiry.getTitle())
+                .content(inquiry.getContent())
+                .category(inquiry.getCategory())
                 .imageUrls(imageUrls)
                 .build();
     }
