@@ -1,15 +1,17 @@
 package hs.kr.backend.devpals.domain.report.entity;
 
 import hs.kr.backend.devpals.domain.report.dto.ReportRequest;
+import hs.kr.backend.devpals.domain.user.convert.LongListConverter;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.global.common.enums.ReportFilter;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -33,8 +35,9 @@ public class ReportEntity {
     @Column(nullable = false)
     private ReportFilter reportFilter;
 
-    @Column(nullable = false, length = 255)
-    private String reportReason;
+    @Convert(converter = LongListConverter.class)
+    @Column(columnDefinition = "TEXT")
+    private List<Long> reportTagIds = new ArrayList<>();
 
     @Column(nullable = false)
     private String detail;
@@ -46,10 +49,10 @@ public class ReportEntity {
     private LocalDateTime updatedAt = LocalDateTime.now();
 
 
-    public ReportEntity(ReportRequest request, UserEntity reporter) {
+    public ReportEntity(ReportRequest request,List<Long> reportTagIds, UserEntity reporter) {
         this.reporter = reporter;
         this.reportFilter = ReportFilter.fromValue(request.getReportFilter());
-        this.reportReason = request.getReportReason();
+        this.reportTagIds = reportTagIds;
         this.detail = request.getDetail();
         this.reportTargetId = request.getReportTargetId();
     }
