@@ -49,7 +49,12 @@ public class SwaggerConfig {
                         )
                 )
                 .servers(List.of(
-                        new Server().url("https://dev.devpals.site").description("Production Server")
+                        new Server()
+                                .url("http://localhost:8080")   // 로컬 테스트용 추가
+                                .description("Local Server"),
+                        new Server()
+                                .url("https://dev.devpals.site") // 운영 서버
+                                .description("dev Server")
                 ));
     }
 }
