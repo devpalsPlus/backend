@@ -1,16 +1,16 @@
 package hs.kr.backend.devpals.domain.user.service;
 
-import hs.kr.backend.devpals.domain.project.entity.ApplicantEntity;
-import hs.kr.backend.devpals.domain.project.entity.CommentEntity;
-import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
-import hs.kr.backend.devpals.domain.project.entity.RecommentEntity;
+import hs.kr.backend.devpals.domain.Inquiry.entity.InquiryEntity;
+import hs.kr.backend.devpals.domain.Inquiry.repository.InquiryRepository;
+import hs.kr.backend.devpals.domain.project.entity.*;
+import hs.kr.backend.devpals.domain.project.repository.CommentRepoisitory;
 import hs.kr.backend.devpals.domain.project.repository.ProjectRepository;
-import hs.kr.backend.devpals.domain.user.entity.alarm.AlarmEntity;
+import hs.kr.backend.devpals.domain.project.repository.RecommentRepository;
+import hs.kr.backend.devpals.domain.report.entity.ReportEntity;
+import hs.kr.backend.devpals.domain.user.entity.alarm.*;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
-import hs.kr.backend.devpals.domain.user.entity.alarm.ApplicantAlarmEntity;
-import hs.kr.backend.devpals.domain.user.entity.alarm.CommentAlarmEntity;
-import hs.kr.backend.devpals.domain.user.entity.alarm.ProjectAlarmEntity;
 import hs.kr.backend.devpals.domain.user.repository.AlarmRepository;
+import hs.kr.backend.devpals.domain.report.repository.ReportRepository;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.common.enums.ApplicantStatus;
@@ -41,6 +41,10 @@ public class AlarmService {
     private final AlarmRepository alarmRepository;
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
+    private final CommentRepoisitory commentRepoisitory;
+    private final RecommentRepository recommentRepository;
+    private final InquiryRepository inquiryRepository;
+    private final ReportRepository reportRepository;
 
 
     // 새 SSE 연결 생성
@@ -105,6 +109,33 @@ public class AlarmService {
     }
 
 
+    //경고누적횟수가 넘을 경우 알람
+    public void sendAlarm(ReportEntity savedReport, Integer reportCount, Object targetEntity) {
+        switch (savedReport.getReportFilter()) {
+            case USER -> {
+                UserEntity user = (UserEntity) targetEntity;
+                // user 객체를 사용한 알람 로직
+            }
+            case PROJECT -> {
+                ProjectEntity project = (ProjectEntity) targetEntity;
+                // project 객체를 사용한 알람 로직
+            }
+            case COMMENT -> {
+                CommentEntity comment = (CommentEntity) targetEntity;
+                // comment 객체를 사용한 알람 로직
+            }
+            case RECOMMENT -> {
+                RecommentEntity recomment = (RecommentEntity) targetEntity;
+                // recomment 객체를 사용한 알람 로직
+            }
+            case INQUIRY -> {
+                InquiryEntity inquiry = (InquiryEntity) targetEntity;
+                // inquiry 객체를 사용한 알람 로직
+            }
+        }
+    }
+
+
     //댓글 작성시 프로젝트 작성자에게 알림 전송
     public void sendAlarm(CommentEntity comment, ProjectEntity project, UserEntity commenter) {
         String content = makeMessage(project, commenter);
@@ -112,6 +143,43 @@ public class AlarmService {
         CommentAlarmEntity commentAlarmEntity = new CommentAlarmEntity(comment, content, project, receiver);
         AlarmEntity saved = alarmRepository.save(commentAlarmEntity);
         sendToUser(project.getUserId(),saved);
+    }
+
+    public void sendReportAlarm(UserEntity receiver,ReportEntity report) {
+        String message = makeReportMessage(receiver.getWarning());
+        ReportAlarmEntity reportAlarmEntity = new ReportAlarmEntity(receiver, message, report);
+        alarmRepository.save(reportAlarmEntity);
+        sendToUser(receiver.getId(),reportAlarmEntity);
+    }
+    public void sendReportAlarm(ProjectEntity project,ReportEntity report) {
+        String message = makeReportMessage(project.getWarning());
+        UserEntity receiver = userRepository.findById(project.getUserId()).orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
+        ReportAlarmEntity reportAlarmEntity = new ReportAlarmEntity(project, receiver,message, report);
+        alarmRepository.save(reportAlarmEntity);
+        sendToUser(receiver.getId(),reportAlarmEntity);
+    }
+
+    public void sendReportAlarm(CommentEntity comment,ReportEntity report) {
+        String message = makeReportMessage(comment.getWarning());
+        ReportAlarmEntity reportAlarmEntity = new ReportAlarmEntity(comment,message, report);
+        alarmRepository.save(reportAlarmEntity);
+        sendToUser(comment.getUser().getId(),reportAlarmEntity);
+    }
+    public void sendReportAlarm(RecommentEntity recomment,ReportEntity report) {
+        String message = makeReportMessage(recomment.getWarning());
+        ReportAlarmEntity reportAlarmEntity = new ReportAlarmEntity(recomment,message, report);
+        alarmRepository.save(reportAlarmEntity);
+        sendToUser(recomment.getUser().getId(),reportAlarmEntity);
+    }
+    public void sendReportAlarm(InquiryEntity inquiry,ReportEntity report) {
+        String message = makeReportMessage(inquiry.getWarning());
+        ReportAlarmEntity reportAlarmEntity = new ReportAlarmEntity(inquiry,message, report);
+        alarmRepository.save(reportAlarmEntity);
+        sendToUser(inquiry.getUser().getId(),reportAlarmEntity);
+    }
+
+    private String makeReportMessage(Integer warning) {
+        return "신고횟수누적으로 "+ warning+"차 경고처리 되었습니다.";
     }
 
     private String makeMessage(ProjectEntity project,ApplicantEntity applicant) {
@@ -131,6 +199,7 @@ public class AlarmService {
     private String makeMessage(ProjectEntity project, RecommentEntity recomment) {
         return "'"+project.getTitle()+ "'에 작성자의 답변이 달렸습니다.";
     }
+
 
     // 특정 사용자에게 알림 전송
     private void sendToUser(Long userId, AlarmEntity alarmEntity) {
@@ -170,6 +239,22 @@ public class AlarmService {
                 emitters.remove(userId);
             }
         }
+    }
+
+
+    // 대상 사용자 찾기 (엔티티 타입에 따라 다름)
+    private UserEntity getTargetUser(ReportEntity report, Object targetEntity) {
+        if (targetEntity == null) {
+            return null;
+        }
+        return switch (report.getReportFilter()) {
+            case USER -> (UserEntity) targetEntity;
+            case PROJECT -> userRepository.findById(((ProjectEntity) targetEntity).getUserId()).orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND)); // 프로젝트 작성자
+            case COMMENT -> ((CommentEntity) targetEntity).getUser(); // 댓글 작성자
+            case RECOMMENT -> ((RecommentEntity) targetEntity).getUser(); // 대댓글 작성자
+            case INQUIRY -> ((InquiryEntity) targetEntity).getUser(); // 문의 작성자
+            default -> throw new IllegalArgumentException("지원하지 않는 신고 유형입니다: " + report.getReportFilter());
+        };
     }
 
     //연결 확인후 문제 있을시 연결 제거

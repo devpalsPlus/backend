@@ -2,12 +2,14 @@ package hs.kr.backend.devpals.domain.user.entity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hs.kr.backend.devpals.domain.report.entity.ReportEntity;
 import hs.kr.backend.devpals.domain.user.convert.LongListConverter;
 import hs.kr.backend.devpals.domain.user.dto.CareerDto;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -46,6 +48,9 @@ public class UserEntity {
     @Column(columnDefinition = "JSON")
     private String career; // JSON 형태의 데이터 저장
 
+    @Column(nullable = false)
+    private Integer warning = 0;
+
     @Column(updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -61,6 +66,13 @@ public class UserEntity {
     @Convert(converter = LongListConverter.class)
     @Column(columnDefinition = "TEXT")
     private List<Long> skillIds = new ArrayList<>();
+
+
+    // 내가 신고당한 내역 (새로 추가)
+    @OneToMany(cascade = CascadeType.REMOVE,fetch = FetchType.LAZY)
+    @JoinColumn(name = "reportTargetId", referencedColumnName = "id")
+    @SQLRestriction("report_filter = 'USER'")  // @Where 대신 @SQLRestriction 사용
+    private List<ReportEntity> receivedReports = new ArrayList<>();
 
     /*
     @OneToMany(mappedBy = "user")
@@ -110,6 +122,11 @@ public class UserEntity {
     //이미지 업데이트
     public void updateProfileImage(String profileImg) {
         this.profileImg = profileImg;
+    }
+
+    // warning 증가 메서드
+    public void increaseWarning() {
+        this.warning++;
     }
 
     //회원가입 유저 정보 저장

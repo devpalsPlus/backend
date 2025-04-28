@@ -1,12 +1,14 @@
 package hs.kr.backend.devpals.domain.Inquiry.entity;
 
 import hs.kr.backend.devpals.domain.Inquiry.dto.InquiryDto;
+import hs.kr.backend.devpals.domain.report.entity.ReportEntity;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -38,11 +40,19 @@ public class InquiryEntity {
     private String category;
 
     @Column(nullable = false)
+    private Integer warning = 0;
+
+    @Column(nullable = false)
     private Boolean isAnswered = false;
 
     @OneToMany(mappedBy = "inquiry", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default // Builder 사용시 필드 초기화가 안돼서 사용
     private List<InquiryImageEntity> images = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.REMOVE,fetch = FetchType.LAZY)
+    @JoinColumn(name = "reportTargetId", referencedColumnName = "id")
+    @SQLRestriction("report_filter = 'USER'")  // @Where 대신 @SQLRestriction 사용
+    private List<ReportEntity> receivedReports = new ArrayList<>();
 
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -76,4 +86,8 @@ public class InquiryEntity {
         this.updatedAt = LocalDateTime.now();
     }
      */
+    // warning 증가 메서드
+    public void increaseWarning() {
+        this.warning++;
+    }
 }

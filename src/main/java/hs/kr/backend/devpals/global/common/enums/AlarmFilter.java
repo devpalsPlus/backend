@@ -13,7 +13,9 @@ public enum AlarmFilter {
     ALL("전체",0),
     APPLIED_PROJECTS("지원한 프로젝트",1),
     APPLICANT_CHECK("지원자 확인",2),
-    COMMENT_AND_REPLY("댓글&답변",3);
+    COMMENT_AND_REPLY("댓글&답변",3),
+    INQUIRY("문의",4),
+    REPORT("신고",5);
 
     private final String displayName;
     private final Integer value;
