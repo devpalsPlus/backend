@@ -1,5 +1,6 @@
 package hs.kr.backend.devpals.domain.report.facade;
 
+import hs.kr.backend.devpals.domain.report.dto.ReportTagRequest;
 import hs.kr.backend.devpals.domain.report.entity.ReportTagEntity;
 import hs.kr.backend.devpals.domain.report.repository.ReportTagRepository;
 import hs.kr.backend.devpals.domain.user.entity.PositionTagEntity;
@@ -23,10 +24,10 @@ public class ReportFacade {
 
     @PostConstruct
     public void initCache() {
-        refreshReportTagCache();
+        refreshReportTags();
     }
 
-    private void refreshReportTagCache() {
+    private void refreshReportTags() {
         List<ReportTagEntity> reportTags = reportTagRepository.findAll();
         reportTagCache.clear();
         reportTagCache.putAll(reportTags.stream().collect(Collectors.toMap(ReportTagEntity::getId, tag -> tag)));
@@ -38,15 +39,22 @@ public class ReportFacade {
         return ResponseEntity.ok(response);
     }
 
-    public ResponseEntity<ApiResponse<String>> deleteReportTag(Long positionTagId) {
-        PositionTagEntity positionTag = reportTagRepository.findById(positionTagId)
-                .orElseThrow(() -> new CustomException(ErrorException.POSITION_NOT_FOUND));
+    public ResponseEntity<ApiResponse<String>> deleteReportTag(Long reportTagId) {
+        ReportTagEntity reportTag = reportTagRepository.findById(reportTagId)
+                .orElseThrow(() -> new CustomException(ErrorException.REPORT_TAG_NOT_FOUND));
 
-        positionTagRepository.delete(positionTag);
-        positionTagCache.remove(positionTagId);
+        reportTagRepository.delete(reportTag);
+        reportTagCache.remove(reportTagId);
 
-        ApiResponse<String> response = new ApiResponse<>(true, "포지션 태그 삭제 성공", null);
+        ApiResponse<String> response = new ApiResponse<>(true, "신고사유(카테고리) 삭제 성공", null);
         return ResponseEntity.ok(response);
+    }
+
+    public ResponseEntity<ApiResponse<ReportTagEntity>> createReportTag(ReportTagRequest request) {
+        ReportTagEntity reportTag = new ReportTagEntity(request.getName());
+        ReportTagEntity saved = reportTagRepository.save(reportTag);
+        refreshReportTags();
+        return ResponseEntity.ok(new ApiResponse<>(true, "신고사유(카테고리) 등록 성공", saved));
     }
 
 

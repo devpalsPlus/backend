@@ -40,23 +40,4 @@ public class ReportController {
         return reportService.report(request, token);
     }
 
-
-    @PostMapping
-    @Operation(summary = "신고 작성", description = "신고를 작성합니다. reportFilter의 값은 다음과 같습니다. USER(1),PROJECT(2),COMMENT(3),RECOMMENT(4)\n")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "신고 작성 성공")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(
-            responseCode = "400",
-            description = "신고 작성 실패",
-            content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = ApiResponse.class),
-                    examples = @ExampleObject(value = "{\"success\": false, \"message\": \"신고 작성에 실패했습니다.\", \"data\": null}")
-            )
-    )
-    public ResponseEntity<ApiResponse<ReportResponse>> createReport(
-            @RequestBody ReportRequest request,
-            @RequestHeader("Authorization") String token) {
-        return reportService.report(request, token);
-    }
-
 }
