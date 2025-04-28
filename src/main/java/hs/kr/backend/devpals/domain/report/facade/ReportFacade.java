@@ -38,7 +38,7 @@ public class ReportFacade {
         return List.copyOf(reportTagCache.values());
     }
 
-    public ResponseEntity<ApiResponse<List<ReportTagEntity>>> getReportTagAPI() {
+    public ResponseEntity<ApiResponse<List<ReportTagEntity>>> getReportTags() {
         List<ReportTagEntity> reportTagEntities = List.copyOf(reportTagCache.values());
         ApiResponse<List<ReportTagEntity>> response = new ApiResponse<>(true, "신고사유(카테고리) 목록 가져오기 성공", reportTagEntities);
         return ResponseEntity.ok(response);

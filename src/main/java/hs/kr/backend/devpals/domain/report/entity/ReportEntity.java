@@ -52,7 +52,7 @@ public class ReportEntity {
     public ReportEntity(ReportRequest request,List<Long> reportTagIds, UserEntity reporter) {
         this.reporter = reporter;
         this.reportFilter = ReportFilter.fromValue(request.getReportFilter());
-        this.reportTagIds = reportTagIds;
+        this.reportTagIds = this.reportTagIds = (reportTagIds == null) ? new ArrayList<>() : new ArrayList<>(reportTagIds);;
         this.detail = request.getDetail();
         this.reportTargetId = request.getReportTargetId();
     }
