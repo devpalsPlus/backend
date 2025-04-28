@@ -99,6 +99,10 @@ public class UserAlarmService {
         AlarmEntity alarmEntity
                 = alarmRepository.findByReceiverIdAndAlarmId(userId, alarmId).orElseThrow(() -> new CustomException(ErrorException.ALARM_NOT_FOUND));
 
+        //신고알람은 삭제 안되게 설정
+        if(alarmEntity.getAlarmFilterIntValue().equals(AlarmFilter.REPORT.getValue())) {
+            throw new CustomException(ErrorException.CAN_NOT_DELETE_ALARM);
+        }
         alarmRepository.delete(alarmEntity);
 
         refreshCacheUserAlarm(userId);
