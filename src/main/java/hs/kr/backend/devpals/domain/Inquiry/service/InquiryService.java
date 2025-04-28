@@ -74,12 +74,7 @@ public class InquiryService {
                 .map(InquiryImageEntity::getImageUrl)
                 .toList();
 
-        InquiryDto response = InquiryDto.fromEntity(
-                imageUrls,
-                inquiry.getTitle(),
-                inquiry.getContent(),
-                inquiry.getCategory()
-        );
+        InquiryDto response = InquiryDto.fromEntity(inquiry);
 
         return ResponseEntity.ok(new ApiResponse<>(true, "문의 조회 성공", response));
     }
