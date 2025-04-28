@@ -1,4 +1,8 @@
 package hs.kr.backend.devpals.domain.Inquiry.repository;
 
-public class InquiryRepository {
+import hs.kr.backend.devpals.domain.Inquiry.entity.InquiryEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface InquiryRepository extends JpaRepository<InquiryEntity, Long> {
+    int countByUserId(Long userId);
 }
