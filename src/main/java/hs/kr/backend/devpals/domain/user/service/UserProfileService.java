@@ -1,6 +1,14 @@
 package hs.kr.backend.devpals.domain.user.service;
 
+import hs.kr.backend.devpals.domain.Inquiry.dto.InquiryDto;
+import hs.kr.backend.devpals.domain.Inquiry.entity.InquiryEntity;
+import hs.kr.backend.devpals.domain.Inquiry.repository.InquiryRepository;
+import hs.kr.backend.devpals.domain.project.dto.CommentDTO;
+import hs.kr.backend.devpals.domain.project.entity.CommentEntity;
+import hs.kr.backend.devpals.domain.project.repository.CommentRepoisitory;
+import hs.kr.backend.devpals.domain.project.repository.RecommentRepository;
 import hs.kr.backend.devpals.domain.project.service.ProjectService;
+import hs.kr.backend.devpals.domain.user.dto.CommentInquiryDto;
 import hs.kr.backend.devpals.domain.user.dto.UserResponse;
 import hs.kr.backend.devpals.domain.user.dto.UserUpdateRequest;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
@@ -18,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +34,9 @@ public class UserProfileService {
 
     private final UserFacade userFacade;
     private final UserRepository userRepository;
+    private final CommentRepoisitory commentRepository;
+    private final RecommentRepository recommentRepository;
+    private final InquiryRepository inquiryRepository;
     private final JwtTokenValidator jwtTokenValidator;
     private final AwsS3Client awsS3Client;
     private final ProjectService projectService;
@@ -116,7 +128,7 @@ public class UserProfileService {
 
         // 파일 확장자 검증
         String originalFilename = file.getOriginalFilename();
-        if (originalFilename == null || !isValidImageFile(originalFilename)) {
+        if (originalFilename == null || !awsS3Client.isValidImageFile(originalFilename)) {
             throw new CustomException(ErrorException.INVALID_FILE_TYPE);
         }
 
@@ -140,11 +152,30 @@ public class UserProfileService {
         return ResponseEntity.ok(new ApiResponse<>(true, "프로필 이미지가 변경되었습니다.", fileUrl));
     }
 
-    // 파일 타입 검증
-    private boolean isValidImageFile(String fileName) {
-        String lowerCaseFileName = fileName.toLowerCase();
-        return lowerCaseFileName.endsWith(".jpg") ||
-                lowerCaseFileName.endsWith(".jpeg") ||
-                lowerCaseFileName.endsWith(".png");
+    @Transactional(readOnly = true)
+    public ResponseEntity<ApiResponse<CommentInquiryDto>> getMyCommentInquiry(String token) {
+        Long userId = jwtTokenValidator.getUserId(token);
+
+        // 댓글 조회
+        List<CommentEntity> comments = commentRepository.findByUserId(userId);
+
+        List<CommentDTO> commentDTOs = comments.stream()
+                .map(comment -> {
+                    int recommentCount = recommentRepository.countByCommentId(comment.getId());
+                    return CommentDTO.fromEntity(comment, recommentCount);
+                })
+                .collect(Collectors.toList());
+
+        // 문의글 조회
+        List<InquiryEntity> inquiries = inquiryRepository.findByUserId(userId);
+        List<InquiryDto> inquiryDTOs = inquiries.stream()
+                .map(InquiryDto::fromEntity)
+                .collect(Collectors.toList());
+
+        // 응답 만들기
+        CommentInquiryDto response = CommentInquiryDto.of(commentDTOs, inquiryDTOs);
+
+        return ResponseEntity.ok(new ApiResponse<>(true, "작성한 댓글 및 문의글 목록입니다.", response));
     }
+
 }

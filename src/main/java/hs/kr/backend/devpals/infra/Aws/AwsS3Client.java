@@ -45,4 +45,12 @@ public class AwsS3Client {
             throw new CustomException(ErrorException.FILE_NOT_SEARCH);
         }
     }
+
+    // 파일 타입 검증
+    public boolean isValidImageFile(String fileName) {
+        String lowerCaseFileName = fileName.toLowerCase();
+        return lowerCaseFileName.endsWith(".jpg") ||
+                lowerCaseFileName.endsWith(".jpeg") ||
+                lowerCaseFileName.endsWith(".png");
+    }
 }
