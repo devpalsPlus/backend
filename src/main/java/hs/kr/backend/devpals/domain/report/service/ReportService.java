@@ -5,12 +5,15 @@ import hs.kr.backend.devpals.domain.Inquiry.repository.InquiryRepository;
 import hs.kr.backend.devpals.domain.project.entity.CommentEntity;
 import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
 import hs.kr.backend.devpals.domain.project.entity.RecommentEntity;
+import hs.kr.backend.devpals.domain.report.dto.ReportTagDto;
 import hs.kr.backend.devpals.domain.report.entity.ReportEntity;
 import hs.kr.backend.devpals.domain.project.repository.CommentRepoisitory;
 import hs.kr.backend.devpals.domain.project.repository.ProjectRepository;
 import hs.kr.backend.devpals.domain.project.repository.RecommentRepository;
 import hs.kr.backend.devpals.domain.report.dto.ReportRequest;
 import hs.kr.backend.devpals.domain.report.dto.ReportResponse;
+import hs.kr.backend.devpals.domain.report.entity.ReportTagEntity;
+import hs.kr.backend.devpals.domain.report.facade.ReportFacade;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.report.repository.ReportRepository;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
@@ -25,7 +28,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -38,21 +42,40 @@ public class ReportService {
     private final ProjectRepository projectRepository;
     private final CommentRepoisitory commentRepoisitory;
     private final RecommentRepository recommentRepository;
-    private final InquiryRepository inquiryRepository;
     private final AlarmService alarmService;
+    private final ReportFacade reportFacade;
 
     @Transactional
     public ResponseEntity<ApiResponse<ReportResponse>> report(ReportRequest request, String token) {
         Long userId = jwtTokenValidator.getUserId(token);
         UserEntity reporter = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
+
+        List<ReportTagDto> matchingReportTagDtos = getMatchingReportTags(request);
         validation(request.getReportFilter(), request.getReportTargetId());
-        ReportEntity reportEntity = new ReportEntity(request, reporter);
+        ReportEntity reportEntity = new ReportEntity(request, matchingReportTagDtos.stream().map(ReportTagDto::getId).toList(),reporter);
         ReportEntity savedReport = reportRepository.save(reportEntity);
         // 신고 대상 엔티티 및 경고 처리
         processWarning(savedReport);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "신고 작성 성공", ReportResponse.of(savedReport)));
+        return ResponseEntity.ok(new ApiResponse<>(true, "신고 작성 성공", ReportResponse.of(savedReport,matchingReportTagDtos.stream().map(ReportTagDto::getName).toList())));
 
+    }
+
+    private List<ReportTagDto> getMatchingReportTags(ReportRequest request) {
+        Map<String, ReportTagEntity> tagNameMap = reportFacade.getReportTag().stream()
+                .collect(Collectors.toMap(ReportTagEntity::getName, tag -> tag));
+
+        List<ReportTagDto> matchingTags = new ArrayList<>(request.getReason().length);
+
+        for (String reason : request.getReason()) {
+            ReportTagEntity tag = tagNameMap.get(reason);
+            if (tag == null) {
+                throw new CustomException(ErrorException.REPORT_TAG_NOT_FOUND);
+            }
+            matchingTags.add(new ReportTagDto(tag.getId(), tag.getName()));
+        }
+
+        return matchingTags;
     }
 
     private void processWarning(ReportEntity report) {
@@ -62,7 +85,6 @@ public class ReportService {
             case PROJECT -> processProjectWarning(report);
             case COMMENT -> processCommentWarning(report);
             case RECOMMENT -> processRecommentWarning(report);
-            case INQUIRY -> processInquiryWarning(report);
             default -> throw new IllegalArgumentException("지원하지 않는 신고 유형입니다: " + report.getReportFilter());
         }
     }
@@ -134,21 +156,6 @@ public class ReportService {
         }
     }
 
-    private void processInquiryWarning(ReportEntity report) {
-        Long targetId = report.getReportTargetId();
-        InquiryEntity inquiry = inquiryRepository.findById(targetId)
-                .orElseThrow(() -> new CustomException(ErrorException.INQUIRY_NOT_FOUND));
-
-        List<ReportEntity> reports = reportRepository.findByReportFilterAndReportTargetId(
-                ReportFilter.INQUIRY, targetId);
-
-        if (reports.size() >= REPORT_COUNT) {
-            // 문의의 경고 카운트 증가
-            inquiry.increaseWarning();
-            inquiryRepository.save(inquiry);
-            alarmService.sendReportAlarm(inquiry,report);
-        }
-    }
 
 
     private void validation(Integer reportFilter, Long id) {
@@ -160,8 +167,6 @@ public class ReportService {
             commentRepoisitory.findById(id).orElseThrow(() -> new CustomException(ErrorException.COMMENT_NOT_FOUND));
         if(reportFilter.equals(ReportFilter.RECOMMENT.getValue()))
             recommentRepository.findById(id).orElseThrow(() -> new CustomException(ErrorException.RECOMMENT_NOT_FOUND));
-        if(reportFilter.equals(ReportFilter.INQUIRY.getValue()))
-            inquiryRepository.findById(id).orElseThrow(() -> new CustomException(ErrorException.INQUIRY_NOT_FOUND));
     }
 
 }
