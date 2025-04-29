@@ -61,7 +61,6 @@ public class InquiryService {
                 inquiry.getImages().add(imageEntity);
             }
         }
-
         return ResponseEntity.ok(new ApiResponse<>(true, "문의 작성 성공", null));
     }
 
