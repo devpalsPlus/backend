@@ -153,10 +153,9 @@ public class UserProfileService {
     }
 
     @Transactional(readOnly = true)
-    public ResponseEntity<ApiResponse<CommentInquiryDto>> getMyCommentInquiry(String token) {
+    public ResponseEntity<ApiResponse<List<CommentDTO>>> getMyComments(String token) {
         Long userId = jwtTokenValidator.getUserId(token);
 
-        // 댓글 조회
         List<CommentEntity> comments = commentRepository.findByUserId(userId);
 
         List<CommentDTO> commentDTOs = comments.stream()
@@ -166,16 +165,19 @@ public class UserProfileService {
                 })
                 .collect(Collectors.toList());
 
-        // 문의글 조회
+        return ResponseEntity.ok(new ApiResponse<>(true, "작성한 댓글 목록입니다.", commentDTOs));
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseEntity<ApiResponse<List<InquiryDto>>> getMyInquiries(String token) {
+        Long userId = jwtTokenValidator.getUserId(token);
+
         List<InquiryEntity> inquiries = inquiryRepository.findByUserId(userId);
+
         List<InquiryDto> inquiryDTOs = inquiries.stream()
                 .map(InquiryDto::fromEntity)
                 .collect(Collectors.toList());
 
-        // 응답 만들기
-        CommentInquiryDto response = CommentInquiryDto.of(commentDTOs, inquiryDTOs);
-
-        return ResponseEntity.ok(new ApiResponse<>(true, "작성한 댓글 및 문의글 목록입니다.", response));
+        return ResponseEntity.ok(new ApiResponse<>(true, "작성한 문의글 목록입니다.", inquiryDTOs));
     }
-
 }
