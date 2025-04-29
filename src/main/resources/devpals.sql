@@ -82,7 +82,7 @@ CREATE TABLE `devpals`.`Authenticode` (
                                           isUsed BOOLEAN DEFAULT FALSE
 );
 
-CREATE TABLE Comment (
+CREATE TABLE `devpals`.`Comment` (
                          id BIGINT AUTO_INCREMENT PRIMARY KEY,
                          projectId BIGINT NOT NULL,
                          userId BIGINT NOT NULL,
@@ -93,7 +93,7 @@ CREATE TABLE Comment (
                          FOREIGN KEY (userId) REFERENCES User(id) ON DELETE CASCADE
 );
 
-CREATE TABLE Recomment (
+CREATE TABLE `devpals`.`Recomment` (
                            id BIGINT AUTO_INCREMENT PRIMARY KEY,
                            projectId BIGINT NOT NULL,
                            userId BIGINT NOT NULL,
@@ -104,5 +104,26 @@ CREATE TABLE Recomment (
                            FOREIGN KEY (projectId) REFERENCES Project(id) ON DELETE CASCADE,
                            FOREIGN KEY (userId) REFERENCES User(id) ON DELETE CASCADE,
                            FOREIGN KEY (commentId) REFERENCES Comment(id) ON DELETE CASCADE
+);
+
+CREATE TABLE `devpals`.`Inquiry` (
+                                     id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                     userId BIGINT NOT NULL,
+                                     title VARCHAR(255) NOT NULL,
+                                     content TEXT NOT NULL,
+                                     category VARCHAR(255) NOT NULL,
+                                     warning INT DEFAULT 0,
+                                     isAnswered BOOLEAN NOT NULL DEFAULT FALSE,
+                                     createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                     updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                     FOREIGN KEY (userId) REFERENCES User(id) ON DELETE CASCADE
+);
+
+CREATE TABLE `devpals`.`InquiryImages` (
+                                           id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                           inquiryId BIGINT NOT NULL,
+                                           imageUrl TEXT,
+                                           createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                           FOREIGN KEY (inquiryId) REFERENCES Inquiry(id) ON DELETE CASCADE
 );
 
