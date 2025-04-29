@@ -23,6 +23,8 @@ import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
 import hs.kr.backend.devpals.global.jwt.JwtTokenValidator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,6 +35,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ReportService {
 
     public static final int REPORT_COUNT = 1; //현재 테스트용으로 설정
@@ -45,19 +48,84 @@ public class ReportService {
     private final AlarmService alarmService;
     private final ReportFacade reportFacade;
 
+//    @Transactional
+//    public ResponseEntity<ApiResponse<ReportResponse>> report(ReportRequest request, String token) {
+//        Long userId = jwtTokenValidator.getUserId(token);
+//        UserEntity reporter = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
+//        List<ReportTagDto> matchingReportTagDtos = getMatchingReportTags(request);
+//        validation(request.getReportFilter(), request.getReportTargetId());
+//        ReportEntity reportEntity = new ReportEntity(request, matchingReportTagDtos.stream().map(ReportTagDto::getId).toList(),reporter);
+//        ReportEntity savedReport = reportRepository.save(reportEntity);
+//        // 신고 대상 엔티티 및 경고 처리
+//        processWarning(savedReport);
+//
+//        return ResponseEntity.ok(new ApiResponse<>(true, "신고 작성 성공", ReportResponse.of(savedReport,matchingReportTagDtos.stream().map(ReportTagDto::getName).toList())));
+//
+//    }
+
     @Transactional
     public ResponseEntity<ApiResponse<ReportResponse>> report(ReportRequest request, String token) {
-        Long userId = jwtTokenValidator.getUserId(token);
-        UserEntity reporter = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
-        List<ReportTagDto> matchingReportTagDtos = getMatchingReportTags(request);
-        validation(request.getReportFilter(), request.getReportTargetId());
-        ReportEntity reportEntity = new ReportEntity(request, matchingReportTagDtos.stream().map(ReportTagDto::getId).toList(),reporter);
-        ReportEntity savedReport = reportRepository.save(reportEntity);
-        // 신고 대상 엔티티 및 경고 처리
-        processWarning(savedReport);
+        try {
+            log.info("Starting report process with request: {}", request);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "신고 작성 성공", ReportResponse.of(savedReport,matchingReportTagDtos.stream().map(ReportTagDto::getName).toList())));
+            Long userId = jwtTokenValidator.getUserId(token);
+            log.info("User ID extracted from token: {}", userId);
 
+            UserEntity reporter = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
+            log.info("Reporter found: id={}, nickname={}", reporter.getId(), reporter.getNickname());
+
+            List<ReportTagDto> matchingReportTagDtos = getMatchingReportTags(request);
+            log.info("Matching report tags: {}", matchingReportTagDtos);
+
+            validation(request.getReportFilter(), request.getReportTargetId());
+            log.info("Validation passed for filter: {} and targetId: {}", request.getReportFilter(), request.getReportTargetId());
+
+            List<Long> tagIds = matchingReportTagDtos.stream().map(ReportTagDto::getId).toList();
+            log.info("Extracted tag IDs: {}", tagIds);
+
+            ReportEntity reportEntity = new ReportEntity(request, tagIds, reporter);
+            log.info("Created report entity: {}", reportEntity);
+
+            // 디버깅을 위한 엔티티 상세 정보 출력
+            log.info("Report details - Filter: {}, TargetId: {}, Reporter: {}, Tags: {}",
+                    reportEntity.getReportFilter(),
+                    reportEntity.getReportTargetId(),
+                    reportEntity.getReporter().getId(),
+                    reportEntity.getReportTagIds());
+
+            try {
+                ReportEntity savedReport = reportRepository.save(reportEntity);
+                log.info("Report successfully saved with ID: {}", savedReport.getId());
+
+                // 신고 대상 엔티티 및 경고 처리
+                processWarning(savedReport);
+                log.info("Warning process completed");
+
+                return ResponseEntity.ok(new ApiResponse<>(true, "신고 작성 성공",
+                        ReportResponse.of(savedReport, matchingReportTagDtos.stream().map(ReportTagDto::getName).toList())));
+            } catch (Exception e) {
+                log.error("Error saving report entity", e);
+                log.error("Exception type: {}", e.getClass().getName());
+                log.error("Exception message: {}", e.getMessage());
+
+                // 예외의 원인 추적
+                Throwable cause = e.getCause();
+                if (cause != null) {
+                    log.error("Root cause: {}", cause.getMessage());
+                    cause.printStackTrace();
+                }
+
+                // 데이터베이스 관련 예외인 경우 더 많은 정보 수집
+                if (e instanceof DataAccessException) {
+                    log.error("DataAccessException detected: {}", e.getClass().getSimpleName());
+                }
+
+                throw e;
+            }
+        } catch (Exception e) {
+            log.error("Unexpected error in report method", e);
+            throw e;
+        }
     }
 
     private List<ReportTagDto> getMatchingReportTags(ReportRequest request) {
