@@ -36,7 +36,7 @@ public class ReportEntity {
     @Column(nullable = false, length = 255)
     private String reportReason;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String detail;
 
     @Column(nullable = false, updatable = false)
