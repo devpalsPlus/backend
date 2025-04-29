@@ -136,12 +136,6 @@ public class AlarmService {
         alarmRepository.save(reportAlarmEntity);
         sendToUser(recomment.getUser().getId(),reportAlarmEntity);
     }
-    public void sendReportAlarm(InquiryEntity inquiry,ReportEntity report) {
-        String message = makeReportMessage(inquiry.getWarning());
-        ReportAlarmEntity reportAlarmEntity = new ReportAlarmEntity(inquiry,message, report);
-        alarmRepository.save(reportAlarmEntity);
-        sendToUser(inquiry.getUser().getId(),reportAlarmEntity);
-    }
 
     private String makeReportMessage(Integer warning) {
         return "신고횟수누적으로 "+ warning+"차 경고처리 되었습니다.";
