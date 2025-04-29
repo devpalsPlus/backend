@@ -14,7 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@RequestMapping("/Inquiry")
+@RequestMapping("/inquiry")
 @RequiredArgsConstructor
 @Tag(name = "Inquiry API", description = "문의 관련 API")
 public class InquiryController {
@@ -36,6 +36,20 @@ public class InquiryController {
         return inquiryService.createInquiry(token, inquiryDto, images);
     }
 
+    @GetMapping
+    @Operation(
+            summary = "모든 문의글 조회",
+            description = "등록된 모든 문의글 목록을 조회합니다.",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "모든 문의글 조회 성공"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청 - 토큰 오류 등 발생")
+            }
+    )
+    public ResponseEntity<ApiResponse<List<InquiryDto>>> getAllInquiries() {
+        return inquiryService.getAllInquiries();
+    }
+
+    /*
     @GetMapping("/{inquiryId}")
     @Operation(summary = "문의 조회", description = "특정 문의를 상세 조회합니다.",
             responses = {
@@ -60,4 +74,5 @@ public class InquiryController {
             @PathVariable Long inquiryId) {
         return inquiryService.deleteInquiry(token, inquiryId);
     }
+     */
 }
