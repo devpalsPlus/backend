@@ -1,5 +1,7 @@
 package hs.kr.backend.devpals.domain.user.controller;
 
+import hs.kr.backend.devpals.domain.Inquiry.dto.InquiryDto;
+import hs.kr.backend.devpals.domain.project.dto.CommentDTO;
 import hs.kr.backend.devpals.domain.user.dto.CommentInquiryDto;
 import hs.kr.backend.devpals.domain.user.dto.UserResponse;
 import hs.kr.backend.devpals.domain.user.dto.UserUpdateRequest;
@@ -15,6 +17,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @AllArgsConstructor
 @RestController
@@ -112,20 +116,38 @@ public class UserProfileController {
         return userProfileService.userNicknameCheck(token, nickname);
     }
 
-    @GetMapping("/my-activities")
-    @Operation(summary = "내 활동 조회", description = "본인이 작성한 댓글 및 문의글 목록을 조회합니다.")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "댓글 및 문의글 조회 성공")
+    @GetMapping("/my-comments")
+    @Operation(summary = "내가 작성한 댓글 조회", description = "본인이 작성한 프로젝트 댓글 목록을 조회합니다.")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "댓글 조회 성공")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(
             responseCode = "400",
-            description = "댓글 및 문의글 조회 실패",
+            description = "댓글 조회 실패",
             content = @Content(
                     mediaType = "application/json",
                     schema = @Schema(implementation = ApiResponse.class),
                     examples = @ExampleObject(value = "{\"success\": false, \"message\": \"인증 권한이 없습니다.\", \"data\": null}")
             )
     )
-    public ResponseEntity<ApiResponse<CommentInquiryDto>> getMyActivities(
+    public ResponseEntity<ApiResponse<List<CommentDTO>>> getMyComments(
             @RequestHeader("Authorization") String token) {
-        return userProfileService.getMyCommentInquiry(token);
+        return userProfileService.getMyComments(token);
     }
+
+    @GetMapping("/my-inquiries")
+    @Operation(summary = "내가 작성한 문의글 조회", description = "본인이 작성한 문의글 목록을 조회합니다.")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "문의글 조회 성공")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "400",
+            description = "문의글 조회 실패",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ApiResponse.class),
+                    examples = @ExampleObject(value = "{\"success\": false, \"message\": \"인증 권한이 없습니다.\", \"data\": null}")
+            )
+    )
+    public ResponseEntity<ApiResponse<List<InquiryDto>>> getMyInquiries(
+            @RequestHeader("Authorization") String token) {
+        return userProfileService.getMyInquiries(token);
+    }
+
 }
