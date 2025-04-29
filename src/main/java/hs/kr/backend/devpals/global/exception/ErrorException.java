@@ -25,7 +25,6 @@ public enum ErrorException {
     EMAIL_NOT_VERIFIED("이메일 인증코드를 입력해주세요."),
     FAIL_JSONPROCESSING("Json 형식을 변환하지 못했습니다."),
     POSITION_NOT_FOUND("포지션 태그를 찾을 수 없습니다."),
-    REPORT_TAG_NOT_FOUND("신고사유(카테고리)를 찾을 수 없습니다."),
     FILE_EMPTY("파일이 비어있습니다."),
     FAIL_UPLOAD("파일 업로드에 실패했습니다."),
     FILE_NOT_SEARCH("파일을 찾을 수 없습니다."),
