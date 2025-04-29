@@ -19,6 +19,10 @@ import java.util.List;
 @Schema(description = "문의 작성 요청 DTO")
 public class InquiryDto {
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Schema(description = "문의 ID", example = "12", accessMode = Schema.AccessMode.READ_ONLY)
+    private Long id;
+
     @Schema(description = "문의 제목", example = "서비스 사용 관련 문의")
     private String title;
 
@@ -42,6 +46,7 @@ public class InquiryDto {
                 .toList();
 
         return InquiryDto.builder()
+                .id(inquiry.getId())
                 .title(inquiry.getTitle())
                 .content(inquiry.getContent())
                 .category(inquiry.getCategory())

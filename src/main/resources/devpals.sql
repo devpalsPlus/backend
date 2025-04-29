@@ -87,7 +87,7 @@ CREATE TABLE `devpals`.`Authenticode` (
                                           isUsed BOOLEAN DEFAULT FALSE
 );
 
-CREATE TABLE Comment (
+CREATE TABLE `devpals`.`Comment` (
                          id BIGINT AUTO_INCREMENT PRIMARY KEY,
                          projectId BIGINT NOT NULL,
                          userId BIGINT NOT NULL,
@@ -98,7 +98,7 @@ CREATE TABLE Comment (
                          FOREIGN KEY (userId) REFERENCES User(id) ON DELETE CASCADE
 );
 
-CREATE TABLE Recomment (
+CREATE TABLE `devpals`.`Recomment` (
                            id BIGINT AUTO_INCREMENT PRIMARY KEY,
                            projectId BIGINT NOT NULL,
                            userId BIGINT NOT NULL,
@@ -111,7 +111,7 @@ CREATE TABLE Recomment (
                            FOREIGN KEY (commentId) REFERENCES Comment(id) ON DELETE CASCADE
 );
 
-CREATE TABLE Report (
+CREATE TABLE `devpals`.`Report` (
                            id BIGINT AUTO_INCREMENT PRIMARY KEY,
                            reportTargetId BIGINT NOT NULL,
                            reporterId BIGINT NOT NULL,
@@ -124,7 +124,7 @@ CREATE TABLE Report (
 );
 
 -- 메인 알람 테이블
-CREATE TABLE Alarm (
+CREATE TABLE `devpals`.`Alarm` (
                            id BIGINT AUTO_INCREMENT PRIMARY KEY,
                            receiver_id BIGINT NOT NULL,
                            content VARCHAR(255),
@@ -136,7 +136,7 @@ CREATE TABLE Alarm (
 );
 
 -- 지원자 관련 알람 테이블
-CREATE TABLE ApplicantAlarm (
+CREATE TABLE `devpals`.`ApplicantAlarm` (
                            id BIGINT PRIMARY KEY,
                            project_id BIGINT NOT NULL,
                            applicant_id BIGINT NOT NULL,
@@ -146,7 +146,7 @@ CREATE TABLE ApplicantAlarm (
 );
 
 -- 댓글 관련 알람 테이블
-CREATE TABLE CommentAlarm (
+CREATE TABLE `devpals`.`CommentAlarm` (
                            id BIGINT PRIMARY KEY,
                            project_id BIGINT NOT NULL,
                            comment_id BIGINT NOT NULL,
@@ -159,7 +159,7 @@ CREATE TABLE CommentAlarm (
 );
 
 -- 프로젝트 관련 알람 테이블
-CREATE TABLE ProjectAlarm (
+CREATE TABLE `devpals`.`ProjectAlarm` (
                            id BIGINT PRIMARY KEY,
                            project_id BIGINT NOT NULL,
                            applicant_id BIGINT NOT NULL,
@@ -169,9 +169,30 @@ CREATE TABLE ProjectAlarm (
 );
 
 -- 신고 관련 알람 테이블
-CREATE TABLE ReportAlarm (
+CREATE TABLE `devpals`.`ReportAlarm` (
                            id BIGINT PRIMARY KEY,
                            report_id BIGINT NOT NULL,
                            FOREIGN KEY (id) REFERENCES Alarm(id) ON DELETE CASCADE,
                            FOREIGN KEY (report_id) REFERENCES Report(id) ON DELETE CASCADE
+);
+
+CREATE TABLE `devpals`.`Inquiry` (
+                                     id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                     userId BIGINT NOT NULL,
+                                     title VARCHAR(255) NOT NULL,
+                                     content TEXT NOT NULL,
+                                     category VARCHAR(255) NOT NULL,
+                                     warning INT DEFAULT 0,
+                                     isAnswered BOOLEAN NOT NULL DEFAULT FALSE,
+                                     createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                     updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                     FOREIGN KEY (userId) REFERENCES User(id) ON DELETE CASCADE
+);
+
+CREATE TABLE `devpals`.`InquiryImages` (
+                                           id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                           inquiryId BIGINT NOT NULL,
+                                           imageUrl TEXT,
+                                           createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                           FOREIGN KEY (inquiryId) REFERENCES Inquiry(id) ON DELETE CASCADE
 );

@@ -12,6 +12,6 @@ public class ReportRequest {
 
     private Long reportTargetId;
     private Integer reportFilter;
-    private String[] reason;
+    private String reportReason;
     private String detail;
 }
