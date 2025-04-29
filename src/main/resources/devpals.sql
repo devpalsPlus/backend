@@ -3,6 +3,11 @@ CREATE TABLE `devpals`.`PositionTag` (
                                          name VARCHAR(255) UNIQUE NOT NULL,
                                          createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+CREATE TABLE `devpals`.`ReportTag` (
+                                         id INT AUTO_INCREMENT PRIMARY KEY,
+                                         name VARCHAR(255) UNIQUE NOT NULL,
+                                         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 CREATE TABLE `devpals`.`SkillTag` (
                                       id INT AUTO_INCREMENT PRIMARY KEY,
@@ -106,3 +111,67 @@ CREATE TABLE Recomment (
                            FOREIGN KEY (commentId) REFERENCES Comment(id) ON DELETE CASCADE
 );
 
+CREATE TABLE Report (
+                           id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                           reportTargetId BIGINT NOT NULL,
+                           reporterId BIGINT NOT NULL,
+                           reportFilter VARCHAR(50) NOT NULL,
+                           reportTagIds TEXT,
+                           detail TEXT NOT NULL,
+                           createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                           updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                           FOREIGN KEY (reporterId) REFERENCES User(id) ON DELETE CASCADE
+);
+
+-- 메인 알람 테이블
+CREATE TABLE Alarm (
+                           id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                           receiver_id BIGINT NOT NULL,
+                           content VARCHAR(255),
+                           enabled BOOLEAN NOT NULL DEFAULT FALSE,
+                           routingId BIGINT,
+                           createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                           ALARM_FILTER VARCHAR(50),
+                           FOREIGN KEY (receiver_id) REFERENCES User(id) ON DELETE CASCADE
+);
+
+-- 지원자 관련 알람 테이블
+CREATE TABLE ApplicantAlarm (
+                           id BIGINT PRIMARY KEY,
+                           project_id BIGINT NOT NULL,
+                           applicant_id BIGINT NOT NULL,
+                           FOREIGN KEY (id) REFERENCES Alarm(id) ON DELETE CASCADE,
+                           FOREIGN KEY (project_id) REFERENCES Project(id) ON DELETE CASCADE,
+                           FOREIGN KEY (applicant_id) REFERENCES Applicant(id) ON DELETE CASCADE
+);
+
+-- 댓글 관련 알람 테이블
+CREATE TABLE CommentAlarm (
+                           id BIGINT PRIMARY KEY,
+                           project_id BIGINT NOT NULL,
+                           comment_id BIGINT NOT NULL,
+                           recomment_id BIGINT,
+                           replier BOOLEAN,
+                           FOREIGN KEY (id) REFERENCES Alarm(id) ON DELETE CASCADE,
+                           FOREIGN KEY (project_id) REFERENCES Project(id) ON DELETE CASCADE,
+                           FOREIGN KEY (comment_id) REFERENCES Comment(id) ON DELETE CASCADE,
+                           FOREIGN KEY (recomment_id) REFERENCES Recomment(id) ON DELETE CASCADE
+);
+
+-- 프로젝트 관련 알람 테이블
+CREATE TABLE ProjectAlarm (
+                           id BIGINT PRIMARY KEY,
+                           project_id BIGINT NOT NULL,
+                           applicant_id BIGINT NOT NULL,
+                           FOREIGN KEY (id) REFERENCES Alarm(id) ON DELETE CASCADE,
+                           FOREIGN KEY (project_id) REFERENCES Project(id) ON DELETE CASCADE,
+                           FOREIGN KEY (applicant_id) REFERENCES Applicant(id) ON DELETE CASCADE
+);
+
+-- 신고 관련 알람 테이블
+CREATE TABLE ReportAlarm (
+                           id BIGINT PRIMARY KEY,
+                           report_id BIGINT NOT NULL,
+                           FOREIGN KEY (id) REFERENCES Alarm(id) ON DELETE CASCADE,
+                           FOREIGN KEY (report_id) REFERENCES Report(id) ON DELETE CASCADE
+);

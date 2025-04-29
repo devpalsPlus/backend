@@ -39,7 +39,7 @@ public class ReportEntity {
     @Column(columnDefinition = "TEXT")
     private List<Long> reportTagIds = new ArrayList<>();
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String detail;
 
     @Column(nullable = false, updatable = false)
