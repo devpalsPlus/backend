@@ -120,7 +120,6 @@ CREATE TABLE `devpals`.`Report` (
                            detail TEXT NOT NULL,
                            createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                            updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                           FOREIGN KEY (reporterId) REFERENCES User(id) ON DELETE CASCADE
 );
 
 -- 메인 알람 테이블
