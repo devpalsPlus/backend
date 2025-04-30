@@ -8,7 +8,7 @@ import hs.kr.backend.devpals.domain.project.entity.CommentEntity;
 import hs.kr.backend.devpals.domain.project.repository.CommentRepoisitory;
 import hs.kr.backend.devpals.domain.project.repository.RecommentRepository;
 import hs.kr.backend.devpals.domain.project.service.ProjectService;
-import hs.kr.backend.devpals.domain.user.dto.CommentInquiryDto;
+import hs.kr.backend.devpals.domain.user.dto.MyCommentResponse;
 import hs.kr.backend.devpals.domain.user.dto.UserResponse;
 import hs.kr.backend.devpals.domain.user.dto.UserUpdateRequest;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
@@ -35,7 +35,6 @@ public class UserProfileService {
     private final UserFacade userFacade;
     private final UserRepository userRepository;
     private final CommentRepoisitory commentRepository;
-    private final RecommentRepository recommentRepository;
     private final InquiryRepository inquiryRepository;
     private final JwtTokenValidator jwtTokenValidator;
     private final AwsS3Client awsS3Client;
@@ -153,31 +152,29 @@ public class UserProfileService {
     }
 
     @Transactional(readOnly = true)
-    public ResponseEntity<ApiResponse<List<CommentDTO>>> getMyComments(String token) {
+    public ResponseEntity<ApiResponse<List<MyCommentResponse>>> getMyComments(String token) {
         Long userId = jwtTokenValidator.getUserId(token);
 
-        List<CommentEntity> comments = commentRepository.findByUserId(userId);
+        List<CommentEntity> comments = commentRepository.findByUserIdOrderByCreatedAtDesc(userId); // 최신순 정렬
 
-        List<CommentDTO> commentDTOs = comments.stream()
-                .map(comment -> {
-                    int recommentCount = recommentRepository.countByCommentId(comment.getId());
-                    return CommentDTO.fromEntity(comment, recommentCount);
-                })
-                .collect(Collectors.toList());
+        List<MyCommentResponse> commentResponses = comments.stream()
+                .map(MyCommentResponse::fromEntity)
+                .toList();
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "작성한 댓글 목록입니다.", commentDTOs));
+        return ResponseEntity.ok(new ApiResponse<>(true, "작성한 댓글 목록입니다.", commentResponses));
     }
 
     @Transactional(readOnly = true)
     public ResponseEntity<ApiResponse<List<InquiryDto>>> getMyInquiries(String token) {
         Long userId = jwtTokenValidator.getUserId(token);
 
-        List<InquiryEntity> inquiries = inquiryRepository.findByUserId(userId);
+        List<InquiryEntity> inquiries = inquiryRepository.findByUserIdOrderByCreatedAtDesc(userId);
 
         List<InquiryDto> inquiryDTOs = inquiries.stream()
                 .map(InquiryDto::fromEntity)
-                .collect(Collectors.toList());
+                .toList();
 
         return ResponseEntity.ok(new ApiResponse<>(true, "작성한 문의글 목록입니다.", inquiryDTOs));
     }
+
 }
