@@ -19,6 +19,10 @@ import java.util.List;
 @Schema(description = "문의 작성 요청 DTO")
 public class InquiryDto {
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Schema(description = "문의 ID", example = "12", accessMode = Schema.AccessMode.READ_ONLY)
+    private Long id;
+
     @Schema(description = "문의 제목", example = "서비스 사용 관련 문의")
     private String title;
 
@@ -27,6 +31,10 @@ public class InquiryDto {
 
     @Schema(description = "문의 카테고리", example = "오류/버그 신고")
     private String category;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Schema(description = "문의 상태", example = "대기중", accessMode = Schema.AccessMode.READ_ONLY)
+    private Boolean state;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Schema(description = "등록된 이미지 URL 목록",
@@ -42,9 +50,11 @@ public class InquiryDto {
                 .toList();
 
         return InquiryDto.builder()
+                .id(inquiry.getId())
                 .title(inquiry.getTitle())
                 .content(inquiry.getContent())
                 .category(inquiry.getCategory())
+                .state(inquiry.getState())
                 .imageUrls(imageUrls)
                 .build();
     }

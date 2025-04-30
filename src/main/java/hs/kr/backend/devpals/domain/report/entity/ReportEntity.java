@@ -6,6 +6,7 @@ import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.global.common.enums.ReportFilter;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -39,7 +40,7 @@ public class ReportEntity {
     @Column(columnDefinition = "TEXT")
     private List<Long> reportTagIds = new ArrayList<>();
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String detail;
 
     @Column(nullable = false, updatable = false)
@@ -49,7 +50,7 @@ public class ReportEntity {
     private LocalDateTime updatedAt = LocalDateTime.now();
 
 
-    public ReportEntity(ReportRequest request,List<Long> reportTagIds, UserEntity reporter) {
+    public ReportEntity(ReportRequest request, List<Long> reportTagIds, UserEntity reporter) {
         this.reporter = reporter;
         this.reportFilter = ReportFilter.fromValue(request.getReportFilter());
         this.reportTagIds = this.reportTagIds = (reportTagIds == null) ? new ArrayList<>() : new ArrayList<>(reportTagIds);;

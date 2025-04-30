@@ -19,7 +19,6 @@ import java.util.List;
 @RestController
 @Tag(name = "Report API", description = "신고사유(카테고리)관련 API")
 public class ReportFacadeController {
-
     private final ReportFacade reportFacade;
 
     @PostMapping("/report-tag")

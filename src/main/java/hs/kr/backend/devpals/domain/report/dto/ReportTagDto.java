@@ -13,5 +13,4 @@ public class ReportTagDto {
         this.id = id;
         this.name = name;
     }
-
 }

@@ -149,4 +149,5 @@ public class UserProfileController {
             @RequestHeader("Authorization") String token) {
         return userProfileService.getMyInquiries(token);
     }
+
 }

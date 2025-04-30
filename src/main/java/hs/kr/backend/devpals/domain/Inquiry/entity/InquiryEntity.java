@@ -44,7 +44,7 @@ public class InquiryEntity {
     private Integer warning = 0;
 
     @Column(nullable = false)
-    private Boolean isAnswered = false;
+    private Boolean state = false;
 
     @OneToMany(mappedBy = "inquiry", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default // Builder 사용시 필드 초기화가 안돼서 사용
@@ -75,7 +75,7 @@ public class InquiryEntity {
                 .title(dto.getTitle())
                 .content(dto.getContent())
                 .category(dto.getCategory())
-                .isAnswered(false)
+                .state(false)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();

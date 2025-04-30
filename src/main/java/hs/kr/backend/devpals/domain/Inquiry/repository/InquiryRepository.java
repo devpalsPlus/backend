@@ -8,4 +8,5 @@ import java.util.List;
 public interface InquiryRepository extends JpaRepository<InquiryEntity, Long> {
     int countByUserId(Long userId);
     List<InquiryEntity> findByUserIdOrderByCreatedAtDesc(Long userId);
+    List<InquiryEntity> findAllByOrderByCreatedAtDesc();
 }

@@ -62,5 +62,4 @@ public class ReportFacade {
         return ResponseEntity.ok(new ApiResponse<>(true, "신고사유(카테고리) 등록 성공", saved));
     }
 
-
 }

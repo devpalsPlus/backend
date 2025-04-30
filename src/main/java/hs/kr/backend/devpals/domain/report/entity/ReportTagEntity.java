@@ -26,5 +26,4 @@ public class ReportTagEntity {
     public ReportTagEntity(String name) {
         this.name = name;
     }
-
 }
