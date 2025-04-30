@@ -66,7 +66,7 @@ public class InquiryService {
 
     @Transactional(readOnly = true)
     public ResponseEntity<ApiResponse<List<InquiryDto>>> getAllInquiries() {
-        List<InquiryEntity> inquiries = inquiryRepository.findAll();
+        List<InquiryEntity> inquiries = inquiryRepository.findAllByOrderByCreatedAtDesc();
 
         List<InquiryDto> inquiryDTOs = inquiries.stream()
                 .map(InquiryDto::fromEntity)
