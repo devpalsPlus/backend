@@ -33,6 +33,10 @@ public class InquiryDto {
     private String category;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Schema(description = "문의 상태", example = "대기중", accessMode = Schema.AccessMode.READ_ONLY)
+    private Boolean state;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Schema(description = "등록된 이미지 URL 목록",
             example = "[\"https://devpal.s3.ap-northeast-2.amazonaws.com/devpals_inquiry1-1-1.png\", \"https://...\"]",
             accessMode = Schema.AccessMode.READ_ONLY
@@ -50,6 +54,7 @@ public class InquiryDto {
                 .title(inquiry.getTitle())
                 .content(inquiry.getContent())
                 .category(inquiry.getCategory())
+                .state(inquiry.getState())
                 .imageUrls(imageUrls)
                 .build();
     }
