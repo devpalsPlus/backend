@@ -2,6 +2,9 @@ package hs.kr.backend.devpals.global.config;
 
 import hs.kr.backend.devpals.domain.user.principal.CustomUserDetailsService;
 import hs.kr.backend.devpals.global.jwt.jwtfilter.JwtAuthenticationFilter;
+import hs.kr.backend.devpals.infra.oauth2.CustomOauth2UserService;
+import hs.kr.backend.devpals.infra.oauth2.Oauth2LoginSuccessHandler;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.context.annotation.Bean;
@@ -24,15 +27,14 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomUserDetailsService userDetailsService;
+    private final CustomOauth2UserService customOauth2UserService;
+    private final Oauth2LoginSuccessHandler oauth2LoginSuccessHandler;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, CustomUserDetailsService userDetailsService) {
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-        this.userDetailsService = userDetailsService;
-    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -44,6 +46,11 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable) // 폼 로그인 비활성화
                 .logout(AbstractHttpConfigurer::disable) // 로그아웃 비활성화
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())  // 모든 요청을 인증 없이 허용**
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOauth2UserService))  // 사용자 정보 처리
+                        .successHandler(oauth2LoginSuccessHandler)   // 로그인 성공 후 처리
+                )
                 .authenticationProvider(authenticationProvider()) // 커스텀 인증 제공자 추가
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // JWT 필터 추가
 

@@ -11,11 +11,9 @@ import hs.kr.backend.devpals.domain.user.repository.SkillTagRepository;
 import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
-import hs.kr.backend.devpals.infra.Aws.AwsS3Client;
+import hs.kr.backend.devpals.infra.aws.AwsS3Client;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.aspectj.weaver.Position;
-import org.aspectj.weaver.patterns.AndPointcut;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
