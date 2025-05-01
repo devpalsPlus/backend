@@ -1,6 +1,6 @@
 package hs.kr.backend.devpals.domain.user.repository;
 
-import hs.kr.backend.devpals.domain.user.entity.AlramEntity;
+import hs.kr.backend.devpals.domain.user.entity.alarm.AlarmEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -12,13 +12,18 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface AlarmRepository extends JpaRepository<AlramEntity, Long> {
-    List<AlramEntity> findByUserId(Long userId);
+public interface AlarmRepository extends JpaRepository<AlarmEntity, Long> {
+    @Query("SELECT a FROM AlarmEntity a WHERE a.receiver.id = :receiverId")
+    List<AlarmEntity> findByReceiverId(@Param("receiverId") Long receiverId);
 
-    @Query("SELECT a FROM AlramEntity a WHERE a.user.id = :userId AND a.id = :alarmId")
-    Optional<AlramEntity> findByUserIdAndAlarmId(@Param("userId") Long userId, @Param("alarmId") Long alarmId);
+    @Query("SELECT a FROM AlarmEntity a WHERE a.receiver.id = :receiverId AND a.id = :alarmId")
+    Optional<AlarmEntity> findByReceiverIdAndAlarmId(@Param("receiverId") Long receiverId, @Param("alarmId") Long alarmId);
 
     @Modifying
-    @Query("DELETE FROM AlramEntity a WHERE a.createdAt < :threshold AND a.alramFilter <> 'APPLIED_PROJECTS'")
+    @Query("DELETE FROM AlarmEntity a WHERE a.createdAt < :threshold")
     void deleteAllOlderThanExceptApplied(@Param("threshold") LocalDateTime threshold);
+
+    @Query("SELECT DISTINCT a.receiver.id FROM AlarmEntity a WHERE a.createdAt < :date")
+    List<Long> findUserIdsWithAlarmsOlderThan(@Param("date") LocalDateTime date);
+
 }

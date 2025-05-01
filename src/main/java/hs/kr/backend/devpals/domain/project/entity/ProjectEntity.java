@@ -1,12 +1,15 @@
 package hs.kr.backend.devpals.domain.project.entity;
 
 import hs.kr.backend.devpals.domain.project.dto.ProjectAllDto;
+import hs.kr.backend.devpals.domain.report.entity.ReportEntity;
 import hs.kr.backend.devpals.domain.user.convert.LongListConverter;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -41,7 +44,7 @@ public class ProjectEntity {
 //    private MethodType method;
 
     @Column(nullable = false)
-    private Long authorId;
+    private Long userId;
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean isBeginner;
@@ -74,6 +77,15 @@ public class ProjectEntity {
     @Column(nullable = false, columnDefinition = "INT DEFAULT 0")
     private int views;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private Integer warning = 0;
+
+    @OneToMany(cascade = CascadeType.REMOVE,fetch = FetchType.LAZY)
+    @JoinColumn(name = "reportTargetId", referencedColumnName = "id")
+    @SQLRestriction("report_filter = 'PROJECT'")  // @Where 대신 @SQLRestriction 사용
+    private List<ReportEntity> receivedReports = new ArrayList<>();
+
     // Request 보내줘야 하는 값
     public static ProjectEntity fromRequest(ProjectAllDto request, Long userId) {
         return ProjectEntity.builder()
@@ -83,7 +95,7 @@ public class ProjectEntity {
                 .startDate(request.getStartDate())
                 .estimatedPeriod(request.getEstimatedPeriod())
                 .views(0)
-                .authorId(userId)
+                .userId(userId)
                 .isBeginner(request.getIsBeginner() != null ? request.getIsBeginner() : false)
                 .isDone(request.getIsDone() != null ? request.getIsDone() : false)
                 .recruitmentStartDate(request.getRecruitmentStartDate())
@@ -119,4 +131,8 @@ public class ProjectEntity {
         this.isDone = isDone;
     }
 
+    // warning 증가 메서드
+    public void increaseWarning() {
+        this.warning++;
+    }
 }

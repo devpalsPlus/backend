@@ -1,7 +1,8 @@
 package hs.kr.backend.devpals.domain.user.dto;
 
-import hs.kr.backend.devpals.domain.user.entity.AlramEntity;
-import hs.kr.backend.devpals.global.common.enums.AlramFilter;
+import hs.kr.backend.devpals.domain.user.entity.alarm.AlarmEntity;
+import hs.kr.backend.devpals.domain.user.entity.alarm.CommentAlarmEntity;
+import hs.kr.backend.devpals.domain.user.dto.CommentAlarmDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,14 +22,20 @@ public class AlarmDto {
     private Integer alarmFilterId;
     private LocalDateTime createdAt;
 
-    public static AlarmDto fromEntity(AlramEntity entity) {
+    public static AlarmDto fromEntity(AlarmEntity entity) {
+        //TODO: 추후 타입에 따라 전달하는 데이터가 다를 수 있으므로 ApplicantAlarmDto, ProjectAlarmDto 작성 가능성여부 검토필요
+        if (entity instanceof CommentAlarmEntity) {
+            return new CommentAlarmDto((CommentAlarmEntity) entity);
+        }
         return AlarmDto.builder()
                 .id(entity.getId())
-                .routingId(entity.getProject().getId())
+                .routingId(entity.getRoutingId())
                 .content(entity.getContent())
                 .enabled(entity.isEnabled())
-                .alarmFilterId(entity.getAlramFilter().getValue())
+                .alarmFilterId(entity.getAlarmFilterIntValue())
                 .createdAt(entity.getCreatedAt())
                 .build();
     }
+
+
 }

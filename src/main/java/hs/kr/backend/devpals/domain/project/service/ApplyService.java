@@ -11,7 +11,7 @@ import hs.kr.backend.devpals.domain.user.facade.UserFacade;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.domain.user.service.AlarmService;
 import hs.kr.backend.devpals.global.common.ApiResponse;
-import hs.kr.backend.devpals.global.common.enums.AlramFilter;
+import hs.kr.backend.devpals.global.common.enums.AlarmFilter;
 import hs.kr.backend.devpals.global.common.enums.ApplicantStatus;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
@@ -52,7 +52,7 @@ public class ApplyService {
 
         ApplicantEntity applicant = ApplicantEntity.createApplicant(user, project, request);
         applicantRepository.save(applicant);
-        alarmService.sendAlarm(project,applicant, AlramFilter.APPLICANT_CHECK);
+        alarmService.sendAlarm(project,applicant);
 
         return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 지원 되었습니다." , null));
     }
@@ -64,7 +64,7 @@ public class ApplyService {
         ProjectEntity project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new CustomException(ErrorException.PROJECT_NOT_FOUND));
 
-        if(!Objects.equals(project.getAuthorId(), userId)) throw new CustomException(ErrorException.AUTHOR_ONLY);
+        if(!Objects.equals(project.getUserId(), userId)) throw new CustomException(ErrorException.AUTHOR_ONLY);
 
 
         List<ApplicantEntity> applicants = applicantRepository.findByProject(project);
@@ -84,7 +84,7 @@ public class ApplyService {
         ProjectEntity project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new CustomException(ErrorException.PROJECT_NOT_FOUND));
 
-        if (!Objects.equals(project.getAuthorId(), userId)) {
+        if (!Objects.equals(project.getUserId(), userId)) {
             throw new CustomException(ErrorException.AUTHOR_ONLY);
         }
 
@@ -108,7 +108,7 @@ public class ApplyService {
         ProjectEntity project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new CustomException(ErrorException.PROJECT_NOT_FOUND));
 
-        if(!Objects.equals(project.getAuthorId(), userId)) throw new CustomException(ErrorException.AUTHOR_ONLY);
+        if(!Objects.equals(project.getUserId(), userId)) throw new CustomException(ErrorException.AUTHOR_ONLY);
 
 
         List<ApplicantEntity> applicants = applicantRepository.findByProject(project);
@@ -132,7 +132,7 @@ public class ApplyService {
         //프로젝트 모집을 마감했을 경우 변경불가
         if(project.isDone()) throw new CustomException(ErrorException.PROJECT_DONE);
         //해당 공고의 기획자가 아닐 경우 조회 불가
-        if(!Objects.equals(project.getAuthorId(), userId)) throw new CustomException(ErrorException.AUTHOR_ONLY);
+        if(!Objects.equals(project.getUserId(), userId)) throw new CustomException(ErrorException.AUTHOR_ONLY);
         //변경하려는 상태와 현재 상태가 동일할 경우 상태 변경 불가
         if(applicant.getStatus().toString().equals(status))
             throw new CustomException(ErrorException.EQUAL_STATUS);

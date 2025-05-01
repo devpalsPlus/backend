@@ -9,20 +9,22 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public enum AlramFilter {
+public enum AlarmFilter {
     ALL("전체",0),
     APPLIED_PROJECTS("지원한 프로젝트",1),
     APPLICANT_CHECK("지원자 확인",2),
-    COMMENT_AND_REPLY("댓글&답변",3);
+    COMMENT_AND_REPLY("댓글&답변",3),
+    INQUIRY("문의",4),
+    REPORT("신고",5);
 
     private final String displayName;
     private final Integer value;
 
-    private static final Map<Integer, AlramFilter> VALUE_MAP =
-            Arrays.stream(AlramFilter.values())
-                    .collect(Collectors.toMap(AlramFilter::getValue, f -> f));
+    private static final Map<Integer, AlarmFilter> VALUE_MAP =
+            Arrays.stream(AlarmFilter.values())
+                    .collect(Collectors.toMap(AlarmFilter::getValue, f -> f));
 
-    AlramFilter(String displayName,Integer value) {
+    AlarmFilter(String displayName, Integer value) {
         this.displayName = displayName;
         this.value = value;
     }
@@ -37,14 +39,14 @@ public enum AlramFilter {
     }
 
     @JsonCreator
-    public static AlramFilter fromDisplayName(String value) {
-        return Stream.of(AlramFilter.values())
+    public static AlarmFilter fromDisplayName(String value) {
+        return Stream.of(AlarmFilter.values())
                 .filter(filter -> filter.displayName.equals(value))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Invalid filter name: " + value));
     }
 
-    public static Optional<AlramFilter> fromValue(Integer value) {
+    public static Optional<AlarmFilter> fromValue(Integer value) {
         return Optional.ofNullable(VALUE_MAP.get(value));
     }
 
