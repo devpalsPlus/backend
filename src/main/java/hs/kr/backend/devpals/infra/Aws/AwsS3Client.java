@@ -1,4 +1,4 @@
-package hs.kr.backend.devpals.infra.Aws;
+package hs.kr.backend.devpals.infra.aws;
 
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;

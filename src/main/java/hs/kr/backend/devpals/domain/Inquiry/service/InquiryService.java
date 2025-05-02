@@ -10,7 +10,7 @@ import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
 import hs.kr.backend.devpals.global.jwt.JwtTokenValidator;
-import hs.kr.backend.devpals.infra.Aws.AwsS3Client;
+import hs.kr.backend.devpals.infra.aws.AwsS3Client;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
