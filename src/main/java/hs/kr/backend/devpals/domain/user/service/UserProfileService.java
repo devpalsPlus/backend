@@ -3,10 +3,8 @@ package hs.kr.backend.devpals.domain.user.service;
 import hs.kr.backend.devpals.domain.Inquiry.dto.InquiryDto;
 import hs.kr.backend.devpals.domain.Inquiry.entity.InquiryEntity;
 import hs.kr.backend.devpals.domain.Inquiry.repository.InquiryRepository;
-import hs.kr.backend.devpals.domain.project.dto.CommentDTO;
 import hs.kr.backend.devpals.domain.project.entity.CommentEntity;
 import hs.kr.backend.devpals.domain.project.repository.CommentRepoisitory;
-import hs.kr.backend.devpals.domain.project.repository.RecommentRepository;
 import hs.kr.backend.devpals.domain.project.service.ProjectService;
 import hs.kr.backend.devpals.domain.user.dto.MyCommentResponse;
 import hs.kr.backend.devpals.domain.user.dto.UserResponse;
@@ -18,7 +16,7 @@ import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
 import hs.kr.backend.devpals.global.jwt.JwtTokenValidator;
-import hs.kr.backend.devpals.infra.Aws.AwsS3Client;
+import hs.kr.backend.devpals.infra.aws.AwsS3Client;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -26,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
