@@ -59,12 +59,18 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         switch (provider) {
             case "google":
                 return oAuth2User.getAttribute("email");
+
             case "kakao":
                 Map<String, Object> kakaoAccount = oAuth2User.getAttribute("kakao_account");
                 return kakaoAccount != null ? (String) kakaoAccount.get("email") : null;
+
             case "naver":
                 Map<String, Object> response = oAuth2User.getAttribute("response");
                 return response != null ? (String) response.get("email") : null;
+
+            case "github":
+                return oAuth2User.getAttribute("email");
+
             default:
                 throw new IllegalArgumentException("Unsupported provider: " + provider);
         }
@@ -74,14 +80,20 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         switch (provider) {
             case "google":
                 return oAuth2User.getAttribute("name");
+
             case "kakao":
                 Map<String, Object> kakaoAccount = oAuth2User.getAttribute("kakao_account");
                 if (kakaoAccount == null) return null;
                 Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
                 return profile != null ? (String) profile.get("nickname") : null;
+
             case "naver":
                 Map<String, Object> response = oAuth2User.getAttribute("response");
                 return response != null ? (String) response.get("name") : null;
+
+            case "github":
+                return oAuth2User.getAttribute("name");
+
             default:
                 throw new IllegalArgumentException("Unsupported provider: " + provider);
         }

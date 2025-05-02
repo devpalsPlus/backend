@@ -37,7 +37,8 @@ public class Oauth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         String provider = (String) request.getAttribute("provider");
         if (provider == null) {
             provider = oAuth2User.getAttributes().containsKey("kakao_account") ? "kakao" :
-                    oAuth2User.getAttributes().containsKey("response") ? "naver" : "google";
+                    oAuth2User.getAttributes().containsKey("response") ? "naver" :
+                            oAuth2User.getAttributes().containsKey("login") ? "github" : "google";
         }
 
         String email = CustomOauth2UserService.extractEmail(provider, oAuth2User);
