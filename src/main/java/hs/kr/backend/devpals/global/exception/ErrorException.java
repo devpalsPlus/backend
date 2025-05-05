@@ -45,7 +45,8 @@ public enum ErrorException {
     NOT_COMMENT_OWNER("작성자 및 프로젝트 작성자만 댓글을 삭제할 수 있습니다."),
     INVALID_PROJECT_COMMENT("프로젝트와 댓글이 매칭되지 않습니다."),
     INQUIRY_NOT_FOUND("문의내용을 찾을 수 없습니다."),
-    NOT_INQUIRY_DELETE("문의글을 삭제할 권한이 없습니다.");
+    NOT_INQUIRY_DELETE("문의글을 삭제할 권한이 없습니다."),
+    FAQ_NOT_FOUND("FAQ글을 찾을 수 없습니다.");
 
     private final String message;
 
