@@ -75,8 +75,6 @@ public class InquiryService {
         return ResponseEntity.ok(new ApiResponse<>(true, "모든 문의글 조회 성공", inquiryDTOs));
     }
 
-
-    /*
     @Transactional(readOnly = true)
     public ResponseEntity<ApiResponse<InquiryDto>> getInquiry(Long inquiryId) {
         InquiryEntity inquiry = inquiryRepository.findById(inquiryId)
@@ -112,5 +110,4 @@ public class InquiryService {
 
         return ResponseEntity.ok(new ApiResponse<>(true, "문의 삭제 성공", null));
     }
-    */
 }
