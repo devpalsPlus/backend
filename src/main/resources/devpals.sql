@@ -195,3 +195,12 @@ CREATE TABLE `devpals`.`InquiryImages` (
                                            createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                            FOREIGN KEY (inquiryId) REFERENCES Inquiry(id) ON DELETE CASCADE
 );
+
+CREATE TABLE faq (
+                     id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                     category VARCHAR(50) NOT NULL,
+                     title VARCHAR(255) NOT NULL,
+                     content TEXT NOT NULL,
+                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
