@@ -49,7 +49,7 @@ public class InquiryController {
         return inquiryService.getAllInquiries();
     }
 
-    /*
+
     @GetMapping("/{inquiryId}")
     @Operation(summary = "문의 조회", description = "특정 문의를 상세 조회합니다.",
             responses = {
@@ -74,5 +74,5 @@ public class InquiryController {
             @PathVariable Long inquiryId) {
         return inquiryService.deleteInquiry(token, inquiryId);
     }
-     */
+
 }
