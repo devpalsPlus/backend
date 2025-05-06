@@ -43,7 +43,7 @@ public class UserEntity {
     private Boolean beginner;
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
-    private Boolean isAdmin;
+    private Boolean isAdmin = false;
 
     @Column(length = 255)
     private String github;

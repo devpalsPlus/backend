@@ -10,8 +10,9 @@ public class LoginUserResponse {
     private Long id;
     private String email;
     private String nickname;
+    private boolean isAdmin;
 
     public static LoginUserResponse fromEntity(UserEntity user) {
-        return new LoginUserResponse(user.getId(), user.getEmail(), user.getNickname());
+        return new LoginUserResponse(user.getId(), user.getEmail(), user.getNickname(), user.getIsAdmin());
     }
 }
