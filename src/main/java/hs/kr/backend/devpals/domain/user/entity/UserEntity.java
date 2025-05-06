@@ -42,6 +42,9 @@ public class UserEntity {
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private Boolean beginner;
 
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean isAdmin;
+
     @Column(length = 255)
     private String github;
 
@@ -74,16 +77,6 @@ public class UserEntity {
     @SQLRestriction("report_filter = 'USER'")  // @Where 대신 @SQLRestriction 사용
     private List<ReportEntity> receivedReports = new ArrayList<>();
 
-    /*
-    @OneToMany(mappedBy = "user")
-    private List<Applicant> applicants;
-
-    @OneToMany(mappedBy = "user")
-    private List<Notification> notifications;
-
-    @OneToMany(mappedBy = "user")
-    private List<Project> projects;
-    */
 
     // 유저 업데이트
     public void updateUserInfo(String nickname, String bio, String github, Boolean beginner,
