@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface FaqRepository extends JpaRepository<FaqEntity, Long> {
     List<FaqEntity> findAllByOrderByCreatedAtDesc();
+    List<FaqEntity> findByTitleContainingOrderByCreatedAtDesc(String keyword);
+
 }

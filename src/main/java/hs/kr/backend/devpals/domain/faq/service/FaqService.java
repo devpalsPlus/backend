@@ -35,14 +35,18 @@ public class FaqService {
         return ResponseEntity.ok(new ApiResponse<>(true, "FAQ 작성 성공", null));
     }
 
-    public ResponseEntity<ApiResponse<List<FaqDTO>>> getAllFaq() {
-        List<FaqDTO> faqList = faqRepository.findAllByOrderByCreatedAtDesc()
-                .stream()
+    public ResponseEntity<ApiResponse<List<FaqDTO>>> getAllFaq(String keyword) {
+        List<FaqEntity> faqs = keyword.isBlank()
+                ? faqRepository.findAllByOrderByCreatedAtDesc()
+                : faqRepository.findByTitleContainingOrderByCreatedAtDesc(keyword);
+
+        List<FaqDTO> result = faqs.stream()
                 .map(FaqDTO::fromEntity)
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "FAQ 전체 조회 성공", faqList));
+        return ResponseEntity.ok(new ApiResponse<>(true, "FAQ 조회 성공", result));
     }
+
 
     public ResponseEntity<ApiResponse<FaqDTO>> getFaq(String token, Long faqId) {
         FaqEntity faq = faqRepository.findById(faqId)

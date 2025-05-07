@@ -41,8 +41,9 @@ public class FaqController {
                     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "전체 FAQ 조회 성공")
             }
     )
-    public ResponseEntity<ApiResponse<List<FaqDTO>>> getAllFaqs() {
-        return faqservice.getAllFaq();
+    public ResponseEntity<ApiResponse<List<FaqDTO>>> getAllFaqs(
+            @RequestParam(defaultValue = "") String keyword) {
+        return faqservice.getAllFaq(keyword);
     }
 
     @PutMapping("/{faqId}")
