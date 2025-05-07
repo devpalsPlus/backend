@@ -49,7 +49,11 @@ public enum ErrorException {
     FAQ_NOT_FOUND("FAQ글을 찾을 수 없습니다."),
     NO_PERMISSION("관리자 기능입니다."),
 
-    INVALID_EVALUATION_SCORES("점수는 6개 항목으로 구성되어야 합니다.");
+    INVALID_EVALUATION_SCORES("점수는 6개 항목으로 구성되어야 합니다."),
+    EVALUATION_ALREADY_EXISTS("이미 평가를 완료한 사용자입니다."),
+    APPLICANT_NOT_FOUND("해당 프로젝트에 참여자로 등록된 유저가 아닙니다."),
+    INVALID_EVALUATION_TARGET("평가 대상은 프로젝트에 참여 중인 유저여야 합니다.");
+
 
 
     private final String message;
