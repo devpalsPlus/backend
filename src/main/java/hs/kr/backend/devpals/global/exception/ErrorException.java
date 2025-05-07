@@ -47,7 +47,10 @@ public enum ErrorException {
     INQUIRY_NOT_FOUND("문의내용을 찾을 수 없습니다."),
     NOT_INQUIRY_DELETE("문의글을 삭제할 권한이 없습니다."),
     FAQ_NOT_FOUND("FAQ글을 찾을 수 없습니다."),
-    NO_PERMISSION("관리자 기능입니다.");
+    NO_PERMISSION("관리자 기능입니다."),
+
+    INVALID_EVALUATION_SCORES("점수는 6개 항목으로 구성되어야 합니다.");
+
 
     private final String message;
 
