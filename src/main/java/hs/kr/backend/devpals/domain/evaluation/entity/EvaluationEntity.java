@@ -13,6 +13,8 @@ import lombok.*;
 })
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class EvaluationEntity {
 
     @Id
@@ -34,16 +36,18 @@ public class EvaluationEntity {
     private List<Integer> scores;
 
     @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
 
-    public EvaluationEntity(Long projectId, Long evaluatorId, Long evaluateeId, List<Integer> scores) {
+    @Builder(builderMethodName = "validatedBuilder")
+    public static EvaluationEntity create(Long projectId, Long evaluatorId, Long evaluateeId, List<Integer> scores) {
         if (scores == null || scores.size() != 6) {
             throw new CustomException(ErrorException.INVALID_EVALUATION_SCORES);
         }
-
-        this.projectId = projectId;
-        this.evaluatorId = evaluatorId;
-        this.evaluateeId = evaluateeId;
-        this.scores = scores;
+        return EvaluationEntity.builder()
+                .projectId(projectId)
+                .evaluatorId(evaluatorId)
+                .evaluateeId(evaluateeId)
+                .scores(scores)
+                .build();
     }
 }
