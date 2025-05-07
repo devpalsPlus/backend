@@ -3,6 +3,7 @@ package hs.kr.backend.devpals.domain.project.repository;
 import hs.kr.backend.devpals.domain.project.entity.ApplicantEntity;
 import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
+import hs.kr.backend.devpals.global.common.enums.ApplicantStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,4 +21,6 @@ public interface ApplicantRepository extends JpaRepository<ApplicantEntity, Long
     List<ApplicantEntity> findByProject(@Param("project") ProjectEntity project);
 
     Optional<ApplicantEntity> findByProjectIdAndUserId(Long projectId, Long evaluateeId);
+
+    List<ApplicantEntity> findAllByProjectIdAndStatus(Long projectId, ApplicantStatus applicantStatus);
 }
