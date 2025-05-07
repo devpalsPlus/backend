@@ -18,4 +18,6 @@ public interface ApplicantRepository extends JpaRepository<ApplicantEntity, Long
             "JOIN FETCH a.project " +
             "WHERE a.project = :project")
     List<ApplicantEntity> findByProject(@Param("project") ProjectEntity project);
+
+    Optional<ApplicantEntity> findByProjectIdAndUserId(Long projectId, Long evaluateeId);
 }
