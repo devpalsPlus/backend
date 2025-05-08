@@ -81,7 +81,7 @@ public class FaqService {
         return ResponseEntity.ok(new ApiResponse<>(true, "FAQ 삭제 완료", null));
     }
 
-    private void validateAdmin(String token) {
+    public void validateAdmin(String token) {
         Long userId = jwtTokenValidator.getUserId(token);
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
