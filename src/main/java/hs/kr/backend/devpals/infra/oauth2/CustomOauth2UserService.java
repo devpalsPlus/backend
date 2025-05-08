@@ -42,7 +42,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         }
 
         UserEntity user = userRepository.findByEmail(email)
-                .orElseGet(() -> userRepository.save(new UserEntity(email, null, name, true)));
+                .orElseGet(() -> userRepository.save(new UserEntity(email, "SOCIAL_LOGIN_USER", name, true)));
 
         // attributes에 email이 없는 경우 추가해줌 (DefaultOAuth2User 생성시 필요)
         Map<String, Object> attributesMap = new java.util.HashMap<>(oAuth2User.getAttributes());
