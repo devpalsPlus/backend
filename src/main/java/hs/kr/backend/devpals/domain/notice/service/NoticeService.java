@@ -10,6 +10,10 @@ import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,12 +51,22 @@ public class NoticeService {
         return ResponseEntity.ok(new ApiResponse<>(true, "공지사항 업데이트 성공", null));
     }
 
-    public ResponseEntity<ApiResponse<List<NoticeDTO>>> getNotices() {
-        List<NoticeDTO> notices = noticeRepository.findAllByOrderByCreatedAtDesc().stream()
+    public ResponseEntity<ApiResponse<List<NoticeDTO>>> getNotices(String keyword, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<NoticeEntity> noticePage;
+
+        if (keyword == null || keyword.trim().isEmpty()) {
+            noticePage = noticeRepository.findAll(pageable);
+        } else {
+            noticePage = noticeRepository.findByTitleContainingIgnoreCase(keyword, pageable);
+        }
+
+        List<NoticeDTO> noticeList = noticePage.getContent()
+                .stream()
                 .map(NoticeDTO::fromEntity)
                 .toList();
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "공지사항 전체 목록 가져오기 성공", notices));
+        return ResponseEntity.ok(new ApiResponse<>(true, "공지사항 전체 목록 가져오기 성공", noticeList));
     }
 
     @Transactional(readOnly = true)

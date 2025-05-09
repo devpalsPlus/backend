@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,15 +48,23 @@ public class NoticeController {
 
     @Operation(
             summary = "공지사항 전체 조회",
-            description = "등록된 모든 공지사항을 최신순으로 조회합니다.",
+            description = "등록된 모든 공지사항을 최신순으로 페이징 처리하여 조회합니다.\n\n" +
+                    "- `page`는 0부터 시작합니다.\n" +
+                    "- `size`는 한 페이지당 보여줄 공지 개수입니다. (기본값 10)\n" +
+                    "- `keyword`로 제목 검색이 가능합니다.",
             responses = {
                     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "공지사항 전체 조회 성공")
             }
     )
     @GetMapping
-    public ResponseEntity<ApiResponse<List<NoticeDTO>>> getNotices() {
-        return noticeService.getNotices();
+    public ResponseEntity<ApiResponse<List<NoticeDTO>>> getNotices(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return noticeService.getNotices(keyword, page, size);
     }
+
 
     @Operation(
             summary = "공지사항 상세 조회",
