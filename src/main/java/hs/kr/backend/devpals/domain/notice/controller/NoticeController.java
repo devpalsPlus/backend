@@ -2,6 +2,7 @@ package hs.kr.backend.devpals.domain.notice.controller;
 
 import hs.kr.backend.devpals.domain.notice.dto.NoticeDTO;
 import hs.kr.backend.devpals.domain.notice.dto.NoticeDetailResponse;
+import hs.kr.backend.devpals.domain.notice.dto.NoticeListResponse;
 import hs.kr.backend.devpals.domain.notice.service.NoticeService;
 import hs.kr.backend.devpals.global.common.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -57,7 +58,7 @@ public class NoticeController {
             }
     )
     @GetMapping
-    public ResponseEntity<ApiResponse<List<NoticeDTO>>> getNotices(
+    public ResponseEntity<ApiResponse<NoticeListResponse>> getNotices(
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
