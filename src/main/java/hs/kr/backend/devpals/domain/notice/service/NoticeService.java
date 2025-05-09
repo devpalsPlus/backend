@@ -3,6 +3,7 @@ package hs.kr.backend.devpals.domain.notice.service;
 import hs.kr.backend.devpals.domain.faq.service.FaqService;
 import hs.kr.backend.devpals.domain.notice.dto.NoticeDTO;
 import hs.kr.backend.devpals.domain.notice.dto.NoticeDetailResponse;
+import hs.kr.backend.devpals.domain.notice.dto.NoticeListResponse;
 import hs.kr.backend.devpals.domain.notice.dto.PrevNextResponse;
 import hs.kr.backend.devpals.domain.notice.entity.NoticeEntity;
 import hs.kr.backend.devpals.domain.notice.repository.NoticeRepository;
@@ -18,7 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -51,22 +51,15 @@ public class NoticeService {
         return ResponseEntity.ok(new ApiResponse<>(true, "공지사항 업데이트 성공", null));
     }
 
-    public ResponseEntity<ApiResponse<List<NoticeDTO>>> getNotices(String keyword, int page, int size) {
+    public ResponseEntity<ApiResponse<NoticeListResponse>> getNotices(String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<NoticeEntity> noticePage;
+        Page<NoticeEntity> noticePage = (keyword == null || keyword.isBlank())
+                ? noticeRepository.findAll(pageable)
+                : noticeRepository.findByTitleContainingIgnoreCase(keyword, pageable);
 
-        if (keyword == null || keyword.trim().isEmpty()) {
-            noticePage = noticeRepository.findAll(pageable);
-        } else {
-            noticePage = noticeRepository.findByTitleContainingIgnoreCase(keyword, pageable);
-        }
+        NoticeListResponse response = NoticeListResponse.from(noticePage.getContent(), noticePage.getTotalPages());
 
-        List<NoticeDTO> noticeList = noticePage.getContent()
-                .stream()
-                .map(NoticeDTO::fromEntity)
-                .toList();
-
-        return ResponseEntity.ok(new ApiResponse<>(true, "공지사항 전체 목록 가져오기 성공", noticeList));
+        return ResponseEntity.ok(new ApiResponse<>(true, "공지사항 전체 목록 가져오기 성공", response));
     }
 
     @Transactional(readOnly = true)
