@@ -33,16 +33,11 @@ public class NoticeDTO {
     @Schema(description = "공지사항 작성 날짜", example = "2025.05.08 15:49:38", accessMode = Schema.AccessMode.READ_ONLY)
     private LocalDateTime createdAt;
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @Schema(description = "공지사항 조회수", example = "112", accessMode = Schema.AccessMode.READ_ONLY)
-    private int viewCount;
-
     public static NoticeDTO fromEntity(NoticeEntity noticeentity) {
         return NoticeDTO.builder()
                 .id(noticeentity.getId())
                 .title(noticeentity.getTitle())
                 .content(noticeentity.getContent())
-                .viewCount(noticeentity.getViewCount())
                 .createdAt(noticeentity.getCreatedAt())
                 .build();
     }
