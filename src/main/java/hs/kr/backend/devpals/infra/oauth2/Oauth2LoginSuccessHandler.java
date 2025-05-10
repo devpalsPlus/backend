@@ -55,22 +55,17 @@ public class Oauth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         user.updateRefreshToken(refreshToken);
         userRepository.save(user);
 
+        // Refresh Token은 쿠키로 설정
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
                 .maxAge(14 * 24 * 60 * 60)
                 .build();
-
-        LoginUserResponse userDto = LoginUserResponse.fromEntity(user);
-        TokenResponse tokenData = new TokenResponse(accessToken);
-        LoginResponse<TokenResponse> result = new LoginResponse<>(true, "소셜 로그인 성공", tokenData, userDto);
-
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
         response.setHeader("Set-Cookie", refreshCookie.toString());
 
-        ObjectMapper mapper = new ObjectMapper();
-        response.getWriter().write(mapper.writeValueAsString(result));
+        // accessToken을 쿼리스트링으로 리디렉션
+        String redirectUri = "http://localhost:5173/login/oauth2/code?accessToken=" + accessToken;
+        response.sendRedirect(redirectUri);
     }
 }
