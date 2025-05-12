@@ -49,33 +49,40 @@ public class FaqService {
 
 
     public ResponseEntity<ApiResponse<FaqDTO>> getFaq(String token, Long faqId) {
-        FaqEntity faq = faqRepository.findById(faqId)
-                .orElseThrow(() -> new CustomException(ErrorException.FAQ_NOT_FOUND));
+        validateAdmin(token);
 
-        FaqDTO responseDto = FaqDTO.fromEntity(faq);
-
-        return ResponseEntity.ok(new ApiResponse<>(true, "FAQ 상세 조회 성공", responseDto));
+        return faqRepository.findById(faqId)
+                .map(faq -> {
+                    FaqDTO responseDto = FaqDTO.fromEntity(faq);
+                    return ResponseEntity.ok(new ApiResponse<>(true, "FAQ 상세 조회 성공", responseDto));
+                })
+                .orElseGet(() ->
+                        ResponseEntity.ok(new ApiResponse<>(false, "FAQ글이 존재하지 않습니다", null))
+                );
     }
 
     @Transactional
     public ResponseEntity<ApiResponse<String>> updateFaq(String token, Long id, FaqDTO faqDTO) {
         validateAdmin(token);
 
-        FaqEntity faq = faqRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ErrorException.FAQ_NOT_FOUND));
+        FaqEntity faq = faqRepository.findById(id).orElse(null);
+        if (faq == null) {
+            return ResponseEntity.ok(new ApiResponse<>(false, "FAQ글이 존재하지 않습니다", null));
+        }
 
         faq.update(faqDTO.getTitle(), faqDTO.getContent());
         faqRepository.save(faq);
 
         return ResponseEntity.ok(new ApiResponse<>(true, "FAQ 수정 완료", null));
     }
-
     @Transactional
     public ResponseEntity<ApiResponse<String>> deleteFaq(String token, Long faqId) {
         validateAdmin(token);
 
-        FaqEntity faq = faqRepository.findById(faqId)
-                .orElseThrow(() -> new CustomException(ErrorException.FAQ_NOT_FOUND));
+        FaqEntity faq = faqRepository.findById(faqId).orElse(null);
+        if (faq == null) {
+            return ResponseEntity.ok(new ApiResponse<>(false, "FAQ글이 존재하지 않습니다", null));
+        }
 
         faqRepository.delete(faq);
         return ResponseEntity.ok(new ApiResponse<>(true, "FAQ 삭제 완료", null));
