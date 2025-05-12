@@ -80,4 +80,7 @@ public class ApplicantEntity {
                 .build();
     }
 
+    public boolean isAccepted() {
+        return status == ApplicantStatus.ACCEPTED;
+    }
 }
