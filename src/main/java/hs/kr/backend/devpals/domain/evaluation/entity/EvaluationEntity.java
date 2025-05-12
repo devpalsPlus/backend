@@ -48,6 +48,7 @@ public class EvaluationEntity {
                 .evaluatorId(evaluatorId)
                 .evaluateeId(evaluateeId)
                 .scores(scores)
+                .createdAt(LocalDateTime.now())
                 .build();
     }
 }
