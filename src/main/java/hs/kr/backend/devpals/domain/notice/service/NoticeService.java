@@ -42,8 +42,10 @@ public class NoticeService {
     public ResponseEntity<ApiResponse<String>> updateNotice(String token, Long noticeId, NoticeDTO noticeDTO) {
         faqService.validateAdmin(token);
 
-        NoticeEntity existingNotice = noticeRepository.findById(noticeId)
-                .orElseThrow(() -> new CustomException(ErrorException.NOT_FOUND_NOTICE));
+        NoticeEntity existingNotice = noticeRepository.findById(noticeId).orElse(null);
+        if (existingNotice == null) {
+            return ResponseEntity.ok(new ApiResponse<>(false, "공지사항글이 존재하지 않습니다", null));
+        }
 
         existingNotice.update(noticeDTO.getTitle(), noticeDTO.getContent());
         noticeRepository.save(existingNotice);
@@ -64,8 +66,10 @@ public class NoticeService {
 
     @Transactional(readOnly = true)
     public ResponseEntity<ApiResponse<NoticeDetailResponse>> getNotice(Long noticeId) {
-        NoticeEntity notice = noticeRepository.findById(noticeId)
-                .orElseThrow(() -> new CustomException(ErrorException.NOT_FOUND_NOTICE));
+        NoticeEntity notice = noticeRepository.findById(noticeId).orElse(null);
+        if (notice == null) {
+            return ResponseEntity.ok(new ApiResponse<>(false, "공지사항글이 존재하지 않습니다", null));
+        }
 
         Optional<NoticeEntity> prev = noticeRepository.findFirstByIdLessThanOrderByIdDesc(noticeId);
         Optional<NoticeEntity> next = noticeRepository.findFirstByIdGreaterThanOrderByIdAsc(noticeId);
@@ -78,14 +82,18 @@ public class NoticeService {
 
         return ResponseEntity.ok(new ApiResponse<>(true, "공지사항 상세 내용 가져오기 성공", response));
     }
+
     @Transactional
     public ResponseEntity<ApiResponse<String>> deleteNotice(String token, Long noticeId) {
         faqService.validateAdmin(token);
 
-        NoticeEntity notice = noticeRepository.findById(noticeId)
-                .orElseThrow(() -> new CustomException(ErrorException.NOT_FOUND_NOTICE));
+        NoticeEntity notice = noticeRepository.findById(noticeId).orElse(null);
+        if (notice == null) {
+            return ResponseEntity.ok(new ApiResponse<>(false, "공지사항글이 존재하지 않습니다", null));
+        }
 
         noticeRepository.delete(notice);
         return ResponseEntity.ok(new ApiResponse<>(true, "공지사항 삭제 성공", null));
     }
+
 }
