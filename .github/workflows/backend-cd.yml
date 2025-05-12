@@ -10,12 +10,13 @@ name: Java CD with Gradle
 on:
   push:
     branches: [ "main" ]
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3.3.0
- 
+
       - name: execute remote ssh & deploy backend server
         uses: appleboy/ssh-action@master
         with:
@@ -24,16 +25,11 @@ jobs:
           key: ${{ secrets.REMOTE_SSH_KEY }}
           port: ${{ secrets.REMOTE_SSH_PORT }}
           script: |
-            whoami
-            sudo su
             cd /home/ec2-user/backend/
             git pull origin main
             chmod +x ./gradlew
             ./gradlew build
-            
-            pid=$(lsof -t -i:8080)
-            if [ -n "$pid" ]; then
-              kill -9 $pid
-            fi
-
-            nohup java -jar build/libs/devpals-0.0.1-SNAPSHOT.jar > log.txt 2>&1 &
+            docker stop devpals-container || true
+            docker rm devpals-container || true
+            docker build -t devpals-app .
+            docker run -d -p 8080:8080 --name devpals-container devpals-app
