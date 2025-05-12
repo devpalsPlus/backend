@@ -54,7 +54,7 @@ public enum ErrorException {
     APPLICANT_NOT_FOUND("해당 프로젝트에 참여자로 등록된 유저가 아닙니다."),
     INVALID_EVALUATION_TARGET("평가 대상은 프로젝트에 참여 중인 유저여야 합니다.");
 
-
+    NOT_FOUND_NOTICE("공지사항을 찾을 수 없습니다.");
 
     private final String message;
 
