@@ -117,7 +117,7 @@ public class ProjectService {
         ProjectAllDto updatedProject = convertToDto(project);
         projectAllCache.put(projectId, updatedProject);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 업데이트 완료", updatedProject));
+        return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 업데이트 완료", null));
     }
 
     // 프로젝트 등록
@@ -131,7 +131,7 @@ public class ProjectService {
         ProjectAllDto responseDto = convertToDto(savedProject);
         projectAllCache.put(savedProject.getId(), responseDto);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 등록 완료", responseDto));
+        return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 등록 완료", null));
     }
 
     // 특정 프로젝트 조회
@@ -235,14 +235,23 @@ public class ProjectService {
         List<SkillTagResponse> skillResponses = userFacade.getSkillTagResponses(project.getSkillTagIds());
         List<PositionTagResponse> positionResponses = userFacade.getPositionTagResponses(project.getPositionTagIds());
         MethodTypeResponse methodTypeResponse = projectFacade.getMethodTypeResponse(project.getMethodTypeId());
+        List<ApplicantEntity> applicants = applicantRepository.findByProject(project);
 
+        List<Long> applicantIds = applicants.stream()
+                .map(applicant -> applicant.getUser().getId())
+                .toList();
+
+        List<Long> acceptedIds = applicants.stream()
+                .filter(ApplicantEntity::isAccepted)
+                .map(applicant -> applicant.getUser().getId())
+                .toList();
 
         UserEntity userEntity = userRepository.findById(project.getUserId())
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
         ProjectUserResponse user = ProjectUserResponse.fromEntity(userEntity);
 
-        return ProjectAllDto.fromEntity(project, positionResponses, skillResponses, methodTypeResponse, user);
+        return ProjectAllDto.fromEntity(project, positionResponses, skillResponses, methodTypeResponse, user, applicantIds, acceptedIds);
     }
 
 }
