@@ -80,8 +80,17 @@ public class ProjectAllDto {
     @Schema(description = "스킬 태그 정보", accessMode = Schema.AccessMode.READ_ONLY)
     private List<SkillTagResponse> skills;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Schema(description = "지원자 ID 목록", example = "[2, 3]", accessMode = Schema.AccessMode.READ_ONLY)
+    private List<Long> applicantIds;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Schema(description = "참여자(수락된 지원자) ID 목록", example = "[2]", accessMode = Schema.AccessMode.READ_ONLY)
+    private List<Long> acceptedIds;
+
     public static ProjectAllDto fromEntity(ProjectEntity project, List<PositionTagResponse> positions,
-                                           List<SkillTagResponse> skills, MethodTypeResponse methodType, ProjectUserResponse user) {
+                                           List<SkillTagResponse> skills, MethodTypeResponse methodType, ProjectUserResponse user,
+                                           List<Long> applicantIds, List<Long> acceptedIds) {
         return ProjectAllDto.builder()
                 .id(project.getId())
                 .title(project.getTitle())
@@ -101,6 +110,8 @@ public class ProjectAllDto {
                 .methodType(methodType)
                 .positions(positions)
                 .skills(skills)
+                .applicantIds(applicantIds)
+                .acceptedIds(acceptedIds)
                 .build();
     }
 }
