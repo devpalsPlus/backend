@@ -65,21 +65,27 @@ public class EvaluationService {
 
         Long evaluatorId = jwtTokenValidator.getUserId(token);
 
-        //프로젝트에 참여 중인 유저 리스트 조회
+        // 프로젝트 참여자 조회
         List<ApplicantEntity> acceptedApplicants = applicantRepository.findAllByProjectIdAndStatus(projectId, ApplicantStatus.ACCEPTED);
 
-        //평가 여부 판별
+        // 프로젝트 이름은 참여자 중 아무거나에서 꺼냄
+        String projectName = acceptedApplicants.stream()
+                .findFirst()
+                .map(applicant -> applicant.getProject().getTitle())
+                .orElse("알 수 없는 프로젝트");
+
+        // evaluator 자신 제외 + 응답 생성
         List<EvaluationMemberResponse> responseList = acceptedApplicants.stream()
+                .filter(applicant -> !applicant.getUser().getId().equals(evaluatorId))
                 .map(applicant -> {
                     UserEntity user = applicant.getUser();
                     boolean isEvaluated = evaluationRepository.existsByProjectIdAndEvaluatorIdAndEvaluateeId(
                             projectId, evaluatorId, user.getId());
-                    return EvaluationMemberResponse.of(user.getId(), user.getNickname(), isEvaluated);
+                    return EvaluationMemberResponse.of(user.getId(), user.getNickname(), isEvaluated, projectName);
                 })
                 .toList();
 
         return ResponseEntity.ok(new ApiResponse<>(true, "참여자 조회 성공", responseList));
     }
-
 
 }

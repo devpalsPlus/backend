@@ -21,11 +21,15 @@ public class EvaluationMemberResponse {
     @Schema(description = "평가 완료 여부", example = "true")
     private boolean isEvaluated;
 
-    public static EvaluationMemberResponse of(Long userId, String nickname, boolean isEvaluated) {
+    @Schema(description = "프로젝트 이름", example = "AI 커뮤니티 플랫폼 개발")
+    private String projectName;
+
+    public static EvaluationMemberResponse of(Long userId, String nickname, boolean isEvaluated, String projectName) {
         return EvaluationMemberResponse.builder()
                 .userId(userId)
                 .nickname(nickname)
                 .isEvaluated(isEvaluated)
+                .projectName(projectName)
                 .build();
     }
 }
