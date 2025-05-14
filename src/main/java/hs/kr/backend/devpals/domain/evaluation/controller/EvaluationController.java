@@ -1,12 +1,11 @@
 package hs.kr.backend.devpals.domain.evaluation.controller;
 
-import hs.kr.backend.devpals.domain.evaluation.dto.EvaluationMemberResponse;
 import hs.kr.backend.devpals.domain.evaluation.dto.EvaluationRequest;
+import hs.kr.backend.devpals.domain.evaluation.dto.EvaluationResponse;
 import hs.kr.backend.devpals.domain.evaluation.service.EvaluationService;
 import hs.kr.backend.devpals.global.common.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,7 +47,7 @@ public class EvaluationController {
                     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "참여자 조회 성공")
             }
     )
-    public ResponseEntity<ApiResponse<List<EvaluationMemberResponse>>> getProjectMembersWithEvaluationStatus(
+    public ResponseEntity<ApiResponse<EvaluationResponse>> getProjectMembersWithEvaluationStatus(
             @RequestHeader("Authorization") String token,
             @PathVariable Long projectId) {
         return evaluationService.getProjectMembersWithEvaluationStatus(token, projectId);

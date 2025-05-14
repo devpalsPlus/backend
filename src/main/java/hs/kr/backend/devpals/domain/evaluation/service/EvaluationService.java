@@ -2,6 +2,7 @@ package hs.kr.backend.devpals.domain.evaluation.service;
 
 import hs.kr.backend.devpals.domain.evaluation.dto.EvaluationMemberResponse;
 import hs.kr.backend.devpals.domain.evaluation.dto.EvaluationRequest;
+import hs.kr.backend.devpals.domain.evaluation.dto.EvaluationResponse;
 import hs.kr.backend.devpals.domain.evaluation.entity.EvaluationEntity;
 import hs.kr.backend.devpals.domain.evaluation.repository.EvaluationRepository;
 import hs.kr.backend.devpals.domain.project.entity.ApplicantEntity;
@@ -14,6 +15,7 @@ import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
 import hs.kr.backend.devpals.global.jwt.JwtTokenValidator;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -60,7 +62,7 @@ public class EvaluationService {
     }
 
     @Transactional(readOnly = true)
-    public ResponseEntity<ApiResponse<List<EvaluationMemberResponse>>> getProjectMembersWithEvaluationStatus(
+    public ResponseEntity<ApiResponse<EvaluationResponse>> getProjectMembersWithEvaluationStatus(
             String token, Long projectId) {
 
         Long evaluatorId = jwtTokenValidator.getUserId(token);
@@ -75,17 +77,19 @@ public class EvaluationService {
                 .orElse("알 수 없는 프로젝트");
 
         // evaluator 자신 제외 + 응답 생성
-        List<EvaluationMemberResponse> responseList = acceptedApplicants.stream()
+        List<EvaluationMemberResponse> userData = acceptedApplicants.stream()
                 .filter(applicant -> !applicant.getUser().getId().equals(evaluatorId))
                 .map(applicant -> {
                     UserEntity user = applicant.getUser();
                     boolean isEvaluated = evaluationRepository.existsByProjectIdAndEvaluatorIdAndEvaluateeId(
                             projectId, evaluatorId, user.getId());
-                    return EvaluationMemberResponse.of(user.getId(), user.getNickname(), isEvaluated, projectName);
+                    return EvaluationMemberResponse.of(user.getId(), user.getNickname(), isEvaluated);
                 })
-                .toList();
+                .collect(Collectors.toList());
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "참여자 조회 성공", responseList));
+        EvaluationResponse response = EvaluationResponse.of(projectName, userData);
+
+        return ResponseEntity.ok(new ApiResponse<>(true, "참여자 조회 성공", response));
     }
 
 }
