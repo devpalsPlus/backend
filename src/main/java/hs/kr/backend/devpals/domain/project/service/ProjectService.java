@@ -65,29 +65,35 @@ public class ProjectService {
             });
         }
 
-        List<ProjectAllDto> filteredProjects = projectAllCache.values().stream()
+        // 전체 캐시에서 필터링 먼저 수행
+        List<ProjectAllDto> filteredProjectsAll = projectAllCache.values().stream()
                 .filter(project -> !isBeginner || project.getIsBeginner())
                 .filter(project -> keyword == null || keyword.isEmpty() ||
                         project.getTitle().toLowerCase().contains(keyword.toLowerCase()) ||
                         project.getDescription().toLowerCase().contains(keyword.toLowerCase()))
-                .filter(project -> methodTypeId == null  || methodTypeId <= 0L ||
+                .filter(project -> methodTypeId == null || methodTypeId <= 0L ||
                         Objects.equals(project.getMethodTypeId(), methodTypeId))
                 .filter(project -> positionTagId == null || positionTagId <= 0 ||
                         project.getPositionTagIds().contains(positionTagId))
                 .filter(project -> skillTagId == null || skillTagId.isEmpty() ||
                         project.getSkillTagIds().stream().anyMatch(skillTagId::contains))
+                .collect(Collectors.toList());
+
+        // 필터링된 결과 기준으로 total, lastPage 계산
+        int totalProjects = filteredProjectsAll.size();
+        int lastPage = (int) Math.ceil((double) totalProjects / 12);
+
+        // 페이지네이션 적용
+        List<ProjectAllDto> filteredProjects = filteredProjectsAll.stream()
                 .skip((page - 1) * 12)
                 .limit(12)
                 .collect(Collectors.toList());
-
-        int totalProjects = projectAllCache.size();
-        int lastPage = (int) Math.ceil((double) totalProjects / 12);
-
 
         ProjectListResponse responseDto = new ProjectListResponse(page, lastPage, totalProjects, filteredProjects);
 
         return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 목록 조회 성공", responseDto));
     }
+
 
     // 프로젝트 개수 조회
     public ResponseEntity<ApiResponse<ProjectCountResponse>> getProjectCount() {
