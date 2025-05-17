@@ -2,7 +2,6 @@ package hs.kr.backend.devpals.domain.user.controller;
 
 import hs.kr.backend.devpals.domain.project.dto.ProjectApplyResponse;
 import hs.kr.backend.devpals.domain.project.dto.ProjectMyResponse;
-import hs.kr.backend.devpals.domain.project.dto.ProjectParticipationResponse;
 import hs.kr.backend.devpals.domain.user.service.UserProjectService;
 import hs.kr.backend.devpals.global.common.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -55,21 +54,51 @@ public class UserProjectController {
         return userProjectService.getMyProjectApply(token);
     }
 
-    @GetMapping("/{id}/project")
-    @Operation(summary = "상대방이 참여한 프로젝트 조회", description = "상대방이 참여한 프로젝트를 조회합니다.")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "상대방 참여 프로젝트 조회 성공")
+    @Operation(
+            summary = "상대방이 만든 프로젝트 조회",
+            description = "특정 사용자가 직접 생성한 프로젝트 목록을 조회합니다."
+    )
     @io.swagger.v3.oas.annotations.responses.ApiResponse(
-            responseCode = "400",
-            description = "상대방 참여 프로젝트 조회 실패",
+            responseCode = "200",
+            description = "상대방이 만든 프로젝트 조회 성공"
+    )
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "404",
+            description = "사용자를 찾을 수 없습니다.",
             content = @Content(
                     mediaType = "application/json",
                     schema = @Schema(implementation = ApiResponse.class),
-                    examples = @ExampleObject(value = "{\"success\": false, \"message\": \"해당 유저가 참여한 프로젝트를 찾을 수 없습니다.\", \"data\": null}")
+                    examples = @ExampleObject(value = "{\"success\": false, \"message\": \"해당 사용자를 찾을 수 없습니다.\", \"data\": null}")
             )
     )
-    public ResponseEntity<ApiResponse<ProjectParticipationResponse>> getUserProjects(
+    @GetMapping("/{id}/project")
+    public ResponseEntity<ApiResponse<List<ProjectMyResponse>>> getCreatedProjects(
             @RequestHeader("Authorization") String token,
             @PathVariable Long id) {
-        return userProjectService.getUserProject(token, id);
+        return userProjectService.getOnlyCreatedProjects(token, id);
+    }
+
+    @Operation(
+            summary = "상대방이 참여한 프로젝트 조회",
+            description = "특정 사용자가 참여한 프로젝트 목록을 조회합니다."
+    )
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "상대방 참여 프로젝트 조회 성공"
+    )
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "404",
+            description = "사용자를 찾을 수 없습니다.",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ApiResponse.class),
+                    examples = @ExampleObject(value = "{\"success\": false, \"message\": \"해당 사용자를 찾을 수 없습니다.\", \"data\": null}")
+            )
+    )
+    @GetMapping("/{id}/participated")
+    public ResponseEntity<ApiResponse<List<ProjectMyResponse>>> getParticipatedProjects(
+            @RequestHeader("Authorization") String token,
+            @PathVariable Long id) {
+        return userProjectService.getOnlyParticipatedProjects(token, id);
     }
 }

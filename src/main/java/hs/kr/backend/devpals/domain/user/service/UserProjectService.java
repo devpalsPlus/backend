@@ -2,7 +2,6 @@ package hs.kr.backend.devpals.domain.user.service;
 
 import hs.kr.backend.devpals.domain.project.dto.ProjectApplyResponse;
 import hs.kr.backend.devpals.domain.project.dto.ProjectMyResponse;
-import hs.kr.backend.devpals.domain.project.dto.ProjectParticipationResponse;
 import hs.kr.backend.devpals.domain.project.entity.ApplicantEntity;
 import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
 import hs.kr.backend.devpals.domain.project.facade.ProjectFacade;
@@ -78,35 +77,34 @@ public class UserProjectService {
         return ResponseEntity.ok(new ApiResponse<>(true, "내가 참여한 프로젝트 조회 성공", myProjects));
     }
 
-    public ResponseEntity<ApiResponse<ProjectParticipationResponse>> getUserProject(String token, Long userId) {
+    public ResponseEntity<ApiResponse<List<ProjectMyResponse>>> getOnlyParticipatedProjects(String token, Long userId) {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
-        List<ApplicantEntity> acceptedApplications = applicantRepository.findByUser(user).stream()
-                .filter(application -> application.getStatus() == ApplicantStatus.ACCEPTED)
-                .toList();
-
-        List<ProjectMyResponse> acceptedProjects = acceptedApplications.stream()
-                .map(application -> {
-                    ProjectEntity project = application.getProject();
+        List<ProjectMyResponse> acceptedProjects = applicantRepository.findByUser(user).stream()
+                .filter(app -> app.getStatus() == ApplicantStatus.ACCEPTED)
+                .map(app -> {
+                    ProjectEntity project = app.getProject();
                     List<SkillTagResponse> skills = userFacade.getSkillTagResponses(project.getSkillTagIds());
                     return ProjectMyResponse.fromEntity(project, skills);
                 })
                 .toList();
 
-        List<ProjectEntity> ownProjectsList = projectRepository.findProjectsByUserId(user.getId());
+        return ResponseEntity.ok(new ApiResponse<>(true, "상대방 참여 프로젝트 조회 성공", acceptedProjects));
+    }
 
-        List<ProjectMyResponse> projects = ownProjectsList.stream()
+    public ResponseEntity<ApiResponse<List<ProjectMyResponse>>> getOnlyCreatedProjects(String token, Long userId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
+
+        List<ProjectMyResponse> createdProjects = projectRepository.findProjectsByUserId(user.getId()).stream()
                 .map(project -> {
                     List<SkillTagResponse> skills = userFacade.getSkillTagResponses(project.getSkillTagIds());
                     return ProjectMyResponse.fromEntity(project, skills);
                 })
                 .toList();
 
-
-        ProjectParticipationResponse result = ProjectParticipationResponse.from(acceptedProjects, projects);
-
-        return ResponseEntity.ok(new ApiResponse<>(true, "사용자의 참여/작성 프로젝트 조회 성공", result));
+        return ResponseEntity.ok(new ApiResponse<>(true, "상대방이 만든 프로젝트 조회 성공", createdProjects));
     }
 
 
