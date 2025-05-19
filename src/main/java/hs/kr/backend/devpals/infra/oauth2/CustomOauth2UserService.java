@@ -27,11 +27,17 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         OAuth2User oAuth2User = super.loadUser(userRequest);
         String provider = userRequest.getClientRegistration().getRegistrationId();
 
-        // request에 provider 저장
+        // request + 세션 접근
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         if (attributes != null) {
             HttpServletRequest request = attributes.getRequest();
+
             request.setAttribute("provider", provider);
+
+            String mode = request.getParameter("state"); // 또는 "mode"
+            if (mode != null) {
+                request.getSession().setAttribute("oauth_mode", mode);
+            }
         }
 
         String email = extractEmail(provider, oAuth2User);
@@ -48,6 +54,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             String githubUrl = oAuth2User.getAttribute("html_url");
             user.updateGithub(githubUrl);
         }
+
         userRepository.save(user);
 
         Map<String, Object> attributesMap = new java.util.HashMap<>(oAuth2User.getAttributes());
@@ -64,18 +71,14 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         switch (provider) {
             case "google":
                 return oAuth2User.getAttribute("email");
-
             case "kakao":
                 Map<String, Object> kakaoAccount = oAuth2User.getAttribute("kakao_account");
                 return kakaoAccount != null ? (String) kakaoAccount.get("email") : null;
-
             case "naver":
                 Map<String, Object> response = oAuth2User.getAttribute("response");
                 return response != null ? (String) response.get("email") : null;
-
             case "github":
                 return oAuth2User.getAttribute("email");
-
             default:
                 throw new IllegalArgumentException("Unsupported provider: " + provider);
         }
@@ -85,20 +88,16 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         switch (provider) {
             case "google":
                 return oAuth2User.getAttribute("name");
-
             case "kakao":
                 Map<String, Object> kakaoAccount = oAuth2User.getAttribute("kakao_account");
                 if (kakaoAccount == null) return null;
                 Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
                 return profile != null ? (String) profile.get("nickname") : null;
-
             case "naver":
                 Map<String, Object> response = oAuth2User.getAttribute("response");
                 return response != null ? (String) response.get("name") : null;
-
             case "github":
                 return oAuth2User.getAttribute("name");
-
             default:
                 throw new IllegalArgumentException("Unsupported provider: " + provider);
         }
