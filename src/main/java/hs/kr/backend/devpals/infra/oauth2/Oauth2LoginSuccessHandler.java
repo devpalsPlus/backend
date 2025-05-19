@@ -48,7 +48,6 @@ public class Oauth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
-        // 🔥 쿼리 파라미터 확인
         String mode = request.getParameter("mode");
         if ("github_verify".equals(mode) && "github".equals(provider)) {
             String githubUrl = oAuth2User.getAttribute("html_url");
