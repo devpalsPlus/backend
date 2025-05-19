@@ -48,13 +48,14 @@ public class Oauth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
-        String mode = request.getParameter("state");
+        String mode = (String) request.getSession().getAttribute("oauth_mode");
+        request.getSession().removeAttribute("oauth_mode"); // 한번 쓰고 제거
+
         if ("github_verify".equals(mode) && "github".equals(provider)) {
             String githubUrl = oAuth2User.getAttribute("html_url");
             user.updateGithub(githubUrl);
             userRepository.save(user);
 
-            // 깔끔하게 리디렉션
             response.sendRedirect("http://localhost:5173/user/profile?github=success");
             return;
         }
