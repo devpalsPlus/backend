@@ -31,10 +31,9 @@ public class Oauth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException, ServletException {
-
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-
         String provider = (String) request.getAttribute("provider");
+
         if (provider == null) {
             provider = oAuth2User.getAttributes().containsKey("kakao_account") ? "kakao" :
                     oAuth2User.getAttributes().containsKey("response") ? "naver" :
@@ -49,13 +48,24 @@ public class Oauth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
+        String mode = request.getParameter("mode");
+        if ("github_verify".equals(mode) && "github".equals(provider)) {
+            String githubUrl = oAuth2User.getAttribute("html_url");
+            user.updateGithub(githubUrl);
+            userRepository.save(user);
+
+            // 깔끔하게 리디렉션
+            response.sendRedirect("http://localhost:5173/user/profile?github=success");
+            return;
+        }
+
+        // 일반 로그인 흐름
         String accessToken = jwtTokenProvider.generateToken(user.getId());
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getId());
 
         user.updateRefreshToken(refreshToken);
         userRepository.save(user);
 
-        // Refresh Token은 쿠키로 설정
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
                 .secure(true)
@@ -64,7 +74,6 @@ public class Oauth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                 .build();
         response.setHeader("Set-Cookie", refreshCookie.toString());
 
-        // accessToken을 쿼리스트링으로 리디렉션
         String redirectUri = "http://localhost:5173/login/oauth2/code?accessToken=" + accessToken;
         response.sendRedirect(redirectUri);
     }
