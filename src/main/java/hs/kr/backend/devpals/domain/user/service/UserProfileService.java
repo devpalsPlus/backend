@@ -98,7 +98,6 @@ public class UserProfileService {
         user.updateUserInfo(
                 request.getNickname(),
                 request.getBio(),
-                request.getGithub(),
                 request.getBeginner(),
                 positionIds,
                 skillIds,
