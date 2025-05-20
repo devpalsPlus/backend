@@ -1,15 +1,12 @@
 package hs.kr.backend.devpals.infra.oauth2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hs.kr.backend.devpals.domain.auth.dto.LoginResponse;
 import hs.kr.backend.devpals.domain.auth.dto.TokenResponse;
-import hs.kr.backend.devpals.domain.user.dto.LoginUserResponse;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
 import hs.kr.backend.devpals.global.jwt.JwtTokenProvider;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +27,7 @@ public class Oauth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                                        Authentication authentication) throws IOException, ServletException {
+                                        Authentication authentication) throws IOException {
 
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
 
@@ -46,6 +43,19 @@ public class Oauth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             throw new CustomException(ErrorException.USER_NOT_FOUND);
         }
 
+        if ("github-auth".equals(provider)) {
+            String githubUrl = oAuth2User.getAttribute("html_url");
+
+            UserEntity user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
+
+            user.updateGithub(githubUrl);
+            userRepository.save(user);
+
+            response.sendRedirect("https://dev.devpals.site/user/profile?auth=github");
+            return;
+        }
+
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
@@ -55,7 +65,6 @@ public class Oauth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         user.updateRefreshToken(refreshToken);
         userRepository.save(user);
 
-        // Refresh Token은 쿠키로 설정
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
                 .secure(true)
@@ -64,7 +73,6 @@ public class Oauth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                 .build();
         response.setHeader("Set-Cookie", refreshCookie.toString());
 
-        // accessToken을 쿼리스트링으로 리디렉션
         String redirectUri = "http://localhost:5173/login/oauth2/code?accessToken=" + accessToken;
         response.sendRedirect(redirectUri);
     }
