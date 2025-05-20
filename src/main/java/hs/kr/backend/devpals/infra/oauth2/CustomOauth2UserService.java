@@ -14,6 +14,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -25,19 +26,13 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) {
         OAuth2User oAuth2User = super.loadUser(userRequest);
-        String provider = userRequest.getClientRegistration().getRegistrationId();
+        String provider = userRequest.getClientRegistration().getRegistrationId(); // github, github-auth, google, etc.
 
-        // request + 세션 접근
+        // 요청에 provider 저장
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         if (attributes != null) {
             HttpServletRequest request = attributes.getRequest();
-
             request.setAttribute("provider", provider);
-
-            String mode = request.getParameter("state"); // 또는 "mode"
-            if (mode != null) {
-                request.getSession().setAttribute("oauth_mode", mode);
-            }
         }
 
         String email = extractEmail(provider, oAuth2User);
@@ -47,17 +42,20 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             throw new IllegalArgumentException("소셜 로그인 응답에서 email을 찾을 수 없습니다.");
         }
 
-        UserEntity user = userRepository.findByEmail(email)
-                .orElseGet(() -> new UserEntity(email, "SOCIAL_LOGIN_USER", name, true));
+        // github-auth는 기존 유저의 인증만 처리하므로 user 저장은 생략
+        if (!"github-auth".equals(provider)) {
+            UserEntity user = userRepository.findByEmail(email)
+                    .orElseGet(() -> new UserEntity(email, "SOCIAL_LOGIN_USER", name, true));
 
-        if ("github".equals(provider)) {
-            String githubUrl = oAuth2User.getAttribute("html_url");
-            user.updateGithub(githubUrl);
+            if ("github".equals(provider)) {
+                String githubUrl = oAuth2User.getAttribute("html_url");
+                user.updateGithub(githubUrl);
+            }
+
+            userRepository.save(user);
         }
 
-        userRepository.save(user);
-
-        Map<String, Object> attributesMap = new java.util.HashMap<>(oAuth2User.getAttributes());
+        Map<String, Object> attributesMap = new HashMap<>(oAuth2User.getAttributes());
         attributesMap.put("email", email);
 
         return new DefaultOAuth2User(
@@ -78,6 +76,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
                 Map<String, Object> response = oAuth2User.getAttribute("response");
                 return response != null ? (String) response.get("email") : null;
             case "github":
+            case "github-auth":
                 return oAuth2User.getAttribute("email");
             default:
                 throw new IllegalArgumentException("Unsupported provider: " + provider);
@@ -97,6 +96,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
                 Map<String, Object> response = oAuth2User.getAttribute("response");
                 return response != null ? (String) response.get("name") : null;
             case "github":
+            case "github-auth":
                 return oAuth2User.getAttribute("name");
             default:
                 throw new IllegalArgumentException("Unsupported provider: " + provider);
