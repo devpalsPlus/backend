@@ -170,6 +170,7 @@ public class AuthService {
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", newRefreshToken)
                 .httpOnly(true)
                 .secure(false)
+                .sameSite("None")
                 .path("/")
                 .maxAge(14 * 24 * 60 * 60) // 14일 유지
                 .build();
