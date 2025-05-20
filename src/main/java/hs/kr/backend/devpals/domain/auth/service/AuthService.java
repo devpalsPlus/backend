@@ -169,7 +169,7 @@ public class AuthService {
         // 새로운 RefreshToken을 HttpOnly 쿠키에 저장
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", newRefreshToken)
                 .httpOnly(true)
-                .secure(true)
+                .secure(false)
                 .path("/")
                 .maxAge(14 * 24 * 60 * 60) // 14일 유지
                 .build();
