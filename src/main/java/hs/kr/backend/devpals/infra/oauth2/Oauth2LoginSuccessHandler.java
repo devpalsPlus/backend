@@ -52,7 +52,7 @@ public class Oauth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             user.updateGithub(githubUrl);
             userRepository.save(user);
 
-            response.sendRedirect("http://localhost:5173/user/profile?auth=github");
+            response.sendRedirect("http://localhost:5173/oauth/github-success?githubUrl=" + githubUrl);
             return;
         }
 
