@@ -14,6 +14,9 @@ import hs.kr.backend.devpals.global.common.enums.ApplicantStatus;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
 import hs.kr.backend.devpals.global.jwt.JwtTokenValidator;
+
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -91,5 +94,35 @@ public class EvaluationService {
 
         return ResponseEntity.ok(new ApiResponse<>(true, "참여자 조회 성공", response));
     }
+
+    public List<Integer> calculateAverageScores(Long userId) {
+        List<EvaluationEntity> evaluations = evaluationRepository.findAllByEvaluateeId(userId);
+
+        if (evaluations.isEmpty()) return List.of(0, 0, 0, 0, 0, 0);
+
+        int categoryCount = 6;
+        int[] scoreSums = new int[categoryCount];
+        int[] scoreCounts = new int[categoryCount];
+
+        for (EvaluationEntity evaluation : evaluations) {
+            List<Integer> scores = evaluation.getScores();
+            for (int i = 0; i < scores.size(); i++) {
+                scoreSums[i] += scores.get(i);
+                scoreCounts[i]++;
+            }
+        }
+
+        List<Integer> averages = new ArrayList<>();
+        for (int i = 0; i < categoryCount; i++) {
+            if (scoreCounts[i] == 0) {
+                averages.add(0);
+            } else {
+                averages.add(scoreSums[i] / scoreCounts[i]);
+            }
+        }
+
+        return averages;
+    }
+
 
 }

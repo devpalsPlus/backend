@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 @Getter
 @AllArgsConstructor
 @Builder
-public class UserResponse {
+public class UserUpdateResponse {
     private Long id;
     private String nickname;
     private String email;
@@ -26,10 +26,9 @@ public class UserResponse {
     private List<SkillTagResponse> skills;
     private List<CareerDto> career;
     private LocalDateTime createdAt;
-    private List<Integer> averageScores;
 
 
-    public static UserResponse fromEntity(UserEntity user, UserFacade userFacade, List<Integer> averageScores) {
+    public static UserUpdateResponse fromEntity(UserEntity user, UserFacade userFacade) {
         List<Long> positionIds = Optional.ofNullable(user.getPositionIds()).orElse(List.of());
         List<Long> skillIds = Optional.ofNullable(user.getSkillIds()).orElse(List.of());
 
@@ -41,7 +40,7 @@ public class UserResponse {
                 .map(SkillTagResponse::fromEntity)
                 .collect(Collectors.toList());
 
-        return UserResponse.builder()
+        return UserUpdateResponse.builder()
                 .id(user.getId())
                 .nickname(user.getNickname())
                 .email(user.getEmail())
@@ -53,7 +52,6 @@ public class UserResponse {
                 .skills(skillResponses)
                 .career(user.getCareer())
                 .createdAt(user.getCreatedAt())
-                .averageScores(averageScores)
                 .build();
     }
 }
