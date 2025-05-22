@@ -3,12 +3,14 @@ package hs.kr.backend.devpals.domain.user.service;
 import hs.kr.backend.devpals.domain.Inquiry.dto.InquiryDto;
 import hs.kr.backend.devpals.domain.Inquiry.entity.InquiryEntity;
 import hs.kr.backend.devpals.domain.Inquiry.repository.InquiryRepository;
+import hs.kr.backend.devpals.domain.evaluation.service.EvaluationService;
 import hs.kr.backend.devpals.domain.project.entity.CommentEntity;
 import hs.kr.backend.devpals.domain.project.repository.CommentRepoisitory;
 import hs.kr.backend.devpals.domain.project.service.ProjectService;
 import hs.kr.backend.devpals.domain.user.dto.MyCommentResponse;
 import hs.kr.backend.devpals.domain.user.dto.UserResponse;
 import hs.kr.backend.devpals.domain.user.dto.UserUpdateRequest;
+import hs.kr.backend.devpals.domain.user.dto.UserUpdateResponse;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.facade.UserFacade;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
@@ -36,8 +38,8 @@ public class UserProfileService {
     private final JwtTokenValidator jwtTokenValidator;
     private final AwsS3Client awsS3Client;
     private final ProjectService projectService;
+    private final EvaluationService evaluationService;
 
-    //개인 정보 가져오기
     public ResponseEntity<ApiResponse<UserResponse>> getUserInfo(String token) {
 
         Long userId = jwtTokenValidator.getUserId(token);
@@ -45,27 +47,34 @@ public class UserProfileService {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
-        UserResponse userResponse = UserResponse.fromEntity(user, userFacade);
+        List<Integer> averageScores = evaluationService.calculateAverageScores(userId);
+
+        UserResponse userResponse = UserResponse.fromEntity(user, userFacade, averageScores);
 
         return ResponseEntity.ok(new ApiResponse<>(true, "사용자의 정보입니다.", userResponse));
     }
 
-    //상대방 정보 가져오기
+    // 상대방 정보 가져오기
     public ResponseEntity<ApiResponse<UserResponse>> getUserInfoById(String token, Long id) {
 
         Long requesterId = jwtTokenValidator.getUserId(token);
 
         if (requesterId.equals(id)) {
-            throw new CustomException(ErrorException.UNAUTHORIZED); // 자신의 정보만 조회 가능하도록 제한
+            throw new CustomException(ErrorException.UNAUTHORIZED); // 자신의 정보만 조회 불가
         }
 
         UserEntity user = userRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
-        UserResponse userResponse = UserResponse.fromEntity(user, userFacade);
+        List<Integer> averageScores = evaluationService.calculateAverageScores(id);
+
+        UserResponse userResponse = UserResponse.fromEntity(user, userFacade, averageScores);
 
         return ResponseEntity.ok(new ApiResponse<>(true, "사용자 정보를 조회했습니다.", userResponse));
     }
+
+    //개인 정보 가져오기
+
 
     public ResponseEntity<ApiResponse<String>> userNicknameCheck(String token, String nickname) {
         boolean exists = userRepository.existsByNickname(nickname);
@@ -79,7 +88,7 @@ public class UserProfileService {
 
     //유저 정보 업데이트
     @Transactional
-    public ResponseEntity<ApiResponse<UserResponse>> userUpdateInfo(String token, UserUpdateRequest request) {
+    public ResponseEntity<ApiResponse<UserUpdateResponse>> userUpdateInfo(String token, UserUpdateRequest request) {
 
         Long userId = jwtTokenValidator.getUserId(token);
 
@@ -108,7 +117,7 @@ public class UserProfileService {
 
         projectService.refreshProjectCacheByAuthor(userId);
 
-        UserResponse userResponse = UserResponse.fromEntity(user, userFacade);
+        UserUpdateResponse userResponse = UserUpdateResponse.fromEntity(user, userFacade);
 
         return ResponseEntity.ok(new ApiResponse<>(true, "정보가 변경되었습니다.", userResponse));
     }

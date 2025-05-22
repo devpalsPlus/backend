@@ -5,6 +5,7 @@ import hs.kr.backend.devpals.domain.project.dto.CommentDTO;
 import hs.kr.backend.devpals.domain.user.dto.MyCommentResponse;
 import hs.kr.backend.devpals.domain.user.dto.UserResponse;
 import hs.kr.backend.devpals.domain.user.dto.UserUpdateRequest;
+import hs.kr.backend.devpals.domain.user.dto.UserUpdateResponse;
 import hs.kr.backend.devpals.domain.user.service.UserProfileService;
 import hs.kr.backend.devpals.global.common.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -74,7 +75,7 @@ public class UserProfileController {
                     examples = @ExampleObject(value = "{\"success\": false, \"message\": \"유저 정보를 업데이트할 수 없습니다.\", \"data\": null}")
             )
     )
-    public ResponseEntity<ApiResponse<UserResponse>> updateUser(
+    public ResponseEntity<ApiResponse<UserUpdateResponse>> updateUser(
             @RequestHeader("Authorization") String token,
             @RequestBody UserUpdateRequest request) {
         return userProfileService.userUpdateInfo(token, request);
