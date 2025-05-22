@@ -142,12 +142,17 @@ public class ProjectService {
 
     // 특정 프로젝트 조회
     @Transactional
-    public ResponseEntity<ApiResponse<ProjectAllDto>> getProjectList(Long projectId) {
-        ProjectAllDto project = projectAllCache.get(projectId);
-        if (project == null) {
-            throw new CustomException(ErrorException.PROJECT_NOT_FOUND);
-        }
-        return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 상세 내용조회 성공", project));
+    public ResponseEntity<ApiResponse<ProjectAllDto>> getProjectDetail(Long projectId) {
+        ProjectEntity project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new CustomException(ErrorException.PROJECT_NOT_FOUND));
+
+        project.increaseView();
+
+        ProjectAllDto dto = convertToDto(project);
+
+        projectAllCache.put(projectId, dto);
+
+        return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 상세 정보입니다.", dto));
     }
 
     public ResponseEntity<ApiResponse<List<ProjectAuthoredResponse>>> getMyProject(String token) {
