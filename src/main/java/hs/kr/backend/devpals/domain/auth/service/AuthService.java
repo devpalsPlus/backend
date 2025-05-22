@@ -8,6 +8,7 @@ import hs.kr.backend.devpals.domain.auth.repository.AuthenticodeRepository;
 import hs.kr.backend.devpals.domain.auth.util.CookieUtil;
 import hs.kr.backend.devpals.domain.user.dto.LoginUserResponse;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
+import hs.kr.backend.devpals.domain.user.principal.CustomUserDetails;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.exception.CustomException;
@@ -183,5 +184,34 @@ public class AuthService {
         return ResponseEntity.ok()
                 .header("Set-Cookie", refreshCookie.toString())
                 .body(response);
+    }
+
+    public ResponseEntity<LoginResponse<TokenResponse>> oauthLogin(CustomUserDetails userDetails) {
+        if (userDetails == null) {
+            throw new CustomException(ErrorException.UNAUTHORIZED);
+        }
+
+        Long userId = userDetails.getId();
+
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
+
+        String accessToken = jwtTokenProvider.generateToken(user.getId());
+        String refreshToken = jwtTokenProvider.generateRefreshToken(user.getId());
+
+        user.updateRefreshToken(refreshToken);
+        userRepository.save(user);
+
+        TokenResponse token = new TokenResponse(accessToken);
+        LoginUserResponse userDto = LoginUserResponse.fromEntity(user);
+
+        LoginResponse<TokenResponse> response = new LoginResponse<>(
+                true,
+                "소셜 로그인 성공",
+                token,
+                userDto
+        );
+
+        return ResponseEntity.ok(response);
     }
 }
