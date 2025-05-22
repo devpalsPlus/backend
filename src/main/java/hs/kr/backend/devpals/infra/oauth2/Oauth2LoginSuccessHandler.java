@@ -1,7 +1,5 @@
 package hs.kr.backend.devpals.infra.oauth2;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import hs.kr.backend.devpals.domain.auth.dto.TokenResponse;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.exception.CustomException;
