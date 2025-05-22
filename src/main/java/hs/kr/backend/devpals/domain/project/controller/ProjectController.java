@@ -137,6 +137,6 @@ public class ProjectController {
     )
     public ResponseEntity<ApiResponse<ProjectAllDto>> getProjectList(
             @PathVariable Long projectId) {
-        return projectService.getProjectList(projectId);
+        return projectService.getProjectDetail(projectId);
     }
 }

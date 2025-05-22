@@ -64,12 +64,14 @@ public class NoticeService {
         return ResponseEntity.ok(new ApiResponse<>(true, "공지사항 전체 목록 가져오기 성공", response));
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public ResponseEntity<ApiResponse<NoticeDetailResponse>> getNotice(Long noticeId) {
         NoticeEntity notice = noticeRepository.findById(noticeId).orElse(null);
         if (notice == null) {
             return ResponseEntity.ok(new ApiResponse<>(false, "공지사항글이 존재하지 않습니다", null));
         }
+
+        notice.increaseViewCount();
 
         Optional<NoticeEntity> prev = noticeRepository.findFirstByIdLessThanOrderByIdDesc(noticeId);
         Optional<NoticeEntity> next = noticeRepository.findFirstByIdGreaterThanOrderByIdAsc(noticeId);
