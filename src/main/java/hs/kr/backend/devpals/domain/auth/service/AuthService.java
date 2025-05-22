@@ -57,6 +57,7 @@ public class AuthService {
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
+                .sameSite("None")
                 .maxAge(14 * 24 * 60 * 60) // 14일
                 .build();
 

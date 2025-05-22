@@ -1,7 +1,9 @@
 package hs.kr.backend.devpals.infra.oauth2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hs.kr.backend.devpals.domain.auth.dto.LoginResponse;
 import hs.kr.backend.devpals.domain.auth.dto.TokenResponse;
+import hs.kr.backend.devpals.domain.user.dto.LoginUserResponse;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.exception.CustomException;
@@ -28,7 +30,6 @@ public class Oauth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException {
-
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
 
         String provider = (String) request.getAttribute("provider");
@@ -65,16 +66,26 @@ public class Oauth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         user.updateRefreshToken(refreshToken);
         userRepository.save(user);
 
+        TokenResponse tokenData = new TokenResponse(accessToken);
+        LoginUserResponse userDto = LoginUserResponse.fromEntity(user);
+
+        LoginResponse<TokenResponse> loginResponse = new LoginResponse<>(
+                true,
+                "소셜 로그인 성공",
+                tokenData,
+                userDto
+        );
+
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
                 .secure(true)
-                .sameSite("None")
                 .path("/")
                 .maxAge(14 * 24 * 60 * 60)
+                .sameSite("None")
                 .build();
-        response.setHeader("Set-Cookie", refreshCookie.toString());
 
-        String redirectUri = "http://localhost:5173/login/oauth2/code?accessToken=" + accessToken;
-        response.sendRedirect(redirectUri);
+        response.addHeader("Set-Cookie", refreshCookie.toString());
+        response.setContentType("application/json;charset=UTF-8");
+        new ObjectMapper().writeValue(response.getWriter(), loginResponse);
     }
 }
