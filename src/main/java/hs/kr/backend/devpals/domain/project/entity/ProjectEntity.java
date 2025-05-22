@@ -135,4 +135,6 @@ public class ProjectEntity {
     public void increaseWarning() {
         this.warning++;
     }
+
+    public void increaseView() {this.views++;}
 }
