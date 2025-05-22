@@ -37,6 +37,8 @@ public class NoticeEntity {
         this.content = content;
     }
 
+    public void increaseViewCount() { this.viewCount++;}
+
     public static NoticeEntity fromDTO(NoticeDTO noticeDto) {
         return NoticeEntity.builder()
                 .id(noticeDto.getId())
