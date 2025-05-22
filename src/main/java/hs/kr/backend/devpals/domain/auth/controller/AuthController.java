@@ -137,9 +137,9 @@ public class AuthController {
         return authEmailService.resetPassword(request);
     }
 
-    @PostMapping("/login")
-    @Operation(summary = "로그인", description = "아이디와 비밀번호를 입력하여 로그인을 진행합니다. 성공 시 JWT 토큰을 반환합니다.")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "로그인 성공")
+    @GetMapping("/oauth-login")
+    @Operation(summary = "Oauth2.0 정보 가져오기", description = "Oauth2.0 소셜 로그인 성공 시 정보를 가져옵니다.")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Oauth2.0 정보 가져오기 성공")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(
             responseCode = "400",
             description = "계정이 존재하지 않거나 비밀번호 오류",
@@ -149,7 +149,6 @@ public class AuthController {
                     examples = @ExampleObject(value = "{\"success\": false, \"message\": \"계정이 존재하지 않거나 비밀번호가 올바르지 않습니다.\", \"data\": null}")
             )
     )
-    @GetMapping("/oauth-login")
     public ResponseEntity<LoginResponse<TokenResponse>> oauthLogin(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
