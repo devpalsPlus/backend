@@ -149,7 +149,7 @@ public class AuthController {
                     examples = @ExampleObject(value = "{\"success\": false, \"message\": \"계정이 존재하지 않거나 비밀번호가 올바르지 않습니다.\", \"data\": null}")
             )
     )
-    @GetMapping("/auth/oauth-login")
+    @GetMapping("/oauth-login")
     public ResponseEntity<LoginResponse<TokenResponse>> oauthLogin(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
