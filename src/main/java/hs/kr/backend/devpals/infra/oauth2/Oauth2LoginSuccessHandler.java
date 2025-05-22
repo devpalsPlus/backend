@@ -30,8 +30,8 @@ public class Oauth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                                         Authentication authentication) throws IOException {
 
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-
         String provider = (String) request.getAttribute("provider");
+
         if (provider == null) {
             provider = oAuth2User.getAttributes().containsKey("kakao_account") ? "kakao" :
                     oAuth2User.getAttributes().containsKey("response") ? "naver" :
@@ -45,21 +45,18 @@ public class Oauth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
         if ("github-auth".equals(provider)) {
             String githubUrl = oAuth2User.getAttribute("html_url");
-
             UserEntity user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
-
             user.updateGithub(githubUrl);
             userRepository.save(user);
 
-            response.sendRedirect("http://localhost:5173/oauth/github-success?githubUrl=" + githubUrl);
+            response.sendRedirect("http://localhost:5137/oauth/github-success?githubUrl=" + githubUrl);
             return;
         }
 
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
-        String accessToken = jwtTokenProvider.generateToken(user.getId());
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getId());
 
         user.updateRefreshToken(refreshToken);
@@ -67,14 +64,13 @@ public class Oauth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
-                .secure(true)
+                .secure(true) // 배포환경일 경우 true
                 .sameSite("None")
                 .path("/")
                 .maxAge(14 * 24 * 60 * 60)
                 .build();
-        response.setHeader("Set-Cookie", refreshCookie.toString());
 
-        String redirectUri = "http://localhost:5173/login/oauth2/code?accessToken=" + accessToken;
-        response.sendRedirect(redirectUri);
+        response.addHeader("Set-Cookie", refreshCookie.toString());
+        response.sendRedirect("http://localhost:5137/oauth-redirect");
     }
 }
