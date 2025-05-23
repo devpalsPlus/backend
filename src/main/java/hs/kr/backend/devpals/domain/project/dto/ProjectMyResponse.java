@@ -18,8 +18,11 @@ public class ProjectMyResponse {
     private Boolean isBeginner;
     private Boolean isDone;
     private List<SkillTagResponse> skills;
+    private Boolean canEvaluate;
 
     public static ProjectMyResponse fromEntity(ProjectEntity project, List<SkillTagResponse> skills) {
+        boolean canEvaluate = LocalDate.now().isAfter(project.getStartDate().plusMonths(1));
+
         return new ProjectMyResponse(
                 project.getId(),
                 project.getTitle(),
@@ -27,7 +30,8 @@ public class ProjectMyResponse {
                 project.getTotalMember(),
                 project.isBeginner(),
                 project.isDone(),
-                skills
+                skills,
+                canEvaluate
         );
     }
 }
