@@ -48,7 +48,7 @@ public class Oauth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             user.updateGithub(githubUrl);
             userRepository.save(user);
 
-            response.sendRedirect("http://localhost:5137/oauth/github-success?githubUrl=" + githubUrl);
+            response.sendRedirect("http://localhost:5173/oauth/github-success?githubUrl=" + githubUrl);
             return;
         }
 
@@ -68,6 +68,6 @@ public class Oauth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                 .maxAge(14 * 24 * 60 * 60)
                 .build();
         response.setHeader("Set-Cookie", refreshCookie.toString());
-        response.sendRedirect("http://localhost:5137/oauth-redirect");
+        response.sendRedirect("http://localhost:5173/oauth-redirect");
     }
 }
