@@ -11,8 +11,19 @@ public class LoginUserResponse {
     private String email;
     private String nickname;
     private boolean isAdmin;
+    private boolean hasRequiredTags;
 
     public static LoginUserResponse fromEntity(UserEntity user) {
-        return new LoginUserResponse(user.getId(), user.getEmail(), user.getNickname(), user.getIsAdmin());
+        boolean hasRequiredTags =
+                user.getSkillIds() != null && !user.getSkillIds().isEmpty()
+                        && user.getPositionIds() != null && !user.getPositionIds().isEmpty();
+
+        return new LoginUserResponse(
+                user.getId(),
+                user.getEmail(),
+                user.getNickname(),
+                user.getIsAdmin(),
+                hasRequiredTags
+        );
     }
 }
