@@ -45,7 +45,10 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable) // 기본 로그인 비활성화
                 .formLogin(AbstractHttpConfigurer::disable) // 폼 로그인 비활성화
                 .logout(AbstractHttpConfigurer::disable) // 로그아웃 비활성화
-                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())  // 모든 요청을 인증 없이 허용**
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/auth/oauth-login").authenticated()
+                        .anyRequest().permitAll()
+                )
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOauth2UserService))  // 사용자 정보 처리
