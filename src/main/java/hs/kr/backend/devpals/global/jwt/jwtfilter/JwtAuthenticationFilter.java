@@ -48,6 +48,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        return !"/auth/oauth-login".equals(request.getServletPath());
+    }
 
     /**
      * 요청 헤더에서 JWT 토큰을 추출하는 메서드
