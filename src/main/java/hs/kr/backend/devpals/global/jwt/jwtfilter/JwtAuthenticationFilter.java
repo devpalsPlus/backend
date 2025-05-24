@@ -3,6 +3,7 @@ package hs.kr.backend.devpals.global.jwt.jwtfilter;
 import hs.kr.backend.devpals.global.jwt.JwtTokenValidator;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +56,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String bearerToken = request.getHeader(HEADER_AUTHORIZATION);
         if (bearerToken != null && bearerToken.startsWith(HEADER_PREFIX)) {
             return bearerToken.substring(HEADER_PREFIX.length());
+        }
+
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("refreshToken".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
         }
         return null;
     }
