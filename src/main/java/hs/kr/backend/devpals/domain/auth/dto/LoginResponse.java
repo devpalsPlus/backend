@@ -7,8 +7,8 @@ import lombok.Getter;
 public class LoginResponse<T> extends ApiResponse<T> {
     private Object user;
 
-    public LoginResponse(boolean success, String message, T data, Object user) {
-        super(success, message, data);
+    public LoginResponse(int code, boolean success, String message, T data, Object user) {
+        super(code, success, message, data);
         this.user = user;
     }
 }

@@ -1,5 +1,7 @@
 package hs.kr.backend.devpals.global.jwt.jwtfilter;
 
+import hs.kr.backend.devpals.global.exception.CustomException;
+import hs.kr.backend.devpals.global.exception.ErrorException;
 import hs.kr.backend.devpals.global.jwt.JwtTokenValidator;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -8,7 +10,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import hs.kr.backend.devpals.global.exception.CustomException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -33,18 +34,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String token = resolveToken(request);
-        if (token != null) {
-            try {
-                jwtValidator.validateJwtToken(token);
-                Authentication auth = jwtValidator.getAuthentication(token);
-                SecurityContextHolder.getContext().setAuthentication(auth);
-            } catch (CustomException e) {
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write("{\"message\": \"Access Token이 만료되었습니다.\", \"code\": \"TOKEN_EXPIRED\"}");
-                response.getWriter().flush();
-                return;
-            }
+
+        if (token == null) {
+            throw new CustomException(ErrorException.UNAUTHORIZED);
         }
+
+        try {
+            jwtValidator.validateJwtToken(token); // 내부에서 유효성 검증
+            Authentication auth = jwtValidator.getAuthentication(token);
+            SecurityContextHolder.getContext().setAuthentication(auth);
+        } catch (CustomException e) {
+            throw e;
+        }
+
         filterChain.doFilter(request, response);
     }
 
@@ -54,7 +56,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     /**
-     * 요청 헤더에서 JWT 토큰을 추출하는 메서드
+     * 요청 헤더 또는 쿠키에서 JWT 토큰을 추출
      */
     private String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader(HEADER_AUTHORIZATION);
@@ -72,4 +74,3 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return null;
     }
 }
-

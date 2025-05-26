@@ -44,7 +44,7 @@ public class UserAlarmService {
         alarmRepository.save(alarm);
 
 
-        ApiResponse<AlarmDto> response = new ApiResponse<>(true, "알람 수정 성공", AlarmDto.fromEntity(alarm));
+        ApiResponse<AlarmDto> response = new ApiResponse<>(200, true, "알람 수정 성공", AlarmDto.fromEntity(alarm));
         return ResponseEntity.ok(response);
     }
 
@@ -82,7 +82,7 @@ public class UserAlarmService {
 
         String answer = reverseSorted.isEmpty() ? "알림이 존재하지 않습니다." : "알림 조회 성공";
         reverseSorted = reverseSorted.isEmpty() ? null : reverseSorted;
-        return ResponseEntity.ok(new ApiResponse<>(true, answer, reverseSorted));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, answer, reverseSorted));
     }
 
     @Transactional
@@ -106,7 +106,7 @@ public class UserAlarmService {
         alarmRepository.delete(alarmEntity);
 
         refreshCacheUserAlarm(userId);
-        ApiResponse<String> response = new ApiResponse<>(true, "알람 삭제 성공", null);
+        ApiResponse<String> response = new ApiResponse<>(200, true, "알람 삭제 성공", null);
         return ResponseEntity.ok(response);
     }
 

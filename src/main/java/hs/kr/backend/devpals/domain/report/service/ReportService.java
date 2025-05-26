@@ -101,7 +101,7 @@ public class ReportService {
                 processWarning(savedReport);
                 log.info("Warning process completed");
 
-                return ResponseEntity.ok(new ApiResponse<>(true, "신고 작성 성공",
+                return ResponseEntity.ok(new ApiResponse<>(200, true, "신고 작성 성공",
                         ReportResponse.of(savedReport, matchingReportTagDtos.stream().map(ReportTagDto::getName).toList())));
             } catch (Exception e) {
                 log.error("Error saving report entity", e);

@@ -32,7 +32,7 @@ public class FaqService {
 
         faqRepository.save(faq);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "FAQ 작성 성공", null));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "FAQ 작성 성공", null));
     }
 
     public ResponseEntity<ApiResponse<List<FaqDTO>>> getAllFaq(String keyword) {
@@ -44,7 +44,7 @@ public class FaqService {
                 .map(FaqDTO::fromEntity)
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "FAQ 조회 성공", result));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "FAQ 조회 성공", result));
     }
 
 
@@ -54,10 +54,10 @@ public class FaqService {
         return faqRepository.findById(faqId)
                 .map(faq -> {
                     FaqDTO responseDto = FaqDTO.fromEntity(faq);
-                    return ResponseEntity.ok(new ApiResponse<>(true, "FAQ 상세 조회 성공", responseDto));
+                    return ResponseEntity.ok(new ApiResponse<>(200, true, "FAQ 상세 조회 성공", responseDto));
                 })
                 .orElseGet(() ->
-                        ResponseEntity.ok(new ApiResponse<>(false, "FAQ글이 존재하지 않습니다", null))
+                        ResponseEntity.ok(new ApiResponse<>(404, false, "FAQ글이 존재하지 않습니다", null))
                 );
     }
 
@@ -67,13 +67,13 @@ public class FaqService {
 
         FaqEntity faq = faqRepository.findById(id).orElse(null);
         if (faq == null) {
-            return ResponseEntity.ok(new ApiResponse<>(false, "FAQ글이 존재하지 않습니다", null));
+            return ResponseEntity.ok(new ApiResponse<>(404, false, "FAQ글이 존재하지 않습니다", null));
         }
 
         faq.update(faqDTO.getTitle(), faqDTO.getContent());
         faqRepository.save(faq);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "FAQ 수정 완료", null));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "FAQ 수정 완료", null));
     }
     @Transactional
     public ResponseEntity<ApiResponse<String>> deleteFaq(String token, Long faqId) {
@@ -81,11 +81,11 @@ public class FaqService {
 
         FaqEntity faq = faqRepository.findById(faqId).orElse(null);
         if (faq == null) {
-            return ResponseEntity.ok(new ApiResponse<>(false, "FAQ글이 존재하지 않습니다", null));
+            return ResponseEntity.ok(new ApiResponse<>(404, false, "FAQ글이 존재하지 않습니다", null));
         }
 
         faqRepository.delete(faq);
-        return ResponseEntity.ok(new ApiResponse<>(true, "FAQ 삭제 완료", null));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "FAQ 삭제 완료", null));
     }
 
     public void validateAdmin(String token) {

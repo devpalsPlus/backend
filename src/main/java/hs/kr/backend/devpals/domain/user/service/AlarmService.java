@@ -68,7 +68,7 @@ public class AlarmService {
             targetId = first.getId();
         } else targetId = userId;
         sendToUserTest(userId, testMessage,alarmFilterId,targetId);
-        return new ResponseEntity<>(new ApiResponse<String>(true, "ok","테스트 메시지 입니다. 메시지는 따로 저장되지 않습니다."), HttpStatus.OK);
+        return new ResponseEntity<>(new ApiResponse<String>(200, true, "ok","테스트 메시지 입니다. 메시지는 따로 저장되지 않습니다."), HttpStatus.OK);
     }
 
     // 프로젝트 지원 결과 알람 전송

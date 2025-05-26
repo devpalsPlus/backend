@@ -91,7 +91,7 @@ public class ProjectService {
 
         ProjectListResponse responseDto = new ProjectListResponse(page, lastPage, totalProjects, filteredProjects);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 목록 조회 성공", responseDto));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "프로젝트 목록 조회 성공", responseDto));
     }
 
 
@@ -102,7 +102,7 @@ public class ProjectService {
         long endProjectCount = totalProjectCount - ongoingProjectCount;
 
         ProjectCountResponse responseData = new ProjectCountResponse(totalProjectCount, ongoingProjectCount, endProjectCount);
-        return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 개수 조회 성공", responseData));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "프로젝트 개수 조회 성공", responseData));
     }
 
     // 프로젝트 업데이트
@@ -123,7 +123,7 @@ public class ProjectService {
         ProjectAllDto updatedProject = convertToDto(project);
         projectAllCache.put(projectId, updatedProject);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 업데이트 완료", null));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "프로젝트 업데이트 완료", null));
     }
 
     // 프로젝트 등록
@@ -137,7 +137,7 @@ public class ProjectService {
         ProjectAllDto responseDto = convertToDto(savedProject);
         projectAllCache.put(savedProject.getId(), responseDto);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 등록 완료", null));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "프로젝트 등록 완료", null));
     }
 
     // 특정 프로젝트 조회
@@ -152,7 +152,7 @@ public class ProjectService {
 
         projectAllCache.put(projectId, dto);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 상세 정보입니다.", dto));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "프로젝트 상세 정보입니다.", dto));
     }
 
     public ResponseEntity<ApiResponse<List<ProjectAuthoredResponse>>> getMyProject(String token) {
@@ -167,7 +167,7 @@ public class ProjectService {
                 ))
                 .toList();
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "내 프로젝트 조회 성공", projectAuthoredResponses));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "내 프로젝트 조회 성공", projectAuthoredResponses));
     }
 
     // 프로젝트 모집 종료하기
@@ -202,7 +202,7 @@ public class ProjectService {
         MethodTypeResponse methodTypeResponse = projectFacade.getMethodTypeResponse(project.getMethodTypeId());
 
         alarmService.sendAlarm(applicants,project);
-        return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 모집 종료 성공", ProjectCloseResponse.fromEntity(project, methodTypeResponse)));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "프로젝트 모집 종료 성공", ProjectCloseResponse.fromEntity(project, methodTypeResponse)));
     }
 
     @Transactional

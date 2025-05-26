@@ -40,7 +40,7 @@ public class ReportFacade {
 
     public ResponseEntity<ApiResponse<List<ReportTagEntity>>> getReportTags() {
         List<ReportTagEntity> reportTagEntities = List.copyOf(reportTagCache.values());
-        ApiResponse<List<ReportTagEntity>> response = new ApiResponse<>(true, "신고사유(카테고리) 목록 가져오기 성공", reportTagEntities);
+        ApiResponse<List<ReportTagEntity>> response = new ApiResponse<>(200, true, "신고사유(카테고리) 목록 가져오기 성공", reportTagEntities);
         return ResponseEntity.ok(response);
     }
 
@@ -51,7 +51,7 @@ public class ReportFacade {
         reportTagRepository.delete(reportTag);
         reportTagCache.remove(reportTagId);
 
-        ApiResponse<String> response = new ApiResponse<>(true, "신고사유(카테고리) 삭제 성공", null);
+        ApiResponse<String> response = new ApiResponse<>(200, true, "신고사유(카테고리) 삭제 성공", null);
         return ResponseEntity.ok(response);
     }
 
@@ -59,7 +59,7 @@ public class ReportFacade {
         ReportTagEntity reportTag = new ReportTagEntity(request.getName());
         ReportTagEntity saved = reportTagRepository.save(reportTag);
         refreshReportTags();
-        return ResponseEntity.ok(new ApiResponse<>(true, "신고사유(카테고리) 등록 성공", saved));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "신고사유(카테고리) 등록 성공", saved));
     }
 
 }
