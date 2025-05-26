@@ -61,7 +61,7 @@ public class EvaluationService {
 
         evaluationRepository.save(evaluation);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "평가가 성공적으로 제출되었습니다.", null));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "평가가 성공적으로 제출되었습니다.", null));
     }
 
     @Transactional(readOnly = true)
@@ -92,7 +92,7 @@ public class EvaluationService {
 
         EvaluationResponse response = EvaluationResponse.of(projectName, userData);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "참여자 조회 성공", response));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "참여자 조회 성공", response));
     }
 
     public List<Integer> calculateAverageScores(Long userId) {

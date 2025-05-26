@@ -46,7 +46,7 @@ public class UserProjectService {
 
         if (projectMyCache.containsKey(userId)) {
             List<ProjectMyResponse> cachedProjects = new ArrayList<>(projectMyCache.get(userId));
-            return ResponseEntity.ok(new ApiResponse<>(true, "내가 참여한 프로젝트 조회 성공", cachedProjects));
+            return ResponseEntity.ok(new ApiResponse<>(200, true, "내가 참여한 프로젝트 조회 성공", cachedProjects));
         }
 
         UserEntity user = userRepository.findById(userId)
@@ -58,7 +58,7 @@ public class UserProjectService {
                 .collect(Collectors.toList());
 
         if (applications.isEmpty()) {
-            return ResponseEntity.ok(new ApiResponse<>(true, "참여한 프로젝트가 없습니다.", new ArrayList<>()));
+            return ResponseEntity.ok(new ApiResponse<>(200, true, "참여한 프로젝트가 없습니다.", new ArrayList<>()));
         }
 
         List<ProjectMyResponse> myProjects = applications.stream()
@@ -74,7 +74,7 @@ public class UserProjectService {
 
         projectMyCache.put(userId, myProjects);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "내가 참여한 프로젝트 조회 성공", myProjects));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "내가 참여한 프로젝트 조회 성공", myProjects));
     }
 
     public ResponseEntity<ApiResponse<List<ProjectMyResponse>>> getOnlyParticipatedProjects(String token, Long userId) {
@@ -90,7 +90,7 @@ public class UserProjectService {
                 })
                 .toList();
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "상대방 참여 프로젝트 조회 성공", acceptedProjects));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "상대방 참여 프로젝트 조회 성공", acceptedProjects));
     }
 
     public ResponseEntity<ApiResponse<List<ProjectMyResponse>>> getOnlyCreatedProjects(String token, Long userId) {
@@ -104,7 +104,7 @@ public class UserProjectService {
                 })
                 .toList();
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "상대방이 만든 프로젝트 조회 성공", createdProjects));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "상대방이 만든 프로젝트 조회 성공", createdProjects));
     }
 
 
@@ -114,7 +114,7 @@ public class UserProjectService {
 
         if (projectMyApplyCache.containsKey(userId)) {
             return ResponseEntity.ok(new ApiResponse<>(
-                    true, "내 지원 프로젝트 조회 성공", new ArrayList<>(projectMyApplyCache.get(userId))));
+                    200, true, "내 지원 프로젝트 조회 성공", new ArrayList<>(projectMyApplyCache.get(userId))));
         }
 
         UserEntity user = userRepository.findById(userId)
@@ -123,7 +123,7 @@ public class UserProjectService {
         List<ApplicantEntity> applications = applicantRepository.findByUser(user);
 
         if (applications.isEmpty()) {
-            return ResponseEntity.ok(new ApiResponse<>(true, "지원한 프로젝트가 없습니다.", new ArrayList<>()));
+            return ResponseEntity.ok(new ApiResponse<>(200, true, "지원한 프로젝트가 없습니다.", new ArrayList<>()));
         }
 
         List<ProjectApplyResponse> myProjects = applications.stream()
@@ -136,7 +136,7 @@ public class UserProjectService {
 
         projectMyApplyCache.put(userId, myProjects);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "내 지원 프로젝트 조회 성공", myProjects));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "내 지원 프로젝트 조회 성공", myProjects));
     }
 
 }

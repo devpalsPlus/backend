@@ -51,7 +51,7 @@ public class UserProfileService {
 
         UserResponse userResponse = UserResponse.fromEntity(user, userFacade, averageScores);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "사용자의 정보입니다.", userResponse));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "사용자의 정보입니다.", userResponse));
     }
 
     // 상대방 정보 가져오기
@@ -70,7 +70,7 @@ public class UserProfileService {
 
         UserResponse userResponse = UserResponse.fromEntity(user, userFacade, averageScores);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "사용자 정보를 조회했습니다.", userResponse));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "사용자 정보를 조회했습니다.", userResponse));
     }
 
     //개인 정보 가져오기
@@ -80,9 +80,9 @@ public class UserProfileService {
         boolean exists = userRepository.existsByNickname(nickname);
 
         if (exists) {
-            return ResponseEntity.ok(new ApiResponse<>(false, "중복된 닉네임입니다.", null));
+            return ResponseEntity.ok(new ApiResponse<>(409, false, "중복된 닉네임입니다.", null));
         } else {
-            return ResponseEntity.ok(new ApiResponse<>(true, "사용 가능한 닉네임입니다.", null));
+            return ResponseEntity.ok(new ApiResponse<>(200, true, "사용 가능한 닉네임입니다.", null));
         }
     }
 
@@ -119,7 +119,7 @@ public class UserProfileService {
 
         UserUpdateResponse userResponse = UserUpdateResponse.fromEntity(user, userFacade);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "정보가 변경되었습니다.", userResponse));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "정보가 변경되었습니다.", userResponse));
     }
 
     @Transactional
@@ -153,7 +153,7 @@ public class UserProfileService {
         user.updateProfileImage(fileUrl);
         userRepository.save(user);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "프로필 이미지가 변경되었습니다.", fileUrl));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "프로필 이미지가 변경되었습니다.", fileUrl));
     }
 
     @Transactional(readOnly = true)
@@ -166,7 +166,7 @@ public class UserProfileService {
                 .map(MyCommentResponse::fromEntity)
                 .toList();
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "작성한 댓글 목록입니다.", commentResponses));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "작성한 댓글 목록입니다.", commentResponses));
     }
 
     @Transactional(readOnly = true)
@@ -179,7 +179,7 @@ public class UserProfileService {
                 .map(InquiryDto::fromEntity)
                 .toList();
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "작성한 문의글 목록입니다.", inquiryDTOs));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "작성한 문의글 목록입니다.", inquiryDTOs));
     }
 
 }

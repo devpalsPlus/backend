@@ -39,7 +39,7 @@ public class ProjectFacade {
 
     public ResponseEntity<ApiResponse<List<MethodTypeEntity>>> getMethodType() {
         List<MethodTypeEntity> methodTypes = List.copyOf(methodTypeCache.values());
-        ApiResponse<List<MethodTypeEntity>> response = new ApiResponse<>(true, "방식 유형 목록 가져오기 성공", methodTypes);
+        ApiResponse<List<MethodTypeEntity>> response = new ApiResponse<>(200, true, "방식 유형 목록 가져오기 성공", methodTypes);
         return ResponseEntity.ok(response);
     }
 

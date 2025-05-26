@@ -61,7 +61,7 @@ public class InquiryService {
                 inquiry.getImages().add(imageEntity);
             }
         }
-        return ResponseEntity.ok(new ApiResponse<>(true, "문의 작성 성공", null));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "문의 작성 성공", null));
     }
 
     @Transactional(readOnly = true)
@@ -72,7 +72,7 @@ public class InquiryService {
                 .map(InquiryDto::fromEntity)
                 .toList();
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "모든 문의글 조회 성공", inquiryDTOs));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "모든 문의글 조회 성공", inquiryDTOs));
     }
 
     @Transactional(readOnly = true)
@@ -86,7 +86,7 @@ public class InquiryService {
 
         InquiryDto response = InquiryDto.fromEntity(inquiry);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "문의 조회 성공", response));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "문의 조회 성공", response));
     }
 
     @Transactional
@@ -108,6 +108,6 @@ public class InquiryService {
 
         inquiryRepository.delete(inquiry);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "문의 삭제 성공", null));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "문의 삭제 성공", null));
     }
 }

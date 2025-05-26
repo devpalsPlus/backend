@@ -64,25 +64,25 @@ public class UserFacade {
         SkillTagEntity saved = skillTagRepository.save(skillTag);
         refreshSkillTags();
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "스킬 태그 등록 성공", saved));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "스킬 태그 등록 성공", saved));
     }
 
     public ResponseEntity<ApiResponse<PositionTagEntity>> createPositionTag(PositionTagRequest request) {
         PositionTagEntity positionTag = new PositionTagEntity(request.getName());
         PositionTagEntity saved = positionTagRepository.save(positionTag);
         refreshPositionTags();
-        return ResponseEntity.ok(new ApiResponse<>(true, "포지션 태그 등록 성공", saved));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "포지션 태그 등록 성공", saved));
     }
 
     public ResponseEntity<ApiResponse<List<SkillTagEntity>>> getSkillTags() {
         List<SkillTagEntity> skillTags = List.copyOf(skillTagCache.values());
-        ApiResponse<List<SkillTagEntity>> response = new ApiResponse<>(true, "스킬 태그 목록 가져오기 성공", skillTags);
+        ApiResponse<List<SkillTagEntity>> response = new ApiResponse<>(200, true, "스킬 태그 목록 가져오기 성공", skillTags);
         return ResponseEntity.ok(response);
     }
 
     public ResponseEntity<ApiResponse<List<PositionTagEntity>>> getPositionTag() {
         List<PositionTagEntity> positionTags = List.copyOf(positionTagCache.values());
-        ApiResponse<List<PositionTagEntity>> response = new ApiResponse<>(true, "포지션 태그 목록 가져오기 성공", positionTags);
+        ApiResponse<List<PositionTagEntity>> response = new ApiResponse<>(200, true, "포지션 태그 목록 가져오기 성공", positionTags);
         return ResponseEntity.ok(response);
     }
 
@@ -97,7 +97,7 @@ public class UserFacade {
         skillTagRepository.delete(skillTag);
         skillTagCache.remove(skillTagId);
 
-        ApiResponse<String> response = new ApiResponse<>(true, "스킬 태그 삭제 성공", null);
+        ApiResponse<String> response = new ApiResponse<>(200, true, "스킬 태그 삭제 성공", null);
         return ResponseEntity.ok(response);
     }
 
@@ -108,7 +108,7 @@ public class UserFacade {
         positionTagRepository.delete(positionTag);
         positionTagCache.remove(positionTagId);
 
-        ApiResponse<String> response = new ApiResponse<>(true, "포지션 태그 삭제 성공", null);
+        ApiResponse<String> response = new ApiResponse<>(200, true, "포지션 태그 삭제 성공", null);
         return ResponseEntity.ok(response);
     }
 

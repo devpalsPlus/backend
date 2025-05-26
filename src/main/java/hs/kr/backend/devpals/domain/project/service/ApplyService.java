@@ -54,7 +54,7 @@ public class ApplyService {
         applicantRepository.save(applicant);
         alarmService.sendAlarm(project,applicant);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "프로젝트 지원 되었습니다." , null));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "프로젝트 지원 되었습니다." , null));
     }
 
     // 프로젝트의 지원자 목록 가져오기
@@ -74,7 +74,7 @@ public class ApplyService {
                 .map(ProjectApplicantResponse::fromEntity)
                 .toList();
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "공고 지원자 목록 가져오기 성공",projectApplicants));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "공고 지원자 목록 가져오기 성공",projectApplicants));
 
     }
 
@@ -98,7 +98,7 @@ public class ApplyService {
 
         ProjectApplyDTO dto = ProjectApplyDTO.fromEntity(user, applicant, skillResponses);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "지원서 조회 성공", dto));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "지원서 조회 성공", dto));
     }
 
     // 프로젝트의 합격/불합격 목록 가져오기
@@ -114,7 +114,7 @@ public class ApplyService {
         List<ApplicantEntity> applicants = applicantRepository.findByProject(project);
 
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "공고 합격자/불합격자 목록 가져오기 성공",ProjectApplicantResultResponse.fromEntity(applicants,userFacade)));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "공고 합격자/불합격자 목록 가져오기 성공",ProjectApplicantResultResponse.fromEntity(applicants,userFacade)));
     }
 
     // 프로젝트 지원한 지원자의 상태 변경하기
@@ -141,7 +141,7 @@ public class ApplyService {
 
         applicant.updateStatus(applicantStatus);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "지원자의 상태 변경 성공", ApplicantStatusUpdateResponse.fromEntity(applicant)));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "지원자의 상태 변경 성공", ApplicantStatusUpdateResponse.fromEntity(applicant)));
 
     }
 
