@@ -35,7 +35,7 @@ public class NoticeService {
         NoticeEntity newNotice = NoticeEntity.fromDTO(noticeDTO);
 
         noticeRepository.save(newNotice);
-        return ResponseEntity.ok(new ApiResponse<>(true, "공지사항 작성 성공", null));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "공지사항 작성 성공", null));
     }
 
     @Transactional
@@ -44,13 +44,13 @@ public class NoticeService {
 
         NoticeEntity existingNotice = noticeRepository.findById(noticeId).orElse(null);
         if (existingNotice == null) {
-            return ResponseEntity.ok(new ApiResponse<>(false, "공지사항글이 존재하지 않습니다", null));
+            return ResponseEntity.ok(new ApiResponse<>(404, false, "공지사항글이 존재하지 않습니다", null));
         }
 
         existingNotice.update(noticeDTO.getTitle(), noticeDTO.getContent());
         noticeRepository.save(existingNotice);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "공지사항 업데이트 성공", null));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "공지사항 업데이트 성공", null));
     }
 
     public ResponseEntity<ApiResponse<NoticeListResponse>> getNotices(String keyword, int page, int size) {
@@ -61,14 +61,14 @@ public class NoticeService {
 
         NoticeListResponse response = NoticeListResponse.from(noticePage.getContent(), noticePage.getTotalPages());
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "공지사항 전체 목록 가져오기 성공", response));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "공지사항 전체 목록 가져오기 성공", response));
     }
 
     @Transactional
     public ResponseEntity<ApiResponse<NoticeDetailResponse>> getNotice(Long noticeId) {
         NoticeEntity notice = noticeRepository.findById(noticeId).orElse(null);
         if (notice == null) {
-            return ResponseEntity.ok(new ApiResponse<>(false, "공지사항글이 존재하지 않습니다", null));
+            return ResponseEntity.ok(new ApiResponse<>(404,false, "공지사항글이 존재하지 않습니다", null));
         }
 
         notice.increaseViewCount();
@@ -82,7 +82,7 @@ public class NoticeService {
                 next.map(PrevNextResponse::fromEntity).orElse(null)
         );
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "공지사항 상세 내용 가져오기 성공", response));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "공지사항 상세 내용 가져오기 성공", response));
     }
 
     @Transactional
@@ -91,11 +91,11 @@ public class NoticeService {
 
         NoticeEntity notice = noticeRepository.findById(noticeId).orElse(null);
         if (notice == null) {
-            return ResponseEntity.ok(new ApiResponse<>(false, "공지사항글이 존재하지 않습니다", null));
+            return ResponseEntity.ok(new ApiResponse<>(404, false, "공지사항글이 존재하지 않습니다", null));
         }
 
         noticeRepository.delete(notice);
-        return ResponseEntity.ok(new ApiResponse<>(true, "공지사항 삭제 성공", null));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "공지사항 삭제 성공", null));
     }
 
 }

@@ -47,7 +47,7 @@ public class ProjectCommentService {
         commentRepoisitory.save(comment);
         alarmService.sendAlarm(comment,project,user);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "댓글 작성 성공", null));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "댓글 작성 성공", null));
     }
 
     public ResponseEntity<ApiResponse<List<CommentDTO>>> getComment(Long projectId) {
@@ -64,7 +64,7 @@ public class ProjectCommentService {
                 })
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "댓글 가져오기 성공", response));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "댓글 가져오기 성공", response));
     }
 
     @Transactional
@@ -86,7 +86,7 @@ public class ProjectCommentService {
         }
 
         comment.updateContent(content);
-        return ResponseEntity.ok(new ApiResponse<>(true, "댓글 수정 성공", null));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "댓글 수정 성공", null));
     }
 
     @Transactional
@@ -109,7 +109,7 @@ public class ProjectCommentService {
 
         commentRepoisitory.delete(comment);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "댓글 삭제 성공", null));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "댓글 삭제 성공", null));
     }
 
     @Transactional
@@ -124,7 +124,7 @@ public class ProjectCommentService {
                 .orElseThrow(() -> new CustomException(ErrorException.COMMENT_NOT_FOUND));
 
         if (!comment.getProject().getId().equals(projectId)) {
-            return ResponseEntity.ok(new ApiResponse<>(false, "해당 프로젝트의 댓글이 아님", null));
+            return ResponseEntity.ok(new ApiResponse<>(400, false, "해당 프로젝트의 댓글이 아님", null));
         }
 
         RecommentEntity recomment = RecommentEntity.from(dto, project, user, comment);
@@ -132,7 +132,7 @@ public class ProjectCommentService {
         recommentRepository.save(recomment);
         alarmService.sendAlarm(recomment,comment,project);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "대댓글 작성 성공", null));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "대댓글 작성 성공", null));
     }
 
     public ResponseEntity<ApiResponse<List<RecommentDTO>>> getRecomments(Long commentId) {
@@ -141,7 +141,7 @@ public class ProjectCommentService {
                 .map(RecommentDTO::fromEntity)
                 .collect(Collectors.toList());
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "대댓글 조회 성공", result));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "대댓글 조회 성공", result));
     }
 
     @Transactional
@@ -152,11 +152,11 @@ public class ProjectCommentService {
                 .orElseThrow(() -> new CustomException(ErrorException.RECOMMENT_NOT_FOUND));
 
         if (!recomment.getUser().getId().equals(userId)) {
-             return ResponseEntity.ok(new ApiResponse<>(false, "대댓글 작성자 및 프로젝트 작성자만 수정 가능", null));
+             return ResponseEntity.ok(new ApiResponse<>(403, false, "대댓글 작성자 및 프로젝트 작성자만 수정 가능", null));
         }
 
         recomment.updateContent(dto.getContent());
-        return ResponseEntity.ok(new ApiResponse<>(true, "대댓글 수정 성공", null));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "대댓글 수정 성공", null));
     }
 
     @Transactional
@@ -167,10 +167,10 @@ public class ProjectCommentService {
                 .orElseThrow(() -> new CustomException(ErrorException.RECOMMENT_NOT_FOUND));
 
         if (!recomment.getUser().getId().equals(userId)) {
-            return ResponseEntity.ok(new ApiResponse<>(false, "대댓글 작성자 및 프로젝트 작성자만 삭제 가능", null));
+            return ResponseEntity.ok(new ApiResponse<>(403, false, "대댓글 작성자 및 프로젝트 작성자만 삭제 가능", null));
         }
 
         recommentRepository.delete(recomment);
-        return ResponseEntity.ok(new ApiResponse<>(true, "대댓글 삭제 성공", null));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "대댓글 삭제 성공", null));
     }
 }

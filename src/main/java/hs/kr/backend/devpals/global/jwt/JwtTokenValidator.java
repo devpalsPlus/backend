@@ -43,21 +43,32 @@ public class JwtTokenValidator {
      * JWT 토큰에서 Claims(데이터) 추출
      */
     private Claims extractClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (ExpiredJwtException e) {
+            throw new CustomException(ErrorException.TOKEN_EXPIRED);
+        } catch (UnsupportedJwtException e) {
+            throw new CustomException(ErrorException.FORBIDDEN);
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new CustomException(ErrorException.UNAUTHORIZED);
+        }
     }
 
     /**
      * JWT 토큰에서 userId(PK) 추출
      */
     public Long getUserId(String jwt) {
-        String token = jwt.replace("Bearer ", "");
-        return Long.parseLong(extractClaims(token).getSubject()); //  subject에서 userId(PK) 가져옴
+        try {
+            String token = jwt.replace("Bearer ", "");
+            return Long.parseLong(extractClaims(token).getSubject());
+        } catch (NumberFormatException e) {
+            throw new CustomException(ErrorException.UNAUTHORIZED);
+        }
     }
-
     /**
      * Access Token 검증
      */
@@ -109,8 +120,14 @@ public class JwtTokenValidator {
      * JWT 토큰에서 사용자 인증 정보 반환
      */
     public Authentication getAuthentication(String token) {
-        Claims claims = extractClaims(token);
-        return getAuthenticationByClaims(claims);
+        try {
+            Claims claims = extractClaims(token);
+            return getAuthenticationByClaims(claims);
+        } catch (CustomException e) {
+            throw e; // 위에서 이미 처리됨
+        } catch (Exception e) {
+            throw new CustomException(ErrorException.UNAUTHORIZED);
+        }
     }
 
     /**
@@ -127,7 +144,6 @@ public class JwtTokenValidator {
 
         Long memberId = Long.parseLong(userIdObj.toString());
 
-        // ✅ memberId로 유저 정보 조회
         UserDetails userDetails = customUserDetailsService.findById(memberId);
         return new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities());
     }

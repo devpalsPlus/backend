@@ -66,7 +66,7 @@ public class AuthEmailService {
         }
 
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "인증 코드가 이메일로 전송되었습니다.", null));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "인증 코드가 이메일로 전송되었습니다.", null));
     }
 
     public ResponseEntity<ApiResponse<String>> sendEmailVerification(EmailVertificationRequest request){
@@ -90,7 +90,7 @@ public class AuthEmailService {
         authCode.useCode();
         authenticodeRepository.save(authCode);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "이메일 인증 성공", null));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "이메일 인증 성공", null));
     }
 
     /**
@@ -166,7 +166,7 @@ public class AuthEmailService {
         authCode.useCode();
         authenticodeRepository.save(authCode);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "비밀번호가 성공적으로 변경되었습니다.", null));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "비밀번호가 성공적으로 변경되었습니다.", null));
     }
 
 

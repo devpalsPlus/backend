@@ -66,6 +66,7 @@ public class AuthService {
         TokenResponse tokenData = new TokenResponse(accessToken);
 
         LoginResponse<TokenResponse> finalResponse = new LoginResponse<>(
+                200,
                 true,
                 "로그인 되었습니다.",
                 tokenData,
@@ -93,7 +94,7 @@ public class AuthService {
             user.updateRefreshToken(null); // RefreshToken 제거
             userRepository.save(user);
 
-            ApiResponse<String> response = new ApiResponse<>(true, "로그아웃 되었습니다", null);
+            ApiResponse<String> response = new ApiResponse<>(200, true, "로그아웃 되었습니다",null);
 
             return ResponseEntity.ok(response);
         } catch (CustomException e) {
@@ -134,7 +135,7 @@ public class AuthService {
 
         LoginUserResponse userDto = LoginUserResponse.fromEntity(user);
 
-        ApiResponse<LoginUserResponse> response = new ApiResponse<>(true,"회원가입이 완료되었습니다.", userDto);
+        ApiResponse<LoginUserResponse> response = new ApiResponse<>(200, true,"회원가입이 완료되었습니다.", userDto);
 
         return ResponseEntity.ok(response);
     }
@@ -179,7 +180,7 @@ public class AuthService {
 
         TokenResponse tokenData = new TokenResponse(newAccessToken);
 
-        ApiResponse<TokenResponse> response = new ApiResponse<>(true, "토큰 갱신 성공", tokenData);
+        ApiResponse<TokenResponse> response = new ApiResponse<>(200, true, "토큰 갱신 성공", tokenData);
 
         return ResponseEntity.ok()
                 .header("Set-Cookie", refreshCookie.toString())
@@ -206,6 +207,7 @@ public class AuthService {
         LoginUserResponse userDto = LoginUserResponse.fromEntity(user);
 
         LoginResponse<TokenResponse> response = new LoginResponse<>(
+                200,
                 true,
                 "소셜 로그인 성공",
                 token,
