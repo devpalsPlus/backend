@@ -49,7 +49,6 @@ public class AuthService {
 
         // AccessToken, RefreshToken 생성
         String accessToken = jwtTokenProvider.generateToken(user.getId());
-        log.info(">>> accessToken = {}", accessToken);
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getId());
 
         // RefreshToken을 DB에 저장
@@ -190,14 +189,10 @@ public class AuthService {
                 .body(response);
     }
 
-    public ResponseEntity<LoginResponse<TokenResponse>> oauthLogin(CustomUserDetails userDetails) {
-        if (userDetails == null) {
-            log.error(">>> userDetails is NULL");
-        } else {
-            log.info(">>> userDetails: {}", userDetails);
-        }
+    public ResponseEntity<LoginResponse<TokenResponse>> oauthLogin(String token) {
 
-        Long userId = userDetails.getId();
+        Long userId = jwtTokenValidator.getUserId(token);
+
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
@@ -215,14 +210,14 @@ public class AuthService {
                 .maxAge(14 * 24 * 60 * 60)
                 .build();
 
-        TokenResponse token = new TokenResponse(accessToken);
+        TokenResponse tokenResponse = new TokenResponse(accessToken);
         LoginUserResponse userDto = LoginUserResponse.fromEntity(user);
 
         LoginResponse<TokenResponse> response = new LoginResponse<>(
                 200,
                 true,
                 "소셜 로그인 성공",
-                token,
+                tokenResponse,
                 userDto
         );
 

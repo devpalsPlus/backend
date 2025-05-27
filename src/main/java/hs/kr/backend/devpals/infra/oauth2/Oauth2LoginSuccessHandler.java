@@ -8,7 +8,6 @@ import hs.kr.backend.devpals.global.jwt.JwtTokenProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -51,6 +50,12 @@ public class Oauth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             return;
         }
 
-        response.sendRedirect("http://localhost:5173/oauth-redirect");
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
+
+        String accessToken = jwtTokenProvider.generateToken(user.getId());
+
+        String redirectUrl = "http://localhost:5173/oauth-redirect?accessToken=" + accessToken;
+        response.sendRedirect(redirectUrl);
     }
 }
