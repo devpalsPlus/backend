@@ -17,6 +17,8 @@ import hs.kr.backend.devpals.global.jwt.JwtTokenProvider;
 import hs.kr.backend.devpals.global.jwt.JwtTokenValidator;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,7 +33,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final JwtTokenValidator jwtTokenValidator;
-    private final AuthenticodeRepository authenticodeRepository;
+    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
 
     // 로그인
     @Transactional
@@ -189,6 +191,7 @@ public class AuthService {
 
     public ResponseEntity<LoginResponse<TokenResponse>> oauthLogin(CustomUserDetails userDetails) {
         if (userDetails == null) {
+            log.warn(">>> [OAuth Login] userDetails is null - UNAUTHORIZED");
             throw new CustomException(ErrorException.UNAUTHORIZED);
         }
 
