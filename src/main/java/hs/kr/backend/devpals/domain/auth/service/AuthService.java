@@ -49,7 +49,7 @@ public class AuthService {
 
         // AccessToken, RefreshToken 생성
         String accessToken = jwtTokenProvider.generateToken(user.getId());
-        System.out.println(">>> Generated Token (Login): " + accessToken);
+        log.info(">>> accessToken = {}", accessToken);
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getId());
 
         // RefreshToken을 DB에 저장
@@ -200,7 +200,7 @@ public class AuthService {
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
         String accessToken = jwtTokenProvider.generateToken(user.getId());
-        System.out.println(">>> Generated Token (OAuth): " + accessToken);
+        log.info(">>> accessToken = {}", accessToken);
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getId());
 
         user.updateRefreshToken(refreshToken);
