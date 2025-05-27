@@ -150,8 +150,8 @@ public class AuthController {
             )
     )
     public ResponseEntity<LoginResponse<TokenResponse>> oauthLogin(
-            @AuthenticationPrincipal CustomUserDetails userDetails) {
+            @RequestHeader("Authorization") String token) {
 
-        return authService.oauthLogin(userDetails);
+        return authService.oauthLogin(token);
     }
 }
