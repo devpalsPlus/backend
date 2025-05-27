@@ -194,13 +194,12 @@ public class AuthService {
         if (userDetails == null) {
             throw new CustomException(ErrorException.UNAUTHORIZED);
         }
-
+        log.info(String.valueOf(userDetails));
         Long userId = userDetails.getId();
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
         String accessToken = jwtTokenProvider.generateToken(user.getId());
-        log.info(">>> accessToken = {}", accessToken);
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getId());
 
         user.updateRefreshToken(refreshToken);
