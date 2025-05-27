@@ -192,9 +192,11 @@ public class AuthService {
 
     public ResponseEntity<LoginResponse<TokenResponse>> oauthLogin(CustomUserDetails userDetails) {
         if (userDetails == null) {
-            throw new CustomException(ErrorException.UNAUTHORIZED);
+            log.error(">>> userDetails is NULL");
+        } else {
+            log.info(">>> userDetails: {}", userDetails);
         }
-        log.info(String.valueOf(userDetails));
+
         Long userId = userDetails.getId();
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
