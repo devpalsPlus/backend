@@ -31,12 +31,11 @@ public class JwtTokenProvider {
      */
     public String generateToken(Long userId) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("userId", userId); // `userId`를 claims에 추가
-
+        claims.put("userId", userId);
 
         return Jwts.builder()
-                .setSubject(String.valueOf(userId)) // userId룰 Subject에 저장
-                .claim("userId", userId) // Claims에 userId 저장
+                .setClaims(claims)
+                .setSubject(String.valueOf(userId))
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
