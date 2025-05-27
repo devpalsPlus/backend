@@ -26,7 +26,6 @@ public class Oauth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException {
-
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
         String provider = (String) request.getAttribute("provider");
 
@@ -52,22 +51,6 @@ public class Oauth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             return;
         }
 
-        UserEntity user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
-
-        String refreshToken = jwtTokenProvider.generateRefreshToken(user.getId());
-
-        user.updateRefreshToken(refreshToken);
-        userRepository.save(user);
-
-        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
-                .httpOnly(true)
-                .secure(true) // 배포환경일 경우 true
-                .sameSite("None")
-                .path("/")
-                .maxAge(14 * 24 * 60 * 60)
-                .build();
-        response.setHeader("Set-Cookie", refreshCookie.toString());
         response.sendRedirect("http://localhost:5173/oauth-redirect");
     }
 }

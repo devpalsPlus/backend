@@ -196,7 +196,6 @@ public class AuthService {
         }
 
         Long userId = userDetails.getId();
-
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
@@ -205,6 +204,14 @@ public class AuthService {
 
         user.updateRefreshToken(refreshToken);
         userRepository.save(user);
+
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .sameSite("None")
+                .maxAge(14 * 24 * 60 * 60)
+                .build();
 
         TokenResponse token = new TokenResponse(accessToken);
         LoginUserResponse userDto = LoginUserResponse.fromEntity(user);
@@ -217,6 +224,8 @@ public class AuthService {
                 userDto
         );
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok()
+                .header("Set-Cookie", refreshCookie.toString())
+                .body(response);
     }
 }
