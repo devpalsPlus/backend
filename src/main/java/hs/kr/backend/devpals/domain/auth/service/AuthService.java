@@ -49,6 +49,7 @@ public class AuthService {
 
         // AccessToken, RefreshToken 생성
         String accessToken = jwtTokenProvider.generateToken(user.getId());
+        System.out.println(">>> Generated Token (Login): " + accessToken);
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getId());
 
         // RefreshToken을 DB에 저장
@@ -191,7 +192,6 @@ public class AuthService {
 
     public ResponseEntity<LoginResponse<TokenResponse>> oauthLogin(CustomUserDetails userDetails) {
         if (userDetails == null) {
-            log.warn(">>> [OAuth Login] userDetails is null - UNAUTHORIZED");
             throw new CustomException(ErrorException.UNAUTHORIZED);
         }
 
@@ -200,6 +200,7 @@ public class AuthService {
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
         String accessToken = jwtTokenProvider.generateToken(user.getId());
+        System.out.println(">>> Generated Token (OAuth): " + accessToken);
         String refreshToken = jwtTokenProvider.generateRefreshToken(user.getId());
 
         user.updateRefreshToken(refreshToken);
