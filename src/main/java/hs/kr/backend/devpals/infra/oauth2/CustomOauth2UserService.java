@@ -76,7 +76,6 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
                 Map<String, Object> response = oAuth2User.getAttribute("response");
                 return response != null ? (String) response.get("email") : null;
             case "github":
-            case "github-auth":
                 return oAuth2User.getAttribute("email");
             default:
                 throw new IllegalArgumentException("Unsupported provider: " + provider);
