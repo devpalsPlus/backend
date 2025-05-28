@@ -2,9 +2,12 @@ package hs.kr.backend.devpals.infra.oauth2;
 
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
+import hs.kr.backend.devpals.global.exception.CustomException;
+import hs.kr.backend.devpals.global.exception.ErrorException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.*;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -52,7 +55,11 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
                 user.updateGithub(githubUrl);
             }
 
-            userRepository.save(user);
+            try {
+                userRepository.save(user);
+            } catch (DataIntegrityViolationException e) {
+                throw new CustomException(ErrorException.DUPLICATE_NICKNAME);
+            }
         }
 
         Map<String, Object> attributesMap = new HashMap<>(oAuth2User.getAttributes());
