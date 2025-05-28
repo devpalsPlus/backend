@@ -130,10 +130,24 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
                         new ParameterizedTypeReference<>() {}
                 );
 
-        return response.getBody().stream()
+        List<Map<String, Object>> emailList = response.getBody();
+        log.info("🔍 [GitHub Email API 응답] 시작 ---------");
+        if (emailList != null) {
+            for (Map<String, Object> emailInfo : emailList) {
+                log.info("📧 emailInfo: {}", emailInfo);
+            }
+        } else {
+            log.warn("⚠️ GitHub email 응답이 null 입니다.");
+        }
+
+        String primaryEmail = emailList.stream()
                 .filter(e -> Boolean.TRUE.equals(e.get("primary")) && Boolean.TRUE.equals(e.get("verified")))
                 .map(e -> (String) e.get("email"))
                 .findFirst()
                 .orElse(null);
+
+        log.info("✅ 선택된 Primary Email: {}", primaryEmail);
+        log.info("🔍 [GitHub Email API 응답] 끝 ---------");
+        return primaryEmail;
     }
 }
