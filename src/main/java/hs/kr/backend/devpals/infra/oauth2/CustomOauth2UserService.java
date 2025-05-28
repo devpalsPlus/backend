@@ -4,18 +4,19 @@ import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.*;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +27,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) {
         OAuth2User oAuth2User = super.loadUser(userRequest);
-        String provider = userRequest.getClientRegistration().getRegistrationId(); // github, github-auth, google, etc.
+        String provider = userRequest.getClientRegistration().getRegistrationId();
 
         // 요청에 provider 저장
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
@@ -35,14 +36,13 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             request.setAttribute("provider", provider);
         }
 
-        String email = extractEmail(provider, oAuth2User);
+        String email = extractEmail(provider, oAuth2User, userRequest);
         String name = extractName(provider, oAuth2User);
 
         if (email == null) {
             throw new IllegalArgumentException("소셜 로그인 응답에서 email을 찾을 수 없습니다.");
         }
 
-        // github-auth는 기존 유저의 인증만 처리하므로 user 저장은 생략
         if (!"github-auth".equals(provider)) {
             UserEntity user = userRepository.findByEmail(email)
                     .orElseGet(() -> new UserEntity(email, "SOCIAL_LOGIN_USER", name, true));
@@ -56,7 +56,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         }
 
         Map<String, Object> attributesMap = new HashMap<>(oAuth2User.getAttributes());
-        attributesMap.put("email", email);
+        attributesMap.put("email", email); // email 보장
 
         return new DefaultOAuth2User(
                 Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")),
@@ -65,7 +65,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         );
     }
 
-    public static String extractEmail(String provider, OAuth2User oAuth2User) {
+    public static String extractEmail(String provider, OAuth2User oAuth2User, OAuth2UserRequest userRequest) {
         switch (provider) {
             case "google":
                 return oAuth2User.getAttribute("email");
@@ -76,9 +76,12 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
                 Map<String, Object> response = oAuth2User.getAttribute("response");
                 return response != null ? (String) response.get("email") : null;
             case "github":
-                return oAuth2User.getAttribute("email");
             case "github-auth":
-                return oAuth2User.getAttribute("email");
+                String email = oAuth2User.getAttribute("email");
+                if (email == null) {
+                    email = fetchPrimaryEmailFromGithub(userRequest);
+                }
+                return email;
             default:
                 throw new IllegalArgumentException("Unsupported provider: " + provider);
         }
@@ -97,11 +100,33 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
                 Map<String, Object> response = oAuth2User.getAttribute("response");
                 return response != null ? (String) response.get("name") : null;
             case "github":
-                return oAuth2User.getAttribute("email");
             case "github-auth":
                 return oAuth2User.getAttribute("name");
             default:
                 throw new IllegalArgumentException("Unsupported provider: " + provider);
         }
+    }
+
+    private static String fetchPrimaryEmailFromGithub(OAuth2UserRequest userRequest) {
+        String token = userRequest.getAccessToken().getTokenValue();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<List<Map<String, Object>>> response = new RestTemplate()
+                .exchange(
+                        "https://api.github.com/user/emails",
+                        HttpMethod.GET,
+                        entity,
+                        new ParameterizedTypeReference<>() {}
+                );
+
+        return response.getBody().stream()
+                .filter(e -> Boolean.TRUE.equals(e.get("primary")) && Boolean.TRUE.equals(e.get("verified")))
+                .map(e -> (String) e.get("email"))
+                .findFirst()
+                .orElse(null);
     }
 }
