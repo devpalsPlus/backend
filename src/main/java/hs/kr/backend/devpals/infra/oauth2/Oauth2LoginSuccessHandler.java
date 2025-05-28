@@ -25,24 +25,21 @@ public class Oauth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException {
+
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+        String email = (String) oAuth2User.getAttributes().get("email");
         String provider = (String) request.getAttribute("provider");
 
-        if (provider == null) {
-            provider = oAuth2User.getAttributes().containsKey("kakao_account") ? "kakao" :
-                    oAuth2User.getAttributes().containsKey("response") ? "naver" :
-                            oAuth2User.getAttributes().containsKey("login") ? "github" : "google";
-        }
-
-        String email = CustomOauth2UserService.extractEmail(provider, oAuth2User);
         if (email == null) {
             throw new CustomException(ErrorException.USER_NOT_FOUND);
         }
 
         if ("github-auth".equals(provider)) {
             String githubUrl = oAuth2User.getAttribute("html_url");
+
             UserEntity user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
+
             user.updateGithub(githubUrl);
             userRepository.save(user);
 
