@@ -46,6 +46,9 @@ public class InquiryEntity {
     @Column(nullable = false)
     private Boolean state = false;
 
+    @Column(columnDefinition = "TEXT")
+    private String answer;
+
     @OneToMany(mappedBy = "inquiry", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default // Builder 사용시 필드 초기화가 안돼서 사용
     private List<InquiryImageEntity> images = new ArrayList<>();
