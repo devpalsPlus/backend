@@ -73,20 +73,25 @@ public class EvaluationService {
         // 프로젝트 참여자 조회
         List<ApplicantEntity> acceptedApplicants = applicantRepository.findAllByProjectIdAndStatus(projectId, ApplicantStatus.ACCEPTED);
 
-        // 프로젝트 이름은 참여자 중 아무거나에서 꺼냄
+        // 프로젝트 이름
         String projectName = acceptedApplicants.stream()
                 .findFirst()
                 .map(applicant -> applicant.getProject().getTitle())
-                .orElse("알 수 없는 프로젝트");
+                .orElse("프로젝트 참여 인원이 없습니다.");
 
-        // evaluator 자신 제외 + 응답 생성
+        // evaluator 자신 제외 + 평가 여부 및 점수 조회
         List<EvaluationMemberResponse> userData = acceptedApplicants.stream()
                 .filter(applicant -> !applicant.getUser().getId().equals(evaluatorId))
                 .map(applicant -> {
-                    UserEntity user = applicant.getUser();
-                    boolean isEvaluated = evaluationRepository.existsByProjectIdAndEvaluatorIdAndEvaluateeId(
-                            projectId, evaluatorId, user.getId());
-                    return EvaluationMemberResponse.of(user.getId(), user.getNickname(), isEvaluated);
+                    Long evaluateeId = applicant.getUser().getId();
+                    EvaluationEntity evaluation = evaluationRepository
+                            .findByProjectIdAndEvaluatorIdAndEvaluateeId(projectId, evaluatorId, evaluateeId)
+                            .orElse(null);
+
+                    boolean isEvaluated = (evaluation != null);
+                    List<Integer> scores = isEvaluated ? evaluation.getScores() : null;
+
+                    return EvaluationMemberResponse.of(evaluateeId, applicant.getUser().getNickname(), isEvaluated, scores);
                 })
                 .collect(Collectors.toList());
 
@@ -94,6 +99,7 @@ public class EvaluationService {
 
         return ResponseEntity.ok(new ApiResponse<>(200, true, "참여자 조회 성공", response));
     }
+
 
     public List<Integer> calculateAverageScores(Long userId) {
         List<EvaluationEntity> evaluations = evaluationRepository.findAllByEvaluateeId(userId);
@@ -124,5 +130,24 @@ public class EvaluationService {
         return averages;
     }
 
+    public boolean isAllEvaluated(Long projectId) {
+        List<ApplicantEntity> acceptedApplicants = applicantRepository.findByProjectIdAndStatus(
+                projectId, ApplicantStatus.ACCEPTED
+        );
+
+        if (acceptedApplicants.size() <= 1) return false;
+
+        List<Long> participantIds = acceptedApplicants.stream()
+                .map(applicant -> applicant.getUser().getId())
+                .toList();
+
+        int requiredEvaluationCount = participantIds.size() * (participantIds.size() - 1);
+
+        int actualEvaluationCount = evaluationRepository.countByProjectIdAndEvaluatorIdInAndEvaluateeIdIn(
+                projectId, participantIds, participantIds
+        );
+
+        return actualEvaluationCount == requiredEvaluationCount;
+    }
 
 }

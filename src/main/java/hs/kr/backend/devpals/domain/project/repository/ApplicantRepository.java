@@ -23,4 +23,5 @@ public interface ApplicantRepository extends JpaRepository<ApplicantEntity, Long
     Optional<ApplicantEntity> findByProjectIdAndUserId(Long projectId, Long evaluateeId);
 
     List<ApplicantEntity> findAllByProjectIdAndStatus(Long projectId, ApplicantStatus applicantStatus);
+    List<ApplicantEntity> findByProjectIdAndStatus(Long projectId, ApplicantStatus status);
 }

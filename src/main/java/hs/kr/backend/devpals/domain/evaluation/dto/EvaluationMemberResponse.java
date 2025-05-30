@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,11 +23,15 @@ public class EvaluationMemberResponse {
     @Schema(description = "평가 완료 여부", example = "true")
     private boolean isEvaluated;
 
-    public static EvaluationMemberResponse of(Long userId, String nickname, boolean isEvaluated) {
+    @Schema(description = "평가 점수 목록", example = "[5, 4, 3, 5, 4, 5]")
+    private List<Integer> scores;
+
+    public static EvaluationMemberResponse of(Long userId, String nickname, boolean isEvaluated, List<Integer> scores) {
         return EvaluationMemberResponse.builder()
                 .userId(userId)
                 .nickname(nickname)
                 .isEvaluated(isEvaluated)
+                .scores(scores)
                 .build();
     }
 }

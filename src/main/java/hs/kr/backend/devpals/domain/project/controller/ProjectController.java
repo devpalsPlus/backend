@@ -60,14 +60,6 @@ public class ProjectController {
         return projectService.getProjectCount();
     }
 
-    @GetMapping("/my")
-    @Operation(summary = "기획자가 등록한 프로젝트 목록", description = "기획자(본인)가 등록한 프로젝트 목록을 등록순으로 보여줍니다.")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "프로젝트 목록 가져오기 성공")
-    public ResponseEntity<ApiResponse<List<ProjectAuthoredResponse>>> getMyProject(
-            @RequestHeader("Authorization") String token) {
-        return projectService.getMyProject(token);
-    }
-
     @PutMapping("/{projectId}")
     @Operation(summary = "프로젝트 업데이트", description = "프로젝트를 업데이트 합니다.")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "프로젝트 업데이트 성공")
