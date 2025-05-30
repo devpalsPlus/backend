@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface EvaluationRepository  extends JpaRepository<EvaluationEntity, Long> {
@@ -14,4 +15,6 @@ public interface EvaluationRepository  extends JpaRepository<EvaluationEntity, L
     boolean existsByProjectIdAndEvaluatorIdAndEvaluateeId(Long projectId, Long evaluatorId, Long evaluateeId);
 
     List<EvaluationEntity> findAllByEvaluateeId(Long userId);
+
+    Optional<EvaluationEntity> findByProjectIdAndEvaluatorIdAndEvaluateeId(Long projectId, Long evaluatorId, Long evaluateeId);
 }
