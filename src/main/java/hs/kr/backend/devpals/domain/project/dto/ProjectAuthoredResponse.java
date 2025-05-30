@@ -40,9 +40,11 @@ public class ProjectAuthoredResponse {
     private List<PositionTagResponse> positions;
     private List<SkillTagResponse> skills;
     private Boolean canEvaluate;
+    private Boolean isAllEvaluated;
 
     // Entity -> DTO 변환 메서드
-    public static ProjectAuthoredResponse fromEntity(ProjectEntity project, List<PositionTagEntity> positionTag, List<SkillTagEntity> skillTag,MethodTypeEntity methodType) {
+    public static ProjectAuthoredResponse fromEntity(ProjectEntity project, List<PositionTagEntity> positionTag, List<SkillTagEntity> skillTag,MethodTypeEntity methodType
+                                                    , Boolean isAllEvaluated) {
         boolean canEvaluate = LocalDate.now().isAfter(project.getStartDate().plusMonths(1));
 
         return ProjectAuthoredResponse.builder()
@@ -74,6 +76,7 @@ public class ProjectAuthoredResponse {
                                 .collect(Collectors.toList())
                 )
                 .canEvaluate(canEvaluate)
+                .isAllEvaluated(isAllEvaluated)
                 .build();
     }
 }
