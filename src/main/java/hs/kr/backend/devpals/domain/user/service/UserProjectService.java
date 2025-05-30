@@ -1,6 +1,8 @@
 package hs.kr.backend.devpals.domain.user.service;
 
+import hs.kr.backend.devpals.domain.evaluation.service.EvaluationService;
 import hs.kr.backend.devpals.domain.project.dto.ProjectApplyResponse;
+import hs.kr.backend.devpals.domain.project.dto.ProjectAuthoredResponse;
 import hs.kr.backend.devpals.domain.project.dto.ProjectMyResponse;
 import hs.kr.backend.devpals.domain.project.entity.ApplicantEntity;
 import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
@@ -36,11 +38,12 @@ public class UserProjectService {
     private final ApplicantRepository applicantRepository;
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
-    private final ProjectFacade projectFacade;
     private final UserFacade userFacade;
+    private final EvaluationService evaluationService;
+    private final ProjectFacade projectFacade;
 
     @Transactional
-    public ResponseEntity<ApiResponse<List<ProjectMyResponse>>> getMyProject(String token) {
+    public ResponseEntity<ApiResponse<List<ProjectMyResponse>>> getMyParticipatedProjects(String token) {
 
         Long userId = jwtTokenValidator.getUserId(token);
 
@@ -67,8 +70,9 @@ public class UserProjectService {
 
                     List<Long> skillTagIds = project.getSkillTagsAsList();
                     List<SkillTagResponse> skillResponses = userFacade.getSkillTagResponses(skillTagIds);
+                    boolean isAllEvaluated = evaluationService.isAllEvaluated(project.getId());
 
-                    return ProjectMyResponse.fromEntity(project, skillResponses);
+                    return ProjectMyResponse.fromEntity(project, skillResponses, isAllEvaluated);
                 })
                 .collect(Collectors.toList());
 
@@ -86,7 +90,8 @@ public class UserProjectService {
                 .map(app -> {
                     ProjectEntity project = app.getProject();
                     List<SkillTagResponse> skills = userFacade.getSkillTagResponses(project.getSkillTagIds());
-                    return ProjectMyResponse.fromEntity(project, skills);
+                    boolean isAllEvaluated = evaluationService.isAllEvaluated(project.getId());
+                    return ProjectMyResponse.fromEntity(project, skills, isAllEvaluated);
                 })
                 .toList();
 
@@ -100,7 +105,8 @@ public class UserProjectService {
         List<ProjectMyResponse> createdProjects = projectRepository.findProjectsByUserId(user.getId()).stream()
                 .map(project -> {
                     List<SkillTagResponse> skills = userFacade.getSkillTagResponses(project.getSkillTagIds());
-                    return ProjectMyResponse.fromEntity(project, skills);
+                    boolean isAllEvaluated = evaluationService.isAllEvaluated(project.getId());
+                    return ProjectMyResponse.fromEntity(project, skills, isAllEvaluated);
                 })
                 .toList();
 
@@ -139,4 +145,25 @@ public class UserProjectService {
         return ResponseEntity.ok(new ApiResponse<>(200, true, "내 지원 프로젝트 조회 성공", myProjects));
     }
 
+    public ResponseEntity<ApiResponse<List<ProjectAuthoredResponse>>> getMyProject(String token) {
+        Long userId = jwtTokenValidator.getUserId(token);
+
+        List<ProjectEntity> projects = projectRepository.findProjectsByUserId(userId);
+
+        List<ProjectAuthoredResponse> projectAuthoredResponses = projects.stream()
+                .map(project -> {
+                    boolean isAllEvaluated = evaluationService.isAllEvaluated(project.getId());
+
+                    return ProjectAuthoredResponse.fromEntity(
+                            project,
+                            userFacade.getPositionTagByIds(project.getPositionTagIds()),
+                            userFacade.getSkillTagsByIds(project.getSkillTagIds()),
+                            projectFacade.getMethodTypeById(project.getMethodTypeId()),
+                            isAllEvaluated
+                    );
+                })
+                .toList();
+
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "내 프로젝트 조회 성공", projectAuthoredResponses));
+    }
 }

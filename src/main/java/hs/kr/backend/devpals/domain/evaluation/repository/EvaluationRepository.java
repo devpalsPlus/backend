@@ -16,5 +16,7 @@ public interface EvaluationRepository  extends JpaRepository<EvaluationEntity, L
 
     List<EvaluationEntity> findAllByEvaluateeId(Long userId);
 
+    int countByProjectIdAndEvaluatorIdInAndEvaluateeIdIn(Long projectId, List<Long> evaluators, List<Long> evaluatees);
+
     Optional<EvaluationEntity> findByProjectIdAndEvaluatorIdAndEvaluateeId(Long projectId, Long evaluatorId, Long evaluateeId);
 }

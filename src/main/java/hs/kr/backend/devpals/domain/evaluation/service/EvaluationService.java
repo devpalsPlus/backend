@@ -130,5 +130,24 @@ public class EvaluationService {
         return averages;
     }
 
+    public boolean isAllEvaluated(Long projectId) {
+        List<ApplicantEntity> acceptedApplicants = applicantRepository.findByProjectIdAndStatus(
+                projectId, ApplicantStatus.ACCEPTED
+        );
+
+        if (acceptedApplicants.size() <= 1) return false;
+
+        List<Long> participantIds = acceptedApplicants.stream()
+                .map(applicant -> applicant.getUser().getId())
+                .toList();
+
+        int requiredEvaluationCount = participantIds.size() * (participantIds.size() - 1);
+
+        int actualEvaluationCount = evaluationRepository.countByProjectIdAndEvaluatorIdInAndEvaluateeIdIn(
+                projectId, participantIds, participantIds
+        );
+
+        return actualEvaluationCount == requiredEvaluationCount;
+    }
 
 }
