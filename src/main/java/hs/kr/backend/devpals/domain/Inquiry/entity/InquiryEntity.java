@@ -46,6 +46,9 @@ public class InquiryEntity {
     @Column(nullable = false)
     private Boolean state = false;
 
+    @Column(columnDefinition = "TEXT")
+    private String answer;
+
     @OneToMany(mappedBy = "inquiry", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default // Builder 사용시 필드 초기화가 안돼서 사용
     private List<InquiryImageEntity> images = new ArrayList<>();
@@ -61,12 +64,13 @@ public class InquiryEntity {
     @Column(nullable = false)
     private LocalDateTime updatedAt = LocalDateTime.now();
 
-    // 업데이트용 메서드 추가 가능
-    public void update(String title, String content, String category) {
-        this.title = title;
-        this.content = content;
-        this.category = category;
-        this.updatedAt = LocalDateTime.now();
+    public void writeAnswer(String answer) {
+        this.answer = answer;
+        this.state = true;
+    }
+
+    public void updateAnswer(String answer) {
+        this.answer = answer;
     }
 
     public static InquiryEntity from(InquiryDto dto, UserEntity user) {

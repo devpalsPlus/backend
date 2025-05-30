@@ -18,6 +18,7 @@ public enum ErrorException {
     INVALID_PROJECT_COMMENT(400, "프로젝트와 댓글이 매칭되지 않습니다."),
     INVALID_EVALUATION_SCORES(400, "점수는 6개 항목으로 구성되어야 합니다."),
     INVALID_EVALUATION_TARGET(400, "평가 대상은 프로젝트에 참여 중인 유저여야 합니다."),
+    ALREADY_ANSWERED(400, "이미 답변이 등록된 문의입니다." ),
 
     UNAUTHORIZED(401, "인증 권한이 없습니다."),
     TOKEN_EXPIRED(401, "토큰이 만료되었습니다."),
@@ -49,6 +50,7 @@ public enum ErrorException {
     FAQ_NOT_FOUND(404, "FAQ글을 찾을 수 없습니다."),
     APPLICANT_NOT_FOUND(404, "해당 프로젝트에 참여자로 등록된 유저가 아닙니다."),
     NOT_FOUND_NOTICE(404, "공지사항을 찾을 수 없습니다."),
+    ANSWER_NOT_FOUND(404, "해당 문의에 대한 답변이 존재하지 않습니다."),
 
     DUPLICATE_EMAIL(409, "중복된 이메일 입니다."),
     DUPLICATE_NICKNAME(409, "중복된 닉네임 입니다."),
