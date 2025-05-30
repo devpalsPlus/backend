@@ -14,4 +14,6 @@ public interface EvaluationRepository  extends JpaRepository<EvaluationEntity, L
     boolean existsByProjectIdAndEvaluatorIdAndEvaluateeId(Long projectId, Long evaluatorId, Long evaluateeId);
 
     List<EvaluationEntity> findAllByEvaluateeId(Long userId);
+
+    int countByProjectIdAndEvaluatorIdInAndEvaluateeIdIn(Long projectId, List<Long> evaluators, List<Long> evaluatees);
 }

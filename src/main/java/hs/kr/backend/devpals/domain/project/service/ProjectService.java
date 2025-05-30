@@ -155,21 +155,6 @@ public class ProjectService {
         return ResponseEntity.ok(new ApiResponse<>(200, true, "프로젝트 상세 정보입니다.", dto));
     }
 
-    public ResponseEntity<ApiResponse<List<ProjectAuthoredResponse>>> getMyProject(String token) {
-        Long userId = jwtTokenValidator.getUserId(token);
-        List<ProjectEntity> projects = projectRepository.findProjectsByUserId(userId);
-        List<ProjectAuthoredResponse> projectAuthoredResponses = projects.stream()
-                .map(project -> ProjectAuthoredResponse.fromEntity(
-                        project,
-                        userFacade.getPositionTagByIds(project.getPositionTagIds()),
-                        userFacade.getSkillTagsByIds(project.getSkillTagIds()),
-                        projectFacade.getMethodTypeById(project.getMethodTypeId())
-                ))
-                .toList();
-
-        return ResponseEntity.ok(new ApiResponse<>(200, true, "내 프로젝트 조회 성공", projectAuthoredResponses));
-    }
-
     // 프로젝트 모집 종료하기
     @Transactional
     public ResponseEntity<ApiResponse<ProjectCloseResponse>> closeProject(Long projectId, String token) {
