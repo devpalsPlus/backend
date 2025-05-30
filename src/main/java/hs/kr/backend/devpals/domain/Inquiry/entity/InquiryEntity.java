@@ -64,12 +64,13 @@ public class InquiryEntity {
     @Column(nullable = false)
     private LocalDateTime updatedAt = LocalDateTime.now();
 
-    // 업데이트용 메서드 추가 가능
-    public void update(String title, String content, String category) {
-        this.title = title;
-        this.content = content;
-        this.category = category;
-        this.updatedAt = LocalDateTime.now();
+    public void writeAnswer(String answer) {
+        this.answer = answer;
+        this.state = true;
+    }
+
+    public void updateAnswer(String answer) {
+        this.answer = answer;
     }
 
     public static InquiryEntity from(InquiryDto dto, UserEntity user) {
