@@ -1,9 +1,7 @@
 package hs.kr.backend.devpals.domain.evaluation.repository;
 
 import hs.kr.backend.devpals.domain.evaluation.entity.EvaluationEntity;
-import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -16,7 +14,7 @@ public interface EvaluationRepository  extends JpaRepository<EvaluationEntity, L
 
     List<EvaluationEntity> findAllByEvaluateeId(Long userId);
 
-    int countByProjectIdAndEvaluatorIdInAndEvaluateeIdIn(Long projectId, List<Long> evaluators, List<Long> evaluatees);
+    int countByProjectIdAndEvaluatorIdAndEvaluateeIdIn(Long projectId, Long evaluatorId, List<Long> evaluateeIds);
 
     Optional<EvaluationEntity> findByProjectIdAndEvaluatorIdAndEvaluateeId(Long projectId, Long evaluatorId, Long evaluateeId);
 }

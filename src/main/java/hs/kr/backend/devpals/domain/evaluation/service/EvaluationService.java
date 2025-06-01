@@ -135,19 +135,31 @@ public class EvaluationService {
                 projectId, ApplicantStatus.ACCEPTED
         );
 
-        if (acceptedApplicants.size() <= 1) return false;
-
         List<Long> participantIds = acceptedApplicants.stream()
                 .map(applicant -> applicant.getUser().getId())
                 .toList();
 
-        int requiredEvaluationCount = participantIds.size() * (participantIds.size() - 1);
+        if (participantIds.isEmpty()) {
+            return false;
+        }
 
-        int actualEvaluationCount = evaluationRepository.countByProjectIdAndEvaluatorIdInAndEvaluateeIdIn(
-                projectId, participantIds, participantIds
-        );
+        for (Long evaluatorId : participantIds) {
+            int completedCount = evaluationRepository.countByProjectIdAndEvaluatorIdAndEvaluateeIdIn(
+                    projectId, evaluatorId, participantIds.stream()
+                            .filter(id -> !id.equals(evaluatorId))
+                            .toList()
+            );
 
-        return actualEvaluationCount == requiredEvaluationCount;
+            int expectedCount = participantIds.size() - 1;
+
+            if (completedCount < expectedCount) {
+                return false;
+            }
+        }
+
+        return true;
     }
+
+
 
 }

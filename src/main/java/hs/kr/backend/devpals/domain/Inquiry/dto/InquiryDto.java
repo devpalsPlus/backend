@@ -1,5 +1,6 @@
 package hs.kr.backend.devpals.domain.Inquiry.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import hs.kr.backend.devpals.domain.Inquiry.entity.InquiryEntity;
 import hs.kr.backend.devpals.domain.Inquiry.entity.InquiryImageEntity;
@@ -10,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -43,6 +45,15 @@ public class InquiryDto {
     )
     private List<String> imageUrls;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Schema(description = "문의 작성 날짜", example = "2025-06-01", accessMode = Schema.AccessMode.READ_ONLY)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private LocalDateTime createdAt;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Schema(description = "문의 작성 유저 정보", example = "ID, Nickname, Img", accessMode = Schema.AccessMode.READ_ONLY)
+    private InquiryWriterResponse user;
+
     public static InquiryDto fromEntity(InquiryEntity inquiry) {
         List<String> imageUrls = inquiry.getImages()
                 .stream()
@@ -56,6 +67,8 @@ public class InquiryDto {
                 .category(inquiry.getCategory())
                 .state(inquiry.getState())
                 .imageUrls(imageUrls)
+                .createdAt(inquiry.getCreatedAt())
+                .user(InquiryWriterResponse.fromEntity(inquiry.getUser()))
                 .build();
     }
 }
