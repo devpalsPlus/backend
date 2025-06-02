@@ -22,8 +22,6 @@ import java.util.stream.Collectors;
 public class FaqService {
 
     private final FaqRepository faqRepository;
-    private final JwtTokenValidator jwtTokenValidator;
-    private final UserRepository userRepository;
 
     public ResponseEntity<ApiResponse<List<FaqDTO>>> getAllFaq(String keyword) {
         List<FaqEntity> faqs = keyword.isBlank()
