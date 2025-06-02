@@ -1,5 +1,6 @@
 package hs.kr.backend.devpals.domain.notice.service;
 
+import hs.kr.backend.devpals.domain.faq.service.FaqAdminService;
 import hs.kr.backend.devpals.domain.faq.service.FaqService;
 import hs.kr.backend.devpals.domain.notice.dto.NoticeDTO;
 import hs.kr.backend.devpals.domain.notice.dto.NoticeDetailResponse;
@@ -26,11 +27,11 @@ import java.util.Optional;
 public class NoticeService {
 
     private final NoticeRepository noticeRepository;
-    private final FaqService faqService;
+    private final FaqAdminService faqAdminService;
 
     @Transactional
     public ResponseEntity<ApiResponse<String>> createNotice(String token, NoticeDTO noticeDTO) {
-        faqService.validateAdmin(token);
+        faqAdminService.validateAdmin(token);
 
         NoticeEntity newNotice = NoticeEntity.fromDTO(noticeDTO);
 
@@ -40,7 +41,7 @@ public class NoticeService {
 
     @Transactional
     public ResponseEntity<ApiResponse<String>> updateNotice(String token, Long noticeId, NoticeDTO noticeDTO) {
-        faqService.validateAdmin(token);
+        faqAdminService.validateAdmin(token);
 
         NoticeEntity existingNotice = noticeRepository.findById(noticeId).orElse(null);
         if (existingNotice == null) {
@@ -87,7 +88,7 @@ public class NoticeService {
 
     @Transactional
     public ResponseEntity<ApiResponse<String>> deleteNotice(String token, Long noticeId) {
-        faqService.validateAdmin(token);
+        faqAdminService.validateAdmin(token);
 
         NoticeEntity notice = noticeRepository.findById(noticeId).orElse(null);
         if (notice == null) {
