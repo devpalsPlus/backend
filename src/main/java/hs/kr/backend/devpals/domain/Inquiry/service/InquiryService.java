@@ -114,35 +114,4 @@ public class InquiryService {
         return ResponseEntity.ok(new ApiResponse<>(200, true, "문의 삭제 성공", null));
     }
 
-    @Transactional
-    public ResponseEntity<ApiResponse<String>> registerAnswer(String token, Long inquiryId, String answer) {
-        faqAdminService.validateAdmin(token);
-
-        InquiryEntity inquiry = inquiryRepository.findById(inquiryId)
-                .orElseThrow(() -> new CustomException(ErrorException.INQUIRY_NOT_FOUND));
-
-        if (inquiry.getAnswer() != null) {
-            throw new CustomException(ErrorException.ALREADY_ANSWERED);
-        }
-
-        inquiry.writeAnswer(answer);
-
-        return ResponseEntity.ok(new ApiResponse<>(200, true, "답변 등록 성공", null));
-    }
-
-    @Transactional
-    public ResponseEntity<ApiResponse<String>> updateAnswer(String token, Long inquiryId, String answer) {
-        faqAdminService.validateAdmin(token);
-
-        InquiryEntity inquiry = inquiryRepository.findById(inquiryId)
-                .orElseThrow(() -> new CustomException(ErrorException.INQUIRY_NOT_FOUND));
-
-        if (inquiry.getAnswer() == null) {
-            throw new CustomException(ErrorException.ANSWER_NOT_FOUND);
-        }
-
-        inquiry.updateAnswer(answer);
-
-        return ResponseEntity.ok(new ApiResponse<>(200, true, "답변 수정 성공", null));
-    }
 }
