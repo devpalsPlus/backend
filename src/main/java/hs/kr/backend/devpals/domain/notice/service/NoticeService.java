@@ -27,32 +27,6 @@ import java.util.Optional;
 public class NoticeService {
 
     private final NoticeRepository noticeRepository;
-    private final FaqAdminService faqAdminService;
-
-    @Transactional
-    public ResponseEntity<ApiResponse<String>> createNotice(String token, NoticeDTO noticeDTO) {
-        faqAdminService.validateAdmin(token);
-
-        NoticeEntity newNotice = NoticeEntity.fromDTO(noticeDTO);
-
-        noticeRepository.save(newNotice);
-        return ResponseEntity.ok(new ApiResponse<>(200, true, "공지사항 작성 성공", null));
-    }
-
-    @Transactional
-    public ResponseEntity<ApiResponse<String>> updateNotice(String token, Long noticeId, NoticeDTO noticeDTO) {
-        faqAdminService.validateAdmin(token);
-
-        NoticeEntity existingNotice = noticeRepository.findById(noticeId).orElse(null);
-        if (existingNotice == null) {
-            return ResponseEntity.ok(new ApiResponse<>(404, false, "공지사항글이 존재하지 않습니다", null));
-        }
-
-        existingNotice.update(noticeDTO.getTitle(), noticeDTO.getContent());
-        noticeRepository.save(existingNotice);
-
-        return ResponseEntity.ok(new ApiResponse<>(200, true, "공지사항 업데이트 성공", null));
-    }
 
     public ResponseEntity<ApiResponse<NoticeListResponse>> getNotices(String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
@@ -84,19 +58,6 @@ public class NoticeService {
         );
 
         return ResponseEntity.ok(new ApiResponse<>(200, true, "공지사항 상세 내용 가져오기 성공", response));
-    }
-
-    @Transactional
-    public ResponseEntity<ApiResponse<String>> deleteNotice(String token, Long noticeId) {
-        faqAdminService.validateAdmin(token);
-
-        NoticeEntity notice = noticeRepository.findById(noticeId).orElse(null);
-        if (notice == null) {
-            return ResponseEntity.ok(new ApiResponse<>(404, false, "공지사항글이 존재하지 않습니다", null));
-        }
-
-        noticeRepository.delete(notice);
-        return ResponseEntity.ok(new ApiResponse<>(200, true, "공지사항 삭제 성공", null));
     }
 
 }
