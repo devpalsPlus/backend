@@ -75,41 +75,4 @@ public class InquiryController {
         return inquiryService.deleteInquiry(token, inquiryId);
     }
 
-    @PostMapping("/{inquiryId}/answer")
-    @Operation(
-            summary = "문의 답변 등록",
-            description = "특정 문의에 대해 관리자가 최초 답변을 등록합니다.",
-            responses = {
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "답변 등록 성공"),
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청 - 이미 답변됨"),
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "해당 문의 없음")
-            }
-    )
-    public ResponseEntity<ApiResponse<String>> registerAnswer(
-            @RequestHeader("Authorization") String token,
-            @PathVariable Long inquiryId,
-            @RequestParam String answer
-    ) {
-        return inquiryService.registerAnswer(token, inquiryId, answer);
-    }
-
-    @PatchMapping("/{inquiryId}/answer")
-    @Operation(
-            summary = "문의 답변 수정",
-            description = "이미 등록된 문의 답변을 수정합니다. (관리자 전용)",
-            responses = {
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "답변 수정 성공"),
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "답변이 존재하지 않음"),
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "해당 문의 없음")
-            }
-    )
-    public ResponseEntity<ApiResponse<String>> updateAnswer(
-            @RequestHeader("Authorization") String token,
-            @PathVariable Long inquiryId,
-            @RequestParam String answer
-    ) {
-        return inquiryService.updateAnswer(token, inquiryId, answer);
-    }
-
-
 }
