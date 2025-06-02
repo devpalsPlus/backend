@@ -28,7 +28,6 @@ public class InquiryService {
     private final AwsS3Client awsS3Client;
     private final JwtTokenValidator jwtTokenValidator;
     private final UserRepository userRepository;
-    private final FaqAdminService faqAdminService;
 
     @Transactional
     public ResponseEntity<ApiResponse<String>> createInquiry(String token, InquiryDto request, List<MultipartFile> images) {
