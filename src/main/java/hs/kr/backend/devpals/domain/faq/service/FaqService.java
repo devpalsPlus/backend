@@ -22,18 +22,6 @@ import java.util.stream.Collectors;
 public class FaqService {
 
     private final FaqRepository faqRepository;
-    private final JwtTokenValidator jwtTokenValidator;
-    private final UserRepository userRepository;
-
-    public ResponseEntity<ApiResponse<String>> createFaq(String token, FaqDTO request) {
-        validateAdmin(token);
-
-        FaqEntity faq = FaqEntity.from(request);
-
-        faqRepository.save(faq);
-
-        return ResponseEntity.ok(new ApiResponse<>(200, true, "FAQ 작성 성공", null));
-    }
 
     public ResponseEntity<ApiResponse<List<FaqDTO>>> getAllFaq(String keyword) {
         List<FaqEntity> faqs = keyword.isBlank()
@@ -48,8 +36,7 @@ public class FaqService {
     }
 
 
-    public ResponseEntity<ApiResponse<FaqDTO>> getFaq(String token, Long faqId) {
-        validateAdmin(token);
+    public ResponseEntity<ApiResponse<FaqDTO>> getFaq(Long faqId) {
 
         return faqRepository.findById(faqId)
                 .map(faq -> {
@@ -61,40 +48,4 @@ public class FaqService {
                 );
     }
 
-    @Transactional
-    public ResponseEntity<ApiResponse<String>> updateFaq(String token, Long id, FaqDTO faqDTO) {
-        validateAdmin(token);
-
-        FaqEntity faq = faqRepository.findById(id).orElse(null);
-        if (faq == null) {
-            return ResponseEntity.ok(new ApiResponse<>(404, false, "FAQ글이 존재하지 않습니다", null));
-        }
-
-        faq.update(faqDTO.getTitle(), faqDTO.getContent());
-        faqRepository.save(faq);
-
-        return ResponseEntity.ok(new ApiResponse<>(200, true, "FAQ 수정 완료", null));
-    }
-    @Transactional
-    public ResponseEntity<ApiResponse<String>> deleteFaq(String token, Long faqId) {
-        validateAdmin(token);
-
-        FaqEntity faq = faqRepository.findById(faqId).orElse(null);
-        if (faq == null) {
-            return ResponseEntity.ok(new ApiResponse<>(404, false, "FAQ글이 존재하지 않습니다", null));
-        }
-
-        faqRepository.delete(faq);
-        return ResponseEntity.ok(new ApiResponse<>(200, true, "FAQ 삭제 완료", null));
-    }
-
-    public void validateAdmin(String token) {
-        Long userId = jwtTokenValidator.getUserId(token);
-        UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
-
-        if (!user.getIsAdmin()) {
-            throw new CustomException(ErrorException.NO_PERMISSION);
-        }
-    }
 }

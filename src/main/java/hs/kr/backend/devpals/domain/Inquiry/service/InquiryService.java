@@ -4,6 +4,7 @@ import hs.kr.backend.devpals.domain.Inquiry.dto.InquiryDto;
 import hs.kr.backend.devpals.domain.Inquiry.entity.InquiryEntity;
 import hs.kr.backend.devpals.domain.Inquiry.entity.InquiryImageEntity;
 import hs.kr.backend.devpals.domain.Inquiry.repository.InquiryRepository;
+import hs.kr.backend.devpals.domain.faq.service.FaqAdminService;
 import hs.kr.backend.devpals.domain.faq.service.FaqService;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
@@ -27,7 +28,7 @@ public class InquiryService {
     private final AwsS3Client awsS3Client;
     private final JwtTokenValidator jwtTokenValidator;
     private final UserRepository userRepository;
-    private final FaqService faqService;
+    private final FaqAdminService faqAdminService;
 
     @Transactional
     public ResponseEntity<ApiResponse<String>> createInquiry(String token, InquiryDto request, List<MultipartFile> images) {
@@ -113,35 +114,4 @@ public class InquiryService {
         return ResponseEntity.ok(new ApiResponse<>(200, true, "문의 삭제 성공", null));
     }
 
-    @Transactional
-    public ResponseEntity<ApiResponse<String>> registerAnswer(String token, Long inquiryId, String answer) {
-        faqService.validateAdmin(token);
-
-        InquiryEntity inquiry = inquiryRepository.findById(inquiryId)
-                .orElseThrow(() -> new CustomException(ErrorException.INQUIRY_NOT_FOUND));
-
-        if (inquiry.getAnswer() != null) {
-            throw new CustomException(ErrorException.ALREADY_ANSWERED);
-        }
-
-        inquiry.writeAnswer(answer);
-
-        return ResponseEntity.ok(new ApiResponse<>(200, true, "답변 등록 성공", null));
-    }
-
-    @Transactional
-    public ResponseEntity<ApiResponse<String>> updateAnswer(String token, Long inquiryId, String answer) {
-        faqService.validateAdmin(token);
-
-        InquiryEntity inquiry = inquiryRepository.findById(inquiryId)
-                .orElseThrow(() -> new CustomException(ErrorException.INQUIRY_NOT_FOUND));
-
-        if (inquiry.getAnswer() == null) {
-            throw new CustomException(ErrorException.ANSWER_NOT_FOUND);
-        }
-
-        inquiry.updateAnswer(answer);
-
-        return ResponseEntity.ok(new ApiResponse<>(200, true, "답변 수정 성공", null));
-    }
 }
