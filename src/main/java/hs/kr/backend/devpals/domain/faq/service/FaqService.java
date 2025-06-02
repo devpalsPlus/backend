@@ -49,7 +49,6 @@ public class FaqService {
 
 
     public ResponseEntity<ApiResponse<FaqDTO>> getFaq(String token, Long faqId) {
-        validateAdmin(token);
 
         return faqRepository.findById(faqId)
                 .map(faq -> {
