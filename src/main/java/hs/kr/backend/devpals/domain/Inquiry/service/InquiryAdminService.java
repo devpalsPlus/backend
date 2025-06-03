@@ -24,9 +24,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class InquiryAdminService {
     private final InquiryRepository inquiryRepository;
-    private final AwsS3Client awsS3Client;
-    private final JwtTokenValidator jwtTokenValidator;
-    private final UserRepository userRepository;
     private final FaqAdminService faqAdminService;
 
 
