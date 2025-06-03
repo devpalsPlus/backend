@@ -17,7 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/inquiry")
 @RequiredArgsConstructor
-@Tag(name = "Inquiry API", description = "문의 관련 API")
+@Tag(name = "Inquiry Admin API", description = "문의 관련 관리자 API")
 public class InquiryAdminController {
     private final InquiryAdminService inquiryAdminService;
 
