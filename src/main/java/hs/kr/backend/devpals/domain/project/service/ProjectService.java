@@ -7,14 +7,13 @@ import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
 import hs.kr.backend.devpals.domain.project.facade.ProjectFacade;
 import hs.kr.backend.devpals.domain.project.repository.ApplicantRepository;
 import hs.kr.backend.devpals.domain.project.repository.ProjectRepository;
-import hs.kr.backend.devpals.domain.user.dto.PositionTagResponse;
-import hs.kr.backend.devpals.domain.user.dto.SkillTagResponse;
+import hs.kr.backend.devpals.domain.tag.dto.PositionTagResponse;
+import hs.kr.backend.devpals.domain.tag.dto.SkillTagResponse;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
-import hs.kr.backend.devpals.domain.user.facade.UserFacade;
+import hs.kr.backend.devpals.domain.tag.service.TagService;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.domain.user.service.AlarmService;
 import hs.kr.backend.devpals.global.common.ApiResponse;
-import hs.kr.backend.devpals.global.common.enums.AlarmFilter;
 import hs.kr.backend.devpals.global.common.enums.ApplicantStatus;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
@@ -36,7 +35,7 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
-    private final UserFacade userFacade;
+    private final TagService tagService;
     private final ProjectFacade projectFacade;
     private final JwtTokenValidator jwtTokenValidator;
     private final ApplicantRepository applicantRepository;
@@ -228,8 +227,8 @@ public class ProjectService {
 
 
     private ProjectAllDto convertToDto(ProjectEntity project) {
-        List<SkillTagResponse> skillResponses = userFacade.getSkillTagResponses(project.getSkillTagIds());
-        List<PositionTagResponse> positionResponses = userFacade.getPositionTagResponses(project.getPositionTagIds());
+        List<SkillTagResponse> skillResponses = tagService.getSkillTagResponses(project.getSkillTagIds());
+        List<PositionTagResponse> positionResponses = tagService.getPositionTagResponses(project.getPositionTagIds());
         MethodTypeResponse methodTypeResponse = projectFacade.getMethodTypeResponse(project.getMethodTypeId());
         List<ApplicantEntity> applicants = applicantRepository.findByProject(project);
 

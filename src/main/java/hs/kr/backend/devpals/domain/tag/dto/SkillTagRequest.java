@@ -1,4 +1,4 @@
-package hs.kr.backend.devpals.domain.user.dto;
+package hs.kr.backend.devpals.domain.tag.dto;
 
 
 import lombok.AllArgsConstructor;

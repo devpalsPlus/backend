@@ -1,9 +1,8 @@
 package hs.kr.backend.devpals.domain.project.dto;
 
 import hs.kr.backend.devpals.domain.project.entity.ApplicantEntity;
-import hs.kr.backend.devpals.domain.user.facade.UserFacade;
+import hs.kr.backend.devpals.domain.tag.service.TagService;
 import hs.kr.backend.devpals.global.common.enums.ApplicantStatus;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,9 +19,9 @@ public class ProjectApplicantResultResponse {
     private List<ProjectApplicantResultDto> accepted;
     private List<ProjectApplicantResultDto> rejected;
 
-    public static ProjectApplicantResultResponse fromEntity(List<ApplicantEntity> applicants,UserFacade userFacade) {
+    public static ProjectApplicantResultResponse fromEntity(List<ApplicantEntity> applicants, TagService tagService) {
         Map<Boolean, List<ProjectApplicantResultDto>> partitioned = applicants.stream()
-                .map(applicant -> ProjectApplicantResultDto.fromEntity(applicant, userFacade))
+                .map(applicant -> ProjectApplicantResultDto.fromEntity(applicant, tagService))
                 .collect(Collectors.partitioningBy(dto -> dto.getStatus().equals(ApplicantStatus.ACCEPTED)));
 
 

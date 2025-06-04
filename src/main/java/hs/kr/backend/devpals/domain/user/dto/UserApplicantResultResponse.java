@@ -1,7 +1,7 @@
 package hs.kr.backend.devpals.domain.user.dto;
 
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
-import hs.kr.backend.devpals.domain.user.facade.UserFacade;
+import hs.kr.backend.devpals.domain.tag.service.TagService;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -20,10 +20,10 @@ public class UserApplicantResultResponse {
     private List<UserSkillTagResponse> userSkillTags;
 
 
-    public static UserApplicantResultResponse fromEntity(UserEntity user, UserFacade userFacade) {
+    public static UserApplicantResultResponse fromEntity(UserEntity user, TagService tagService) {
         List<Long> skillIds = user.getSkillIds();
 
-        List<UserSkillTagResponse> skillResponses = userFacade.getSkillTagsByIds(skillIds).stream()
+        List<UserSkillTagResponse> skillResponses = tagService.getSkillTagsByIds(skillIds).stream()
                 .map(UserSkillTagResponse::fromEntity)
                 .collect(Collectors.toList());
 

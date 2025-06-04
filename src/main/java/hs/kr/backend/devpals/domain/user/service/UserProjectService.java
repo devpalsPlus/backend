@@ -9,9 +9,9 @@ import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
 import hs.kr.backend.devpals.domain.project.facade.ProjectFacade;
 import hs.kr.backend.devpals.domain.project.repository.ApplicantRepository;
 import hs.kr.backend.devpals.domain.project.repository.ProjectRepository;
-import hs.kr.backend.devpals.domain.user.dto.SkillTagResponse;
+import hs.kr.backend.devpals.domain.tag.dto.SkillTagResponse;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
-import hs.kr.backend.devpals.domain.user.facade.UserFacade;
+import hs.kr.backend.devpals.domain.tag.service.TagService;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.common.enums.ApplicantStatus;
@@ -38,7 +38,7 @@ public class UserProjectService {
     private final ApplicantRepository applicantRepository;
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
-    private final UserFacade userFacade;
+    private final TagService tagService;
     private final EvaluationService evaluationService;
     private final ProjectFacade projectFacade;
 
@@ -69,7 +69,7 @@ public class UserProjectService {
                     ProjectEntity project = application.getProject();
 
                     List<Long> skillTagIds = project.getSkillTagsAsList();
-                    List<SkillTagResponse> skillResponses = userFacade.getSkillTagResponses(skillTagIds);
+                    List<SkillTagResponse> skillResponses = tagService.getSkillTagResponses(skillTagIds);
                     boolean isAllEvaluated = evaluationService.isAllEvaluated(project.getId());
 
                     return ProjectMyResponse.fromEntity(project, skillResponses, isAllEvaluated);
@@ -89,7 +89,7 @@ public class UserProjectService {
                 .filter(app -> app.getStatus() == ApplicantStatus.ACCEPTED)
                 .map(app -> {
                     ProjectEntity project = app.getProject();
-                    List<SkillTagResponse> skills = userFacade.getSkillTagResponses(project.getSkillTagIds());
+                    List<SkillTagResponse> skills = tagService.getSkillTagResponses(project.getSkillTagIds());
                     boolean isAllEvaluated = evaluationService.isAllEvaluated(project.getId());
                     return ProjectMyResponse.fromEntity(project, skills, isAllEvaluated);
                 })
@@ -104,7 +104,7 @@ public class UserProjectService {
 
         List<ProjectMyResponse> createdProjects = projectRepository.findProjectsByUserId(user.getId()).stream()
                 .map(project -> {
-                    List<SkillTagResponse> skills = userFacade.getSkillTagResponses(project.getSkillTagIds());
+                    List<SkillTagResponse> skills = tagService.getSkillTagResponses(project.getSkillTagIds());
                     boolean isAllEvaluated = evaluationService.isAllEvaluated(project.getId());
                     return ProjectMyResponse.fromEntity(project, skills, isAllEvaluated);
                 })
@@ -156,8 +156,8 @@ public class UserProjectService {
 
                     return ProjectAuthoredResponse.fromEntity(
                             project,
-                            userFacade.getPositionTagByIds(project.getPositionTagIds()),
-                            userFacade.getSkillTagsByIds(project.getSkillTagIds()),
+                            tagService.getPositionTagByIds(project.getPositionTagIds()),
+                            tagService.getSkillTagsByIds(project.getSkillTagIds()),
                             projectFacade.getMethodTypeById(project.getMethodTypeId()),
                             isAllEvaluated
                     );

@@ -1,6 +1,6 @@
 package hs.kr.backend.devpals.domain.user.dto;
 
-import hs.kr.backend.devpals.domain.user.entity.SkillTagEntity;
+import hs.kr.backend.devpals.domain.tag.entity.SkillTagEntity;
 import lombok.Builder;
 import lombok.Getter;
 
