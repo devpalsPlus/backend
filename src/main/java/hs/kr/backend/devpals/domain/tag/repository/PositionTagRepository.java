@@ -1,7 +1,6 @@
-package hs.kr.backend.devpals.domain.user.repository;
+package hs.kr.backend.devpals.domain.tag.repository;
 
-import hs.kr.backend.devpals.domain.user.entity.PositionTagEntity;
-import hs.kr.backend.devpals.domain.user.entity.UserEntity;
+import hs.kr.backend.devpals.domain.tag.entity.PositionTagEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

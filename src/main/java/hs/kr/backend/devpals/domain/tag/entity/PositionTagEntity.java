@@ -1,4 +1,4 @@
-package hs.kr.backend.devpals.domain.user.entity;
+package hs.kr.backend.devpals.domain.tag.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;

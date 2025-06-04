@@ -1,10 +1,10 @@
-package hs.kr.backend.devpals.domain.user.controller;
+package hs.kr.backend.devpals.domain.tag.controller;
 
-import hs.kr.backend.devpals.domain.user.dto.PositionTagRequest;
-import hs.kr.backend.devpals.domain.user.dto.SkillTagRequest;
-import hs.kr.backend.devpals.domain.user.entity.PositionTagEntity;
-import hs.kr.backend.devpals.domain.user.entity.SkillTagEntity;
-import hs.kr.backend.devpals.domain.user.facade.UserFacade;
+import hs.kr.backend.devpals.domain.tag.dto.PositionTagRequest;
+import hs.kr.backend.devpals.domain.tag.dto.SkillTagRequest;
+import hs.kr.backend.devpals.domain.tag.entity.PositionTagEntity;
+import hs.kr.backend.devpals.domain.tag.entity.SkillTagEntity;
+import hs.kr.backend.devpals.domain.tag.service.TagService;
 import hs.kr.backend.devpals.global.common.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -21,9 +21,9 @@ import java.util.List;
 @RestController
 @RequestMapping
 @Tag(name = "Skill,Position API", description = "스킬, 포지션을 가져오는 API")
-public class UserFacadeController {
+public class TagController {
 
-    private final UserFacade userFacade;
+    private final TagService tagService;
 
     @GetMapping("/position-tag")
     @Operation(summary = "모든 포지션 조회", description = "저장된 모든 포지션 데이터를 조회합니다.")
@@ -38,7 +38,7 @@ public class UserFacadeController {
             )
     )
     public ResponseEntity<ApiResponse<List<PositionTagEntity>>> getPositionTag() {
-        return userFacade.getPositionTag();
+        return tagService.getPositionTag();
     }
 
     @GetMapping("/skill-tag")
@@ -54,7 +54,7 @@ public class UserFacadeController {
             )
     )
     public ResponseEntity<ApiResponse<List<SkillTagEntity>>> getSkillTag() {
-        return userFacade.getSkillTags();
+        return tagService.getSkillTags();
     }
 
     @PostMapping("/position-tag")
@@ -70,7 +70,7 @@ public class UserFacadeController {
             )
     )
     public ResponseEntity<ApiResponse<PositionTagEntity>> createPositionTag(@RequestBody PositionTagRequest request) {
-        return userFacade.createPositionTag(request);
+        return tagService.createPositionTag(request);
     }
 
     @PostMapping("/skill-tag")
@@ -86,7 +86,7 @@ public class UserFacadeController {
             )
     )
     public ResponseEntity<ApiResponse<SkillTagEntity>> createSkillTag(@ModelAttribute SkillTagRequest request) {
-        return userFacade.createSkillTag(request);
+        return tagService.createSkillTag(request);
     }
 
     @DeleteMapping("/position-tag")
@@ -102,7 +102,7 @@ public class UserFacadeController {
             )
     )
     public ResponseEntity<ApiResponse<String>> deletePositionTag(@RequestParam Long positionTagId) {
-        return userFacade.deletePositionTag(positionTagId);
+        return tagService.deletePositionTag(positionTagId);
     }
 
     @DeleteMapping("/skill-tag")
@@ -118,6 +118,6 @@ public class UserFacadeController {
             )
     )
     public ResponseEntity<ApiResponse<String>> deleteSkillTag(@RequestParam Long skillTagId) {
-        return userFacade.deleteSkillTag(skillTagId);
+        return tagService.deleteSkillTag(skillTagId);
     }
 }

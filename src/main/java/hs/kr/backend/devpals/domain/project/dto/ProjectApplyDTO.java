@@ -3,7 +3,7 @@ package hs.kr.backend.devpals.domain.project.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import hs.kr.backend.devpals.domain.project.entity.ApplicantEntity;
 import hs.kr.backend.devpals.domain.user.dto.CareerDto;
-import hs.kr.backend.devpals.domain.user.dto.SkillTagResponse;
+import hs.kr.backend.devpals.domain.tag.dto.SkillTagResponse;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
