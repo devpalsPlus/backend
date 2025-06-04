@@ -1,7 +1,9 @@
 package hs.kr.backend.devpals.domain.user.dto;
 
+import hs.kr.backend.devpals.domain.tag.dto.PositionTagResponse;
+import hs.kr.backend.devpals.domain.tag.dto.SkillTagResponse;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
-import hs.kr.backend.devpals.domain.user.facade.UserFacade;
+import hs.kr.backend.devpals.domain.tag.service.TagService;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,15 +30,15 @@ public class UserUpdateResponse {
     private LocalDateTime createdAt;
 
 
-    public static UserUpdateResponse fromEntity(UserEntity user, UserFacade userFacade) {
+    public static UserUpdateResponse fromEntity(UserEntity user, TagService tagService) {
         List<Long> positionIds = Optional.ofNullable(user.getPositionIds()).orElse(List.of());
         List<Long> skillIds = Optional.ofNullable(user.getSkillIds()).orElse(List.of());
 
-        List<PositionTagResponse> positionResponses = userFacade.getPositionTagByIds(positionIds).stream()
+        List<PositionTagResponse> positionResponses = tagService.getPositionTagByIds(positionIds).stream()
                 .map(PositionTagResponse::fromEntity)
                 .collect(Collectors.toList());
 
-        List<SkillTagResponse> skillResponses = userFacade.getSkillTagsByIds(skillIds).stream()
+        List<SkillTagResponse> skillResponses = tagService.getSkillTagsByIds(skillIds).stream()
                 .map(SkillTagResponse::fromEntity)
                 .collect(Collectors.toList());
 

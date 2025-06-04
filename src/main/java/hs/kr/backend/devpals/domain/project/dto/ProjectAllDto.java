@@ -2,8 +2,8 @@ package hs.kr.backend.devpals.domain.project.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
-import hs.kr.backend.devpals.domain.user.dto.PositionTagResponse;
-import hs.kr.backend.devpals.domain.user.dto.SkillTagResponse;
+import hs.kr.backend.devpals.domain.tag.dto.PositionTagResponse;
+import hs.kr.backend.devpals.domain.tag.dto.SkillTagResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

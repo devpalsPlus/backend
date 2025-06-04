@@ -12,7 +12,7 @@ import hs.kr.backend.devpals.domain.user.dto.UserResponse;
 import hs.kr.backend.devpals.domain.user.dto.UserUpdateRequest;
 import hs.kr.backend.devpals.domain.user.dto.UserUpdateResponse;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
-import hs.kr.backend.devpals.domain.user.facade.UserFacade;
+import hs.kr.backend.devpals.domain.tag.service.TagService;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.exception.CustomException;
@@ -31,7 +31,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserProfileService {
 
-    private final UserFacade userFacade;
+    private final TagService tagService;
     private final UserRepository userRepository;
     private final CommentRepoisitory commentRepository;
     private final InquiryRepository inquiryRepository;
@@ -49,7 +49,7 @@ public class UserProfileService {
 
         List<Integer> averageScores = evaluationService.calculateAverageScores(userId);
 
-        UserResponse userResponse = UserResponse.fromEntity(user, userFacade, averageScores);
+        UserResponse userResponse = UserResponse.fromEntity(user, tagService, averageScores);
 
         return ResponseEntity.ok(new ApiResponse<>(200, true, "사용자의 정보입니다.", userResponse));
     }
@@ -68,7 +68,7 @@ public class UserProfileService {
 
         List<Integer> averageScores = evaluationService.calculateAverageScores(id);
 
-        UserResponse userResponse = UserResponse.fromEntity(user, userFacade, averageScores);
+        UserResponse userResponse = UserResponse.fromEntity(user, tagService, averageScores);
 
         return ResponseEntity.ok(new ApiResponse<>(200, true, "사용자 정보를 조회했습니다.", userResponse));
     }
@@ -117,7 +117,7 @@ public class UserProfileService {
 
         projectService.refreshProjectCacheByAuthor(userId);
 
-        UserUpdateResponse userResponse = UserUpdateResponse.fromEntity(user, userFacade);
+        UserUpdateResponse userResponse = UserUpdateResponse.fromEntity(user, tagService);
 
         return ResponseEntity.ok(new ApiResponse<>(200, true, "정보가 변경되었습니다.", userResponse));
     }

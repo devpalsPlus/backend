@@ -1,7 +1,7 @@
 package hs.kr.backend.devpals.domain.project.dto;
 
 import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
-import hs.kr.backend.devpals.domain.user.dto.SkillTagResponse;
+import hs.kr.backend.devpals.domain.tag.dto.SkillTagResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

@@ -1,6 +1,6 @@
-package hs.kr.backend.devpals.domain.user.dto;
+package hs.kr.backend.devpals.domain.tag.dto;
 
-import hs.kr.backend.devpals.domain.user.entity.PositionTagEntity;
+import hs.kr.backend.devpals.domain.tag.entity.PositionTagEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -1,13 +1,13 @@
-package hs.kr.backend.devpals.domain.user.facade;
+package hs.kr.backend.devpals.domain.tag.service;
 
-import hs.kr.backend.devpals.domain.user.dto.PositionTagRequest;
-import hs.kr.backend.devpals.domain.user.dto.PositionTagResponse;
-import hs.kr.backend.devpals.domain.user.dto.SkillTagRequest;
-import hs.kr.backend.devpals.domain.user.dto.SkillTagResponse;
-import hs.kr.backend.devpals.domain.user.entity.PositionTagEntity;
-import hs.kr.backend.devpals.domain.user.entity.SkillTagEntity;
-import hs.kr.backend.devpals.domain.user.repository.PositionTagRepository;
-import hs.kr.backend.devpals.domain.user.repository.SkillTagRepository;
+import hs.kr.backend.devpals.domain.tag.dto.PositionTagRequest;
+import hs.kr.backend.devpals.domain.tag.dto.PositionTagResponse;
+import hs.kr.backend.devpals.domain.tag.dto.SkillTagRequest;
+import hs.kr.backend.devpals.domain.tag.dto.SkillTagResponse;
+import hs.kr.backend.devpals.domain.tag.entity.PositionTagEntity;
+import hs.kr.backend.devpals.domain.tag.entity.SkillTagEntity;
+import hs.kr.backend.devpals.domain.tag.repository.PositionTagRepository;
+import hs.kr.backend.devpals.domain.tag.repository.SkillTagRepository;
 import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class UserFacade {
+public class TagService {
 
     private final PositionTagRepository positionTagRepository;
     private final SkillTagRepository skillTagRepository;

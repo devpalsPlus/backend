@@ -3,7 +3,7 @@ package hs.kr.backend.devpals.domain.project.dto;
 import hs.kr.backend.devpals.domain.project.entity.ApplicantEntity;
 import hs.kr.backend.devpals.domain.user.dto.CareerDto;
 import hs.kr.backend.devpals.domain.user.dto.UserApplicantResultResponse;
-import hs.kr.backend.devpals.domain.user.facade.UserFacade;
+import hs.kr.backend.devpals.domain.tag.service.TagService;
 import hs.kr.backend.devpals.global.common.enums.ApplicantStatus;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,7 +27,7 @@ public class ProjectApplicantResultDto {
     private LocalDateTime updatedAt;
     private UserApplicantResultResponse user;
 
-    public static ProjectApplicantResultDto fromEntity(ApplicantEntity applicant, UserFacade userfacade) {
+    public static ProjectApplicantResultDto fromEntity(ApplicantEntity applicant, TagService userfacade) {
         return ProjectApplicantResultDto.builder()
                 .id(applicant.getId())
                 .userId(applicant.getUser().getId())

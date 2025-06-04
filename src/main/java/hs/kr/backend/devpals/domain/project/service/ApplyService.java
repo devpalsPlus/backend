@@ -5,13 +5,12 @@ import hs.kr.backend.devpals.domain.project.entity.ApplicantEntity;
 import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
 import hs.kr.backend.devpals.domain.project.repository.ApplicantRepository;
 import hs.kr.backend.devpals.domain.project.repository.ProjectRepository;
-import hs.kr.backend.devpals.domain.user.dto.SkillTagResponse;
+import hs.kr.backend.devpals.domain.tag.dto.SkillTagResponse;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
-import hs.kr.backend.devpals.domain.user.facade.UserFacade;
+import hs.kr.backend.devpals.domain.tag.service.TagService;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.domain.user.service.AlarmService;
 import hs.kr.backend.devpals.global.common.ApiResponse;
-import hs.kr.backend.devpals.global.common.enums.AlarmFilter;
 import hs.kr.backend.devpals.global.common.enums.ApplicantStatus;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
@@ -32,7 +31,7 @@ public class ApplyService {
     private final ProjectRepository projectRepository;
     private final ApplicantRepository applicantRepository;
     private final AlarmService alarmService;
-    private final UserFacade userFacade;
+    private final TagService tagService;
 
     // 프로젝트 지원하기
     public ResponseEntity<ApiResponse<String>> projectApply(Long projectId, ProjectApplyDTO request, String token)   {
@@ -94,7 +93,7 @@ public class ApplyService {
         ApplicantEntity applicant = applicantRepository.findByUserAndProject(user, project)
                 .orElseThrow(() -> new CustomException(ErrorException.INVALID_APPLICANT_PROJECT));
 
-        List<SkillTagResponse> skillResponses = userFacade.getSkillTagResponses(project.getSkillTagIds());
+        List<SkillTagResponse> skillResponses = tagService.getSkillTagResponses(project.getSkillTagIds());
 
         ProjectApplyDTO dto = ProjectApplyDTO.fromEntity(user, applicant, skillResponses);
 
@@ -114,7 +113,7 @@ public class ApplyService {
         List<ApplicantEntity> applicants = applicantRepository.findByProject(project);
 
 
-        return ResponseEntity.ok(new ApiResponse<>(200, true, "공고 합격자/불합격자 목록 가져오기 성공",ProjectApplicantResultResponse.fromEntity(applicants,userFacade)));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "공고 합격자/불합격자 목록 가져오기 성공",ProjectApplicantResultResponse.fromEntity(applicants, tagService)));
     }
 
     // 프로젝트 지원한 지원자의 상태 변경하기

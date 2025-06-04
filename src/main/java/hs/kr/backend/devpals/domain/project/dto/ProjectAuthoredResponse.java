@@ -2,10 +2,10 @@ package hs.kr.backend.devpals.domain.project.dto;
 
 import hs.kr.backend.devpals.domain.project.entity.MethodTypeEntity;
 import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
-import hs.kr.backend.devpals.domain.user.dto.PositionTagResponse;
-import hs.kr.backend.devpals.domain.user.dto.SkillTagResponse;
-import hs.kr.backend.devpals.domain.user.entity.PositionTagEntity;
-import hs.kr.backend.devpals.domain.user.entity.SkillTagEntity;
+import hs.kr.backend.devpals.domain.tag.dto.PositionTagResponse;
+import hs.kr.backend.devpals.domain.tag.dto.SkillTagResponse;
+import hs.kr.backend.devpals.domain.tag.entity.PositionTagEntity;
+import hs.kr.backend.devpals.domain.tag.entity.SkillTagEntity;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
