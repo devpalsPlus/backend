@@ -75,4 +75,17 @@ public class InquiryController {
         return inquiryService.deleteInquiry(token, inquiryId);
     }
 
+    @GetMapping("/{inquiryId}/answer")
+    @Operation(
+            summary = "문의 답변 조회",
+            description = "해당 문의의 답변을 조회합니다.",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "문의 답변 조회 성공"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청 - 토큰 오류 등 발생")
+            }
+    )
+    public ResponseEntity<ApiResponse<String>> getInquiryAnswer(@PathVariable Long inquiryId) {
+        return inquiryService.getInquiryAnswer(inquiryId);
+    }
+
 }
