@@ -57,5 +57,18 @@ public class InquiryAdminController {
         return inquiryAdminService.updateAnswer(token, inquiryId, answer);
     }
 
+    @GetMapping
+    @Operation(
+            summary = "모든 문의글 조회",
+            description = "등록된 모든 문의글 목록을 조회합니다.",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "모든 문의글 조회 성공"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청 - 토큰 오류 등 발생")
+            }
+    )
+    public ResponseEntity<ApiResponse<List<InquiryDto>>> getAllInquiries(
+            @RequestParam(required = false, defaultValue = "") String keyword) {
+        return inquiryAdminService.getAllInquiries(keyword);
+    }
 
 }
