@@ -66,30 +66,6 @@ public class InquiryService {
         return ResponseEntity.ok(new ApiResponse<>(200, true, "문의 작성 성공", null));
     }
 
-    @Transactional(readOnly = true)
-    public ResponseEntity<ApiResponse<List<InquiryDto>>> getAllInquiries() {
-        List<InquiryEntity> inquiries = inquiryRepository.findAllByOrderByCreatedAtDesc();
-
-        List<InquiryDto> inquiryDTOs = inquiries.stream()
-                .map(InquiryDto::fromEntity)
-                .toList();
-
-        return ResponseEntity.ok(new ApiResponse<>(200, true, "모든 문의글 조회 성공", inquiryDTOs));
-    }
-
-    @Transactional(readOnly = true)
-    public ResponseEntity<ApiResponse<InquiryDto>> getInquiry(Long inquiryId) {
-        InquiryEntity inquiry = inquiryRepository.findById(inquiryId)
-                .orElseThrow(() -> new CustomException(ErrorException.INQUIRY_NOT_FOUND));
-
-        List<String> imageUrls = inquiry.getImages().stream()
-                .map(InquiryImageEntity::getImageUrl)
-                .toList();
-
-        InquiryDto response = InquiryDto.fromEntity(inquiry);
-
-        return ResponseEntity.ok(new ApiResponse<>(200, true, "문의 조회 성공", response));
-    }
 
     @Transactional
     public ResponseEntity<ApiResponse<String>> deleteInquiry(String token, Long inquiryId) {
@@ -111,18 +87,6 @@ public class InquiryService {
         inquiryRepository.delete(inquiry);
 
         return ResponseEntity.ok(new ApiResponse<>(200, true, "문의 삭제 성공", null));
-    }
-
-    @Transactional(readOnly = true)
-    public ResponseEntity<ApiResponse<String>> getInquiryAnswer(Long inquiryId) {
-        InquiryEntity inquiry = inquiryRepository.findById(inquiryId)
-                .orElseThrow(() -> new CustomException(ErrorException.INQUIRY_NOT_FOUND));
-
-        if (inquiry.getAnswer() == null || inquiry.getAnswer().isBlank()) {
-            throw new CustomException(ErrorException.ANSWER_NOT_FOUND);
-        }
-
-        return ResponseEntity.ok(new ApiResponse<>(200, true, "문의 답변 조회 성공", inquiry.getAnswer()));
     }
 
 }

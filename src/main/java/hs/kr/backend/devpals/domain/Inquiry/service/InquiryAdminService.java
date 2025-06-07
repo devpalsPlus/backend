@@ -58,4 +58,21 @@ public class InquiryAdminService {
 
         return ResponseEntity.ok(new ApiResponse<>(200, true, "답변 수정 성공", null));
     }
+
+    @Transactional(readOnly = true)
+    public ResponseEntity<ApiResponse<List<InquiryDto>>> getAllInquiries(String keyword) {
+        List<InquiryEntity> inquiries;
+
+        if (keyword != null && !keyword.isBlank()) {
+            inquiries = inquiryRepository.searchByTitle(keyword);
+        } else {
+            inquiries = inquiryRepository.findAllByOrderByCreatedAtDesc();
+        }
+
+        List<InquiryDto> inquiryDTOs = inquiries.stream()
+                .map(InquiryDto::fromEntity)
+                .toList();
+
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "모든 문의글 조회 성공", inquiryDTOs));
+    }
 }
