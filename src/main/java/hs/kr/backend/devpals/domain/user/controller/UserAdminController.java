@@ -1,5 +1,6 @@
 package hs.kr.backend.devpals.domain.user.controller;
 
+import hs.kr.backend.devpals.domain.user.dto.AdminUserListResponse;
 import hs.kr.backend.devpals.domain.user.dto.AdminUserResponse;
 import hs.kr.backend.devpals.domain.user.dto.UserAdminPreviewResponse;
 import hs.kr.backend.devpals.domain.user.service.UserAdminService;
@@ -8,17 +9,18 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/users")
-@RequiredArgsConstructor
+@AllArgsConstructor
+@Tag(name = "User Admin API", description = "관리자가 관리하는 유저 API")
 public class UserAdminController {
 
     private UserAdminService userAdminService;
@@ -35,8 +37,8 @@ public class UserAdminController {
                     examples = @ExampleObject(value = "{\"success\": false, \"message\": \"유저 정보를 조회할 수 없습니다.\", \"data\": null}")
             )
     )
-    public ResponseEntity<ApiResponse<List<UserAdminPreviewResponse>>> getAllUsersPreview() {
-        return userAdminService.getAllUsersPreview();
+    public ResponseEntity<ApiResponse<List<UserAdminPreviewResponse>>> getAllUsersPreview(@RequestHeader("Authorization") String token) {
+        return userAdminService.getAllUsersPreview(token);
     }
 
     @GetMapping
@@ -51,7 +53,11 @@ public class UserAdminController {
                     examples = @ExampleObject(value = "{\"success\": false, \"message\": \"유저 정보를 조회할 수 없습니다.\", \"data\": null}")
             )
     )
-    public ResponseEntity<ApiResponse<List<AdminUserResponse>>> getAllUsersDetail() {
-        return userAdminService.getAllUsersDetail();
+    public ResponseEntity<ApiResponse<AdminUserListResponse>> getAllUsersDetail(
+            @RequestHeader("Authorization") String token,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "8") int size,
+            @RequestParam(defaultValue = "") String keyword) {
+        return userAdminService.getAllUsersDetail(page, size, keyword, token);
     }
 }
