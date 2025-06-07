@@ -9,7 +9,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,7 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Schema(description = "문의 작성 요청 DTO")
-public class InquiryDto {
+public class InquiryResponse {
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Schema(description = "문의 ID", example = "12", accessMode = Schema.AccessMode.READ_ONLY)
@@ -58,13 +57,13 @@ public class InquiryDto {
     @Schema(description = "문의 작성 유저 정보", example = "ID, Nickname, Img", accessMode = Schema.AccessMode.READ_ONLY)
     private InquiryWriterResponse user;
 
-    public static InquiryDto fromEntity(InquiryEntity inquiry) {
+    public static InquiryResponse fromEntity(InquiryEntity inquiry) {
         List<String> imageUrls = inquiry.getImages()
                 .stream()
                 .map(InquiryImageEntity::getImageUrl)
                 .toList();
 
-        return InquiryDto.builder()
+        return InquiryResponse.builder()
                 .id(inquiry.getId())
                 .title(inquiry.getTitle())
                 .content(inquiry.getContent())

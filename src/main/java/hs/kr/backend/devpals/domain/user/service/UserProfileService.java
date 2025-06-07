@@ -1,6 +1,6 @@
 package hs.kr.backend.devpals.domain.user.service;
 
-import hs.kr.backend.devpals.domain.Inquiry.dto.InquiryDto;
+import hs.kr.backend.devpals.domain.Inquiry.dto.InquiryResponse;
 import hs.kr.backend.devpals.domain.Inquiry.entity.InquiryEntity;
 import hs.kr.backend.devpals.domain.Inquiry.repository.InquiryRepository;
 import hs.kr.backend.devpals.domain.evaluation.service.EvaluationService;
@@ -170,16 +170,16 @@ public class UserProfileService {
     }
 
     @Transactional(readOnly = true)
-    public ResponseEntity<ApiResponse<List<InquiryDto>>> getMyInquiries(String token) {
+    public ResponseEntity<ApiResponse<List<InquiryResponse>>> getMyInquiries(String token) {
         Long userId = jwtTokenValidator.getUserId(token);
 
         List<InquiryEntity> inquiries = inquiryRepository.findByUserIdOrderByCreatedAtDesc(userId);
 
-        List<InquiryDto> inquiryDTOs = inquiries.stream()
-                .map(InquiryDto::fromEntity)
+        List<InquiryResponse> inquiryResponses = inquiries.stream()
+                .map(InquiryResponse::fromEntity)
                 .toList();
 
-        return ResponseEntity.ok(new ApiResponse<>(200, true, "작성한 문의글 목록입니다.", inquiryDTOs));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "작성한 문의글 목록입니다.", inquiryResponses));
     }
 
 }

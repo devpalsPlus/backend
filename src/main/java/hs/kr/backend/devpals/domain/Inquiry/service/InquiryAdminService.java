@@ -1,22 +1,17 @@
 package hs.kr.backend.devpals.domain.Inquiry.service;
 
-import hs.kr.backend.devpals.domain.Inquiry.dto.InquiryDto;
+import hs.kr.backend.devpals.domain.Inquiry.dto.InquiryPreviewResponse;
+import hs.kr.backend.devpals.domain.Inquiry.dto.InquiryResponse;
 import hs.kr.backend.devpals.domain.Inquiry.entity.InquiryEntity;
-import hs.kr.backend.devpals.domain.Inquiry.entity.InquiryImageEntity;
 import hs.kr.backend.devpals.domain.Inquiry.repository.InquiryRepository;
 import hs.kr.backend.devpals.domain.faq.service.FaqAdminService;
-import hs.kr.backend.devpals.domain.user.entity.UserEntity;
-import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
-import hs.kr.backend.devpals.global.jwt.JwtTokenValidator;
-import hs.kr.backend.devpals.infra.aws.AwsS3Client;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -60,7 +55,7 @@ public class InquiryAdminService {
     }
 
     @Transactional(readOnly = true)
-    public ResponseEntity<ApiResponse<List<InquiryDto>>> getAllInquiries(String keyword) {
+    public ResponseEntity<ApiResponse<List<InquiryPreviewResponse>>> getAllInquiries(String keyword) {
         List<InquiryEntity> inquiries;
 
         if (keyword != null && !keyword.isBlank()) {
@@ -69,10 +64,19 @@ public class InquiryAdminService {
             inquiries = inquiryRepository.findAllByOrderByCreatedAtDesc();
         }
 
-        List<InquiryDto> inquiryDTOs = inquiries.stream()
-                .map(InquiryDto::fromEntity)
+        List<InquiryPreviewResponse> responses = inquiries.stream()
+                .map(InquiryPreviewResponse::fromEntity)
                 .toList();
 
-        return ResponseEntity.ok(new ApiResponse<>(200, true, "모든 문의글 조회 성공", inquiryDTOs));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "모든 문의글 조회 성공", responses));
+    }
+
+    @Transactional(readOnly = true)
+    public ResponseEntity<ApiResponse<InquiryResponse>> getInquiryDetail(Long inquiryId) {
+        InquiryEntity inquiry = inquiryRepository.findById(inquiryId)
+                .orElseThrow(() -> new CustomException(ErrorException.INQUIRY_NOT_FOUND));
+
+        InquiryResponse inquiryResponse = InquiryResponse.fromEntity(inquiry);
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "문의 상세 조회 성공", inquiryResponse));
     }
 }
