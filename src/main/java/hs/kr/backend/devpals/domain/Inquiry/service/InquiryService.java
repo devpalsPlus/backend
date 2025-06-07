@@ -1,11 +1,9 @@
 package hs.kr.backend.devpals.domain.Inquiry.service;
 
-import hs.kr.backend.devpals.domain.Inquiry.dto.InquiryDto;
+import hs.kr.backend.devpals.domain.Inquiry.dto.InquiryResponse;
 import hs.kr.backend.devpals.domain.Inquiry.entity.InquiryEntity;
 import hs.kr.backend.devpals.domain.Inquiry.entity.InquiryImageEntity;
 import hs.kr.backend.devpals.domain.Inquiry.repository.InquiryRepository;
-import hs.kr.backend.devpals.domain.faq.service.FaqAdminService;
-import hs.kr.backend.devpals.domain.faq.service.FaqService;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.common.ApiResponse;
@@ -30,7 +28,7 @@ public class InquiryService {
     private final UserRepository userRepository;
 
     @Transactional
-    public ResponseEntity<ApiResponse<String>> createInquiry(String token, InquiryDto request, List<MultipartFile> images) {
+    public ResponseEntity<ApiResponse<String>> createInquiry(String token, InquiryResponse request, List<MultipartFile> images) {
         Long userId = jwtTokenValidator.getUserId(token);
 
         UserEntity user = userRepository.findById(userId)

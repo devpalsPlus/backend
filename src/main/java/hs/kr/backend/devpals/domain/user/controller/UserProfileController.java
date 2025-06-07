@@ -1,7 +1,6 @@
 package hs.kr.backend.devpals.domain.user.controller;
 
-import hs.kr.backend.devpals.domain.Inquiry.dto.InquiryDto;
-import hs.kr.backend.devpals.domain.project.dto.CommentDTO;
+import hs.kr.backend.devpals.domain.Inquiry.dto.InquiryResponse;
 import hs.kr.backend.devpals.domain.user.dto.MyCommentResponse;
 import hs.kr.backend.devpals.domain.user.dto.UserResponse;
 import hs.kr.backend.devpals.domain.user.dto.UserUpdateRequest;
@@ -146,7 +145,7 @@ public class UserProfileController {
                     examples = @ExampleObject(value = "{\"success\": false, \"message\": \"인증 권한이 없습니다.\", \"data\": null}")
             )
     )
-    public ResponseEntity<ApiResponse<List<InquiryDto>>> getMyInquiries(
+    public ResponseEntity<ApiResponse<List<InquiryResponse>>> getMyInquiries(
             @RequestHeader("Authorization") String token) {
         return userProfileService.getMyInquiries(token);
     }

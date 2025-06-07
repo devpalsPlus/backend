@@ -1,16 +1,14 @@
 package hs.kr.backend.devpals.domain.Inquiry.controller;
 
-import hs.kr.backend.devpals.domain.Inquiry.dto.InquiryDto;
+import hs.kr.backend.devpals.domain.Inquiry.dto.InquiryPreviewResponse;
+import hs.kr.backend.devpals.domain.Inquiry.dto.InquiryResponse;
 import hs.kr.backend.devpals.domain.Inquiry.service.InquiryAdminService;
-import hs.kr.backend.devpals.domain.Inquiry.service.InquiryService;
 import hs.kr.backend.devpals.global.common.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -66,9 +64,22 @@ public class InquiryAdminController {
                     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청 - 토큰 오류 등 발생")
             }
     )
-    public ResponseEntity<ApiResponse<List<InquiryDto>>> getAllInquiries(
+    public ResponseEntity<ApiResponse<List<InquiryPreviewResponse>>> getAllInquiries(
             @RequestParam(required = false, defaultValue = "") String keyword) {
         return inquiryAdminService.getAllInquiries(keyword);
+    }
+
+    @GetMapping("/{inquiryId}")
+    @Operation(
+            summary = "문의 상세 조회",
+            description = "문의의 상세 내용을 조회합니다.",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "문의 상세 조회 성공"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청 - 토큰 오류 등 발생")
+            }
+    )
+    public ResponseEntity<ApiResponse<InquiryResponse>> getInquiryDetail(@PathVariable Long inquiryId) {
+        return inquiryAdminService.getInquiryDetail(inquiryId);
     }
 
 }

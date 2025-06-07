@@ -1,6 +1,6 @@
 package hs.kr.backend.devpals.domain.Inquiry.controller;
 
-import hs.kr.backend.devpals.domain.Inquiry.dto.InquiryDto;
+import hs.kr.backend.devpals.domain.Inquiry.dto.InquiryResponse;
 import hs.kr.backend.devpals.domain.Inquiry.service.InquiryService;
 import hs.kr.backend.devpals.global.common.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,9 +31,9 @@ public class InquiryController {
     )
     public ResponseEntity<ApiResponse<String>> createInquiry(
             @RequestHeader("Authorization") String token,
-            @RequestPart("inquiryDto") InquiryDto inquiryDto,
+            @RequestPart("inquiryDto") InquiryResponse inquiryResponse,
             @RequestPart(value = "images", required = false) List<MultipartFile> images) {
-        return inquiryService.createInquiry(token, inquiryDto, images);
+        return inquiryService.createInquiry(token, inquiryResponse, images);
     }
 
     @DeleteMapping("/{inquiryId}")

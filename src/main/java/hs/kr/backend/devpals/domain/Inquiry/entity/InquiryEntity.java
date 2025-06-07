@@ -1,6 +1,6 @@
 package hs.kr.backend.devpals.domain.Inquiry.entity;
 
-import hs.kr.backend.devpals.domain.Inquiry.dto.InquiryDto;
+import hs.kr.backend.devpals.domain.Inquiry.dto.InquiryResponse;
 import hs.kr.backend.devpals.domain.report.entity.ReportEntity;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import jakarta.persistence.*;
@@ -73,7 +73,7 @@ public class InquiryEntity {
         this.answer = answer;
     }
 
-    public static InquiryEntity from(InquiryDto dto, UserEntity user) {
+    public static InquiryEntity from(InquiryResponse dto, UserEntity user) {
         return InquiryEntity.builder()
                 .user(user)
                 .title(dto.getTitle())
