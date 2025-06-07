@@ -39,6 +39,10 @@ public class InquiryDto {
     private Boolean state;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Schema(description = "문의 답변", example = "재부팅 해보시길 바랍니다.", accessMode = Schema.AccessMode.READ_ONLY)
+    private String answer;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Schema(description = "등록된 이미지 URL 목록",
             example = "[\"https://devpal.s3.ap-northeast-2.amazonaws.com/devpals_inquiry1-1-1.png\", \"https://...\"]",
             accessMode = Schema.AccessMode.READ_ONLY
@@ -66,6 +70,7 @@ public class InquiryDto {
                 .content(inquiry.getContent())
                 .category(inquiry.getCategory())
                 .state(inquiry.getState())
+                .answer(inquiry.getAnswer())
                 .imageUrls(imageUrls)
                 .createdAt(inquiry.getCreatedAt())
                 .user(InquiryWriterResponse.fromEntity(inquiry.getUser()))
