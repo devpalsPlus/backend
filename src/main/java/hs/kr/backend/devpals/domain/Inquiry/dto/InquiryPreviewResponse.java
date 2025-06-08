@@ -25,9 +25,6 @@ public class InquiryPreviewResponse {
     @Schema(description = "문의 제목", example = "서비스 사용 관련 문의")
     private String title;
 
-    @Schema(description = "작성자 닉네임", example = "홍길동")
-    private String nickname;
-
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Schema(description = "문의 상태", example = "대기중", accessMode = Schema.AccessMode.READ_ONLY)
     private Boolean state;
@@ -37,13 +34,17 @@ public class InquiryPreviewResponse {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime createdAt;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Schema(description = "문의 작성 유저 정보", example = "ID, Nickname, Img", accessMode = Schema.AccessMode.READ_ONLY)
+    private InquiryWriterResponse user;
+
     public static InquiryPreviewResponse fromEntity(InquiryEntity entity) {
         return InquiryPreviewResponse.builder()
                 .id(entity.getId())
                 .title(entity.getTitle())
-                .nickname(entity.getUser().getNickname())
                 .state(entity.getState())
                 .createdAt(entity.getCreatedAt())
+                .user(InquiryWriterResponse.fromEntity(entity.getUser()))
                 .build();
     }
 }
