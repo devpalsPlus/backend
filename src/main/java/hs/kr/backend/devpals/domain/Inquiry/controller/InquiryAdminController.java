@@ -1,5 +1,6 @@
 package hs.kr.backend.devpals.domain.Inquiry.controller;
 
+import hs.kr.backend.devpals.domain.Inquiry.dto.InquiryAnswerRequest;
 import hs.kr.backend.devpals.domain.Inquiry.dto.InquiryPreviewResponse;
 import hs.kr.backend.devpals.domain.Inquiry.dto.InquiryResponse;
 import hs.kr.backend.devpals.domain.Inquiry.service.InquiryAdminService;
@@ -32,7 +33,7 @@ public class InquiryAdminController {
     public ResponseEntity<ApiResponse<String>> registerAnswer(
             @RequestHeader("Authorization") String token,
             @PathVariable Long inquiryId,
-            @RequestParam String answer
+            @RequestBody InquiryAnswerRequest answer
     ) {
         return inquiryAdminService.registerAnswer(token, inquiryId, answer);
     }

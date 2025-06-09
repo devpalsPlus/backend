@@ -1,5 +1,6 @@
 package hs.kr.backend.devpals.domain.Inquiry.service;
 
+import hs.kr.backend.devpals.domain.Inquiry.dto.InquiryAnswerRequest;
 import hs.kr.backend.devpals.domain.Inquiry.dto.InquiryPreviewResponse;
 import hs.kr.backend.devpals.domain.Inquiry.dto.InquiryResponse;
 import hs.kr.backend.devpals.domain.Inquiry.entity.InquiryEntity;
@@ -23,7 +24,7 @@ public class InquiryAdminService {
 
 
     @Transactional
-    public ResponseEntity<ApiResponse<String>> registerAnswer(String token, Long inquiryId, String answer) {
+    public ResponseEntity<ApiResponse<String>> registerAnswer(String token, Long inquiryId, InquiryAnswerRequest answer) {
         faqAdminService.validateAdmin(token);
 
         InquiryEntity inquiry = inquiryRepository.findById(inquiryId)
@@ -33,7 +34,7 @@ public class InquiryAdminService {
             throw new CustomException(ErrorException.ALREADY_ANSWERED);
         }
 
-        inquiry.writeAnswer(answer);
+        inquiry.writeAnswer(answer.getAnswer());
 
         return ResponseEntity.ok(new ApiResponse<>(200, true, "답변 등록 성공", null));
     }
