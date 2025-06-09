@@ -24,6 +24,7 @@ public class UserResponse {
     private String profileImg;
     private Boolean beginner;
     private String github;
+    private Integer warning;
     private List<PositionTagResponse> positions;
     private List<SkillTagResponse> skills;
     private List<CareerDto> career;
@@ -51,6 +52,7 @@ public class UserResponse {
                 .profileImg(user.getProfileImg())
                 .beginner(user.getBeginner())
                 .github(user.getGithub())
+                .warning(user.getWarning())
                 .positions(positionResponses)
                 .skills(skillResponses)
                 .career(user.getCareer())
