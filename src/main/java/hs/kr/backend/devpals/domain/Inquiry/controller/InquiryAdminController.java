@@ -51,7 +51,7 @@ public class InquiryAdminController {
     public ResponseEntity<ApiResponse<String>> updateAnswer(
             @RequestHeader("Authorization") String token,
             @PathVariable Long inquiryId,
-            @RequestParam String answer
+            @RequestBody InquiryAnswerRequest answer
     ) {
         return inquiryAdminService.updateAnswer(token, inquiryId, answer);
     }

@@ -40,7 +40,7 @@ public class InquiryAdminService {
     }
 
     @Transactional
-    public ResponseEntity<ApiResponse<String>> updateAnswer(String token, Long inquiryId, String answer) {
+    public ResponseEntity<ApiResponse<String>> updateAnswer(String token, Long inquiryId, InquiryAnswerRequest answer) {
         faqAdminService.validateAdmin(token);
 
         InquiryEntity inquiry = inquiryRepository.findById(inquiryId)
@@ -50,7 +50,7 @@ public class InquiryAdminService {
             throw new CustomException(ErrorException.ANSWER_NOT_FOUND);
         }
 
-        inquiry.updateAnswer(answer);
+        inquiry.updateAnswer(answer.getAnswer());
 
         return ResponseEntity.ok(new ApiResponse<>(200, true, "답변 수정 성공", null));
     }
