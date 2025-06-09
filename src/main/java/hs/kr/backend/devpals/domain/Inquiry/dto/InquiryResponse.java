@@ -54,6 +54,11 @@ public class InquiryResponse {
     private LocalDateTime createdAt;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Schema(description = "답변 작성 날짜", example = "2025-06-01", accessMode = Schema.AccessMode.READ_ONLY)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private LocalDateTime updatedAt;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Schema(description = "문의 작성 유저 정보", example = "ID, Nickname, Img", accessMode = Schema.AccessMode.READ_ONLY)
     private InquiryWriterResponse user;
 
@@ -72,6 +77,7 @@ public class InquiryResponse {
                 .answer(inquiry.getAnswer())
                 .imageUrls(imageUrls)
                 .createdAt(inquiry.getCreatedAt())
+                .updatedAt(inquiry.getUpdatedAt())
                 .user(InquiryWriterResponse.fromEntity(inquiry.getUser()))
                 .build();
     }
