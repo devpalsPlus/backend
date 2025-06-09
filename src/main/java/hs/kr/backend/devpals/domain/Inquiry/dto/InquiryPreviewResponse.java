@@ -30,6 +30,10 @@ public class InquiryPreviewResponse {
     private Boolean state;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Schema(description = "문의 카테고리", example = "서비스 이용 문제")
+    private String category;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Schema(description = "문의 작성 날짜", example = "2025-06-01", accessMode = Schema.AccessMode.READ_ONLY)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime createdAt;
@@ -43,6 +47,7 @@ public class InquiryPreviewResponse {
                 .id(entity.getId())
                 .title(entity.getTitle())
                 .state(entity.getState())
+                .category(entity.getCategory())
                 .createdAt(entity.getCreatedAt())
                 .user(InquiryWriterResponse.fromEntity(entity.getUser()))
                 .build();
