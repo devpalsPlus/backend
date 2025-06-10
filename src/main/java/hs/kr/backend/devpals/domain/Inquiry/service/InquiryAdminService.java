@@ -63,19 +63,23 @@ public class InquiryAdminService {
     public ResponseEntity<ApiResponse<List<InquiryPreviewResponse>>> getAllInquiries(
             String email, LocalDate startDate, LocalDate endDate) {
 
-        if (startDate == null || endDate == null) {
-            throw new CustomException(ErrorException.INVALID_DATE_RANGE);
-        }
-
-        LocalDateTime start = startDate.atStartOfDay();
-        LocalDateTime end = endDate.atTime(LocalTime.MAX);
-
         List<InquiryEntity> inquiries;
 
-        if (email != null && !email.isBlank()) {
-            inquiries = inquiryRepository.findInquiriesByEmailAndDate(email, start, end);
+        if (startDate != null && endDate != null) {
+            // 날짜 범위 필터링
+            LocalDateTime start = startDate.atStartOfDay();
+            LocalDateTime end = endDate.atTime(LocalTime.MAX);
+
+            if (email != null && !email.isBlank()) {
+                inquiries = inquiryRepository.findInquiriesByEmailAndDate(email, start, end);
+            } else {
+                inquiries = inquiryRepository.findInquiriesByDate(start, end);
+            }
         } else {
-            inquiries = inquiryRepository.findInquiriesByDate(start, end);
+            // 날짜가 없으면 전체 조회
+            inquiries = (email != null && !email.isBlank())
+                    ? inquiryRepository.findByUserEmailOrderByCreatedAtDesc(email)
+                    : inquiryRepository.findAllByOrderByCreatedAtDesc();
         }
 
         List<InquiryPreviewResponse> responses = inquiries.stream()
@@ -84,6 +88,7 @@ public class InquiryAdminService {
 
         return ResponseEntity.ok(new ApiResponse<>(200, true, "문의글 조회 성공", responses));
     }
+
 
 
     @Transactional(readOnly = true)
