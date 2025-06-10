@@ -6,6 +6,7 @@ import hs.kr.backend.devpals.domain.Inquiry.dto.InquiryResponse;
 import hs.kr.backend.devpals.domain.Inquiry.entity.InquiryEntity;
 import hs.kr.backend.devpals.domain.Inquiry.repository.InquiryRepository;
 import hs.kr.backend.devpals.domain.faq.service.FaqAdminService;
+import hs.kr.backend.devpals.domain.user.service.AlarmService;
 import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
@@ -24,6 +25,7 @@ import java.util.List;
 public class InquiryAdminService {
     private final InquiryRepository inquiryRepository;
     private final FaqAdminService faqAdminService;
+    private final AlarmService alarmService;
 
 
     @Transactional
@@ -38,7 +40,7 @@ public class InquiryAdminService {
         }
 
         inquiry.writeAnswer(answer.getAnswer());
-
+        alarmService.sendAlarm(inquiry);
         return ResponseEntity.ok(new ApiResponse<>(200, true, "답변 등록 성공", null));
     }
 
