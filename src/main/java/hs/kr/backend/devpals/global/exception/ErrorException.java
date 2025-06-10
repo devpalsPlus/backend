@@ -19,6 +19,7 @@ public enum ErrorException {
     INVALID_EVALUATION_SCORES(400, "점수는 6개 항목으로 구성되어야 합니다."),
     INVALID_EVALUATION_TARGET(400, "평가 대상은 프로젝트에 참여 중인 유저여야 합니다."),
     ALREADY_ANSWERED(400, "이미 답변이 등록된 문의입니다." ),
+    INVALID_DATE_RANGE(400, "조회 기간(startDate, endDate)은 필수입니다."),
 
     UNAUTHORIZED(401, "인증 권한이 없습니다."),
     TOKEN_EXPIRED(401, "토큰이 만료되었습니다."),

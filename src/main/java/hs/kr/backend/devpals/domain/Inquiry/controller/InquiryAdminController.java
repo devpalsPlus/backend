@@ -8,9 +8,11 @@ import hs.kr.backend.devpals.global.common.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -59,15 +61,18 @@ public class InquiryAdminController {
     @GetMapping
     @Operation(
             summary = "모든 문의글 조회",
-            description = "등록된 모든 문의글 목록을 조회합니다.",
+            description = "이메일, 기간으로 필터링된 문의글 목록을 최신순으로 조회합니다.",
             responses = {
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "모든 문의글 조회 성공"),
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청 - 토큰 오류 등 발생")
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "문의글 조회 성공"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청")
             }
     )
     public ResponseEntity<ApiResponse<List<InquiryPreviewResponse>>> getAllInquiries(
-            @RequestParam(required = false, defaultValue = "") String keyword) {
-        return inquiryAdminService.getAllInquiries(keyword);
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate
+    ) {
+        return inquiryAdminService.getAllInquiries(email, startDate, endDate);
     }
 
     @GetMapping("/{inquiryId}")

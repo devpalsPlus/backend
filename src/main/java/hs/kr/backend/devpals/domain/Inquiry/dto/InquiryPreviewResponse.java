@@ -34,6 +34,10 @@ public class InquiryPreviewResponse {
     private String category;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @Schema(description = "첨부파일 존재 여부", example = "true")
+    private Boolean hasFile;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Schema(description = "문의 작성 날짜", example = "2025-06-01", accessMode = Schema.AccessMode.READ_ONLY)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDateTime createdAt;
@@ -48,6 +52,7 @@ public class InquiryPreviewResponse {
                 .title(entity.getTitle())
                 .state(entity.getState())
                 .category(entity.getCategory())
+                .hasFile(!entity.getImages().isEmpty())
                 .createdAt(entity.getCreatedAt())
                 .user(InquiryWriterResponse.fromEntity(entity.getUser()))
                 .build();

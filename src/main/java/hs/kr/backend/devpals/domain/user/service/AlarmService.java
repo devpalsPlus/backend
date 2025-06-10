@@ -110,6 +110,16 @@ public class AlarmService {
         sendToUser(project.getUserId(),saved);
     }
 
+    // 문의 답변이 달렸을 시 알림 전송
+    public void sendAlarm(InquiryEntity inquiry) {
+        UserEntity receiver = inquiry.getUser();
+        String content = makeMessage(inquiry);
+
+        InquiryAlarmEntity alarm = new InquiryAlarmEntity(receiver, content, inquiry);
+        alarmRepository.save(alarm);
+        sendToUser(receiver.getId(), alarm);
+    }
+
     public void sendReportAlarm(UserEntity receiver,ReportEntity report) {
         String message = makeReportMessage(receiver.getWarning());
         ReportAlarmEntity reportAlarmEntity = new ReportAlarmEntity(receiver, message, report);
@@ -147,6 +157,10 @@ public class AlarmService {
 
     private String makeMessage(ProjectEntity project,UserEntity commenter) {
         return "'"+project.getTitle()+ "'에 " + commenter.getNickname() + " 님의 댓글이 달렸습니다";
+    }
+
+    private String makeMessage(InquiryEntity inquiry) {
+        return "문의하신 \"" + inquiry.getTitle() + "\"에 대한 답변이 등록되었습니다.";
     }
 
     private String makeMessage(ApplicantEntity applicant) {

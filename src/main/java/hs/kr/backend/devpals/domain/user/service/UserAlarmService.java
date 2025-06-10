@@ -87,7 +87,7 @@ public class UserAlarmService {
 
     @Transactional
     public void deleteAlarmOneWeekBefore(){
-        LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
+        LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(30);
         // 일주일 이전 알람이 있는 사용자 ID만 가져오기
         List<Long> affectedUserIds = alarmRepository.findUserIdsWithAlarmsOlderThan(sevenDaysAgo);
         affectedUserIds.forEach(this::refreshCacheUserAlarm); // 성능 고민필요

@@ -6,6 +6,7 @@ import hs.kr.backend.devpals.domain.Inquiry.dto.InquiryResponse;
 import hs.kr.backend.devpals.domain.Inquiry.entity.InquiryEntity;
 import hs.kr.backend.devpals.domain.Inquiry.repository.InquiryRepository;
 import hs.kr.backend.devpals.domain.faq.service.FaqAdminService;
+import hs.kr.backend.devpals.domain.user.service.AlarmService;
 import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
@@ -14,6 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -21,6 +25,7 @@ import java.util.List;
 public class InquiryAdminService {
     private final InquiryRepository inquiryRepository;
     private final FaqAdminService faqAdminService;
+    private final AlarmService alarmService;
 
 
     @Transactional
@@ -35,7 +40,7 @@ public class InquiryAdminService {
         }
 
         inquiry.writeAnswer(answer.getAnswer());
-
+        alarmService.sendAlarm(inquiry);
         return ResponseEntity.ok(new ApiResponse<>(200, true, "답변 등록 성공", null));
     }
 
@@ -55,22 +60,36 @@ public class InquiryAdminService {
         return ResponseEntity.ok(new ApiResponse<>(200, true, "답변 수정 성공", null));
     }
 
-    @Transactional(readOnly = true)
-    public ResponseEntity<ApiResponse<List<InquiryPreviewResponse>>> getAllInquiries(String keyword) {
+    public ResponseEntity<ApiResponse<List<InquiryPreviewResponse>>> getAllInquiries(
+            String email, LocalDate startDate, LocalDate endDate) {
+
         List<InquiryEntity> inquiries;
 
-        if (keyword != null && !keyword.isBlank()) {
-            inquiries = inquiryRepository.searchByTitle(keyword);
+        if (startDate != null && endDate != null) {
+            // 날짜 범위 필터링
+            LocalDateTime start = startDate.atStartOfDay();
+            LocalDateTime end = endDate.atTime(LocalTime.MAX);
+
+            if (email != null && !email.isBlank()) {
+                inquiries = inquiryRepository.findInquiriesByEmailAndDate(email, start, end);
+            } else {
+                inquiries = inquiryRepository.findInquiriesByDate(start, end);
+            }
         } else {
-            inquiries = inquiryRepository.findAllByOrderByCreatedAtDesc();
+            // 날짜가 없으면 전체 조회
+            inquiries = (email != null && !email.isBlank())
+                    ? inquiryRepository.findByUserEmailOrderByCreatedAtDesc(email)
+                    : inquiryRepository.findAllByOrderByCreatedAtDesc();
         }
 
         List<InquiryPreviewResponse> responses = inquiries.stream()
                 .map(InquiryPreviewResponse::fromEntity)
                 .toList();
 
-        return ResponseEntity.ok(new ApiResponse<>(200, true, "모든 문의글 조회 성공", responses));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "문의글 조회 성공", responses));
     }
+
+
 
     @Transactional(readOnly = true)
     public ResponseEntity<ApiResponse<InquiryResponse>> getInquiryDetail(Long inquiryId) {
