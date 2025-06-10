@@ -14,6 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -55,22 +58,31 @@ public class InquiryAdminService {
         return ResponseEntity.ok(new ApiResponse<>(200, true, "답변 수정 성공", null));
     }
 
-    @Transactional(readOnly = true)
-    public ResponseEntity<ApiResponse<List<InquiryPreviewResponse>>> getAllInquiries(String keyword) {
+    public ResponseEntity<ApiResponse<List<InquiryPreviewResponse>>> getAllInquiries(
+            String email, LocalDate startDate, LocalDate endDate) {
+
+        if (startDate == null || endDate == null) {
+            throw new CustomException(ErrorException.INVALID_DATE_RANGE);
+        }
+
+        LocalDateTime start = startDate.atStartOfDay();
+        LocalDateTime end = endDate.atTime(LocalTime.MAX);
+
         List<InquiryEntity> inquiries;
 
-        if (keyword != null && !keyword.isBlank()) {
-            inquiries = inquiryRepository.searchByTitle(keyword);
+        if (email != null && !email.isBlank()) {
+            inquiries = inquiryRepository.findInquiriesByEmailAndDate(email, start, end);
         } else {
-            inquiries = inquiryRepository.findAllByOrderByCreatedAtDesc();
+            inquiries = inquiryRepository.findInquiriesByDate(start, end);
         }
 
         List<InquiryPreviewResponse> responses = inquiries.stream()
                 .map(InquiryPreviewResponse::fromEntity)
                 .toList();
 
-        return ResponseEntity.ok(new ApiResponse<>(200, true, "모든 문의글 조회 성공", responses));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "문의글 조회 성공", responses));
     }
+
 
     @Transactional(readOnly = true)
     public ResponseEntity<ApiResponse<InquiryResponse>> getInquiryDetail(Long inquiryId) {
