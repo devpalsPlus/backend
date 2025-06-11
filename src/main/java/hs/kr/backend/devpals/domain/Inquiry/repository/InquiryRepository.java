@@ -13,7 +13,7 @@ public interface InquiryRepository extends JpaRepository<InquiryEntity, Long> {
     List<InquiryEntity> findByUserIdOrderByCreatedAtDesc(Long userId);
     List<InquiryEntity> findAllByOrderByCreatedAtDesc();
     List<InquiryEntity> findByUserEmailOrderByCreatedAtDesc(String email);
-    
+
     @Query("SELECT i FROM InquiryEntity i WHERE i.user.email = :email AND i.createdAt BETWEEN :startDate AND :endDate ORDER BY i.createdAt DESC")
     List<InquiryEntity> findInquiriesByEmailAndDate(
             @Param("email") String email,
