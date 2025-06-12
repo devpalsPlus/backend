@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -74,16 +75,27 @@ public class TagController {
     }
 
     @PostMapping("/skill-tag")
-    @Operation(summary = "스킬 태그 등록", description = "스킬 태그를 저장합니다.")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "스킬 태그 저장 성공")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(
-            responseCode = "400",
-            description = "스킬 태그 저장 실패",
-            content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = ApiResponse.class),
-                    examples = @ExampleObject(value = "{\"success\": false, \"message\": \"스킬 태그를 저장하던 중 오류가 발생했습니다.\", \"data\": null}")
-            )
+    @Operation(
+            summary = "스킬 태그 등록",
+            description = "스킬 태그를 저장합니다.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(
+                            mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+                            schema = @Schema(implementation = SkillTagRequest.class)
+                    )
+            ),
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "스킬 태그 저장 성공"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "400",
+                            description = "스킬 태그 저장 실패",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ApiResponse.class),
+                                    examples = @ExampleObject(value = "{\"success\": false, \"message\": \"스킬 태그를 저장하던 중 오류가 발생했습니다.\", \"data\": null}")
+                            )
+                    )
+            }
     )
     public ResponseEntity<ApiResponse<SkillTagEntity>> createSkillTag(@ModelAttribute SkillTagRequest request) {
         return tagService.createSkillTag(request);
