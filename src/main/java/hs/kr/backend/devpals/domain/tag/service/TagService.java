@@ -1,5 +1,7 @@
 package hs.kr.backend.devpals.domain.tag.service;
 
+import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
+import hs.kr.backend.devpals.domain.project.repository.ProjectRepository;
 import hs.kr.backend.devpals.domain.tag.dto.PositionTagRequest;
 import hs.kr.backend.devpals.domain.tag.dto.PositionTagResponse;
 import hs.kr.backend.devpals.domain.tag.dto.SkillTagRequest;
@@ -31,6 +33,7 @@ public class TagService {
 
     private final PositionTagRepository positionTagRepository;
     private final SkillTagRepository skillTagRepository;
+    private final ProjectRepository projectRepository;
     private final AwsS3Client awsS3Client;
     private final Map<Long, PositionTagEntity> positionTagCache = new ConcurrentHashMap<>();
     private final Map<Long, SkillTagEntity> skillTagCache = new ConcurrentHashMap<>();
@@ -107,23 +110,45 @@ public class TagService {
         String fileName = imgUrl.substring(imgUrl.lastIndexOf("/") + 1);
         awsS3Client.delete(fileName);
 
+        String tagJson = "[" + skillTagId + "]";
+        List<ProjectEntity> affectedProjects = projectRepository.findBySkillTagIdsContaining(tagJson);
+        for (ProjectEntity project : affectedProjects) {
+            List<Long> updated = project.getSkillTagIds()
+                    .stream()
+                    .filter(id -> !id.equals(skillTagId))
+                    .toList();
+            project.setSkillTagIds(updated); // 커스텀 setter
+            projectRepository.save(project);
+        }
+
         skillTagRepository.delete(skillTag);
         skillTagCache.remove(skillTagId);
 
-        ApiResponse<String> response = new ApiResponse<>(200, true, "스킬 태그 삭제 성공", null);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "스킬 태그 삭제 성공", null));
     }
 
     public ResponseEntity<ApiResponse<String>> deletePositionTag(Long positionTagId) {
         PositionTagEntity positionTag = positionTagRepository.findById(positionTagId)
                 .orElseThrow(() -> new CustomException(ErrorException.POSITION_NOT_FOUND));
 
+        String tagJson = "[" + positionTagId + "]";
+        List<ProjectEntity> affectedProjects = projectRepository.findByPositionTagIdsContaining(tagJson);
+        for (ProjectEntity project : affectedProjects) {
+            List<Long> updated = project.getPositionTagIds()
+                    .stream()
+                    .filter(id -> !id.equals(positionTagId))
+                    .toList();
+            project.setPositionTagIds(updated);
+            projectRepository.save(project);
+        }
+
         positionTagRepository.delete(positionTag);
         positionTagCache.remove(positionTagId);
 
-        ApiResponse<String> response = new ApiResponse<>(200, true, "포지션 태그 삭제 성공", null);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "포지션 태그 삭제 성공", null));
     }
+
+
 
     public List<PositionTagEntity> getPositionTagByIds(List<Long> ids) {
         List<PositionTagEntity> foundPositions = ids.stream()
