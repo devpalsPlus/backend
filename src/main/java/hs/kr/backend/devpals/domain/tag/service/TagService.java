@@ -16,6 +16,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collections;
 import java.util.List;
@@ -55,10 +56,21 @@ public class TagService {
     }
 
     public ResponseEntity<ApiResponse<SkillTagEntity>> createSkillTag(SkillTagRequest request) {
-        String ext = getSkillExtension(request.getImg().getOriginalFilename());
+        MultipartFile img = request.getImg();
+
+        if (img == null || img.isEmpty()) {
+            throw new CustomException(ErrorException.FILE_EMPTY);  // 적절한 에러 코드 사용
+        }
+
+        String originalFilename = img.getOriginalFilename();
+        if (originalFilename == null || originalFilename.trim().isEmpty()) {
+            throw new CustomException(ErrorException.FILE_NOT_SEARCH);
+        }
+
+        String ext = getSkillExtension(originalFilename);
         String fileName = request.getName().trim().replaceAll("\\s+", "_") + "." + ext;
 
-        String imgUrl = awsS3Client.upload(request.getImg(), fileName);
+        String imgUrl = awsS3Client.upload(img, fileName);
 
         SkillTagEntity skillTag = new SkillTagEntity(request.getName(), imgUrl);
         SkillTagEntity saved = skillTagRepository.save(skillTag);
@@ -66,6 +78,7 @@ public class TagService {
 
         return ResponseEntity.ok(new ApiResponse<>(200, true, "스킬 태그 등록 성공", saved));
     }
+
 
     public ResponseEntity<ApiResponse<PositionTagEntity>> createPositionTag(PositionTagRequest request) {
         PositionTagEntity positionTag = new PositionTagEntity(request.getName());
