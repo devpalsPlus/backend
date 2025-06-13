@@ -137,4 +137,12 @@ public class ProjectEntity {
     }
 
     public void increaseView() {this.views++;}
+
+    public void setSkillTagIds(List<Long> skillTagIds) {
+        this.skillTagIds = new ArrayList<>(skillTagIds);
+    }
+
+    public void setPositionTagIds(List<Long> positionTagIds) {
+        this.positionTagIds = new ArrayList<>(positionTagIds);
+    }
 }
