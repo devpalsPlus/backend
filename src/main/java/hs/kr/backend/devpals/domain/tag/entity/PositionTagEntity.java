@@ -24,4 +24,8 @@ public class PositionTagEntity {
     public PositionTagEntity(String name) {
         this.name = name;
     }
+
+    public void update(String name) {
+        this.name = name;
+    }
 }
