@@ -58,7 +58,7 @@ public class TagService {
         }
     }
 
-    public ResponseEntity<ApiResponse<SkillTagEntity>> createSkillTag(SkillTagRequest request) {
+    public ResponseEntity<ApiResponse<SkillTagResponse>> createSkillTag(SkillTagRequest request) {
         MultipartFile img = request.getImg();
 
         if (img == null || img.isEmpty()) {
@@ -79,15 +79,15 @@ public class TagService {
         SkillTagEntity saved = skillTagRepository.save(skillTag);
         refreshSkillTags();
 
-        return ResponseEntity.ok(new ApiResponse<>(200, true, "스킬 태그 등록 성공", saved));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "스킬 태그 등록 성공", SkillTagResponse.fromEntity(saved)));
     }
 
 
-    public ResponseEntity<ApiResponse<PositionTagEntity>> createPositionTag(PositionTagRequest request) {
+    public ResponseEntity<ApiResponse<PositionTagResponse>> createPositionTag(PositionTagRequest request) {
         PositionTagEntity positionTag = new PositionTagEntity(request.getName());
         PositionTagEntity saved = positionTagRepository.save(positionTag);
         refreshPositionTags();
-        return ResponseEntity.ok(new ApiResponse<>(200, true, "포지션 태그 등록 성공", saved));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "포지션 태그 등록 성공", PositionTagResponse.fromEntity(saved)));
     }
 
     public ResponseEntity<ApiResponse<List<SkillTagEntity>>> getSkillTags() {
@@ -100,6 +100,42 @@ public class TagService {
         List<PositionTagEntity> positionTags = List.copyOf(positionTagCache.values());
         ApiResponse<List<PositionTagEntity>> response = new ApiResponse<>(200, true, "포지션 태그 목록 가져오기 성공", positionTags);
         return ResponseEntity.ok(response);
+    }
+
+    public ResponseEntity<ApiResponse<SkillTagResponse>> updateSkillTag(Long id, SkillTagRequest request) {
+        SkillTagEntity skillTag = skillTagRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorException.SKILL_NOT_FOUND));
+
+        String imgUrl = null;
+        MultipartFile img = request.getImg();
+        if (img != null && !img.isEmpty()) {
+            String oldImageUrl = skillTag.getImg();
+            if (oldImageUrl != null) {
+                String oldFileName = oldImageUrl.substring(oldImageUrl.lastIndexOf("/") + 1);
+                awsS3Client.delete(oldFileName);
+            }
+
+            String ext = getSkillExtension(img.getOriginalFilename());
+            String fileName = request.getName().trim().replaceAll("\\s+", "_") + "." + ext;
+            imgUrl = awsS3Client.upload(img, fileName);
+        }
+
+        skillTag.update(request.getName(), imgUrl);
+        SkillTagEntity saved = skillTagRepository.save(skillTag);
+        refreshSkillTags();
+
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "스킬 태그 수정 성공", SkillTagResponse.fromEntity(saved)));
+    }
+
+    public ResponseEntity<ApiResponse<PositionTagResponse>> updatePositionTag(Long id, PositionTagRequest request) {
+        PositionTagEntity positionTag = positionTagRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorException.POSITION_NOT_FOUND));
+
+        positionTag.update(request.getName());
+        PositionTagEntity saved = positionTagRepository.save(positionTag);
+        refreshPositionTags();
+
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "포지션 태그 수정 성공", PositionTagResponse.fromEntity(saved)));
     }
 
     public ResponseEntity<ApiResponse<String>> deleteSkillTag(Long skillTagId) {

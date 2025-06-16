@@ -30,4 +30,10 @@ public class SkillTagEntity {
         this.img = img;
     }
 
+    public void update(String name, String imgUrl) {
+        this.name = name;
+        if (imgUrl != null) {
+            this.img = imgUrl;
+        }
+    }
 }
