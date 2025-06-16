@@ -1,12 +1,15 @@
 package hs.kr.backend.devpals.domain.tag.controller;
 
 import hs.kr.backend.devpals.domain.tag.dto.PositionTagRequest;
+import hs.kr.backend.devpals.domain.tag.dto.PositionTagResponse;
 import hs.kr.backend.devpals.domain.tag.dto.SkillTagRequest;
+import hs.kr.backend.devpals.domain.tag.dto.SkillTagResponse;
 import hs.kr.backend.devpals.domain.tag.entity.PositionTagEntity;
 import hs.kr.backend.devpals.domain.tag.entity.SkillTagEntity;
 import hs.kr.backend.devpals.domain.tag.service.TagService;
 import hs.kr.backend.devpals.global.common.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -70,7 +73,7 @@ public class TagController {
                     examples = @ExampleObject(value = "{\"success\": false, \"message\": \"포지션 태그를 저장하던 중 오류가 발생했습니다.\", \"data\": null}")
             )
     )
-    public ResponseEntity<ApiResponse<PositionTagEntity>> createPositionTag(@RequestBody PositionTagRequest request) {
+    public ResponseEntity<ApiResponse<PositionTagResponse>> createPositionTag(@RequestBody PositionTagRequest request) {
         return tagService.createPositionTag(request);
     }
 
@@ -97,11 +100,11 @@ public class TagController {
                     )
             }
     )
-    public ResponseEntity<ApiResponse<SkillTagEntity>> createSkillTag(@ModelAttribute SkillTagRequest request) {
+    public ResponseEntity<ApiResponse<SkillTagResponse>> createSkillTag(@ModelAttribute SkillTagRequest request) {
         return tagService.createSkillTag(request);
     }
 
-    @DeleteMapping("/position-tag")
+    @DeleteMapping("/position-tag/{positionTagId}")
     @Operation(summary = "포지션 태그 삭제", description = "포지션 태그를 삭제합니다.")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "포지션 태그 삭제 성공")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -113,11 +116,11 @@ public class TagController {
                     examples = @ExampleObject(value = "{\"success\": false, \"message\": \"포지션 태그를 삭제하던 중 오류가 발생했습니다.\", \"data\": null}")
             )
     )
-    public ResponseEntity<ApiResponse<String>> deletePositionTag(@RequestParam Long positionTagId) {
+    public ResponseEntity<ApiResponse<String>> deletePositionTag(@PathVariable Long positionTagId) {
         return tagService.deletePositionTag(positionTagId);
     }
 
-    @DeleteMapping("/skill-tag")
+    @DeleteMapping("/skill-tag/{skillTagId}")
     @Operation(summary = "스킬 태그 삭제", description = "스킬 태그를 삭제합니다.")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "스킬 태그 삭제 성공")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -129,7 +132,8 @@ public class TagController {
                     examples = @ExampleObject(value = "{\"success\": false, \"message\": \"스킬 태그를 삭제하던 중 오류가 발생했습니다.\", \"data\": null}")
             )
     )
-    public ResponseEntity<ApiResponse<String>> deleteSkillTag(@RequestParam Long skillTagId) {
+    public ResponseEntity<ApiResponse<String>> deleteSkillTag(@PathVariable Long skillTagId) {
         return tagService.deleteSkillTag(skillTagId);
     }
+    
 }
