@@ -135,5 +135,34 @@ public class TagController {
     public ResponseEntity<ApiResponse<String>> deleteSkillTag(@PathVariable Long skillTagId) {
         return tagService.deleteSkillTag(skillTagId);
     }
-    
+
+    @PutMapping("/skill-tag/{skillTagId}")
+    @Operation(
+            summary = "스킬 태그 수정",
+            description = "기존 스킬 태그의 이름과 이미지를 수정합니다.",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "수정 성공"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "스킬 태그를 찾을 수 없음")
+            }
+    )
+    public ResponseEntity<ApiResponse<SkillTagResponse>> updateSkillTag(
+            @Parameter(description = "수정할 스킬 태그 ID", example = "1") @PathVariable Long skillTagId,
+            @ModelAttribute SkillTagRequest request) {
+        return tagService.updateSkillTag(skillTagId, request);
+    }
+
+    @PutMapping("/position-tag/{positionTagId}")
+    @Operation(
+            summary = "포지션 태그 수정",
+            description = "기존 포지션 태그의 이름을 수정합니다.",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "수정 성공"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "포지션 태그를 찾을 수 없음")
+            }
+    )
+    public ResponseEntity<ApiResponse<PositionTagResponse>> updatePositionTag(
+            @Parameter(description = "수정할 포지션 태그 ID", example = "1") @PathVariable Long positionTagId,
+            @RequestBody PositionTagRequest request) {
+        return tagService.updatePositionTag(positionTagId, request);
+    }
 }
