@@ -139,10 +139,24 @@ public class TagController {
     @PutMapping("/skill-tag/{skillTagId}")
     @Operation(
             summary = "스킬 태그 수정",
-            description = "기존 스킬 태그의 이름과 이미지를 수정합니다.",
+            description = "스킬 태그를 수정합니다.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(
+                            mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+                            schema = @Schema(implementation = SkillTagRequest.class)
+                    )
+            ),
             responses = {
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "수정 성공"),
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "스킬 태그를 찾을 수 없음")
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "스킬 태그 수정 성공"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "400",
+                            description = "스킬 태그 수정 실패",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ApiResponse.class),
+                                    examples = @ExampleObject(value = "{\"success\": false, \"message\": \"스킬 태그를 수정하던 중 오류가 발생했습니다.\", \"data\": null}")
+                            )
+                    )
             }
     )
     public ResponseEntity<ApiResponse<SkillTagResponse>> updateSkillTag(
