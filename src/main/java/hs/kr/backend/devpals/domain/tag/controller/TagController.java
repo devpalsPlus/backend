@@ -41,7 +41,7 @@ public class TagController {
                     examples = @ExampleObject(value = "{\"success\": false, \"message\": \"포지션 목록을 불러오는 중 오류가 발생했습니다.\", \"data\": null}")
             )
     )
-    public ResponseEntity<ApiResponse<List<PositionTagEntity>>> getPositionTag() {
+    public ResponseEntity<ApiResponse<List<PositionTagResponse>>> getPositionTag() {
         return tagService.getPositionTag();
     }
 
@@ -57,7 +57,7 @@ public class TagController {
                     examples = @ExampleObject(value = "{\"success\": false, \"message\": \"스킬 목록을 불러오는 중 오류가 발생했습니다.\", \"data\": null}")
             )
     )
-    public ResponseEntity<ApiResponse<List<SkillTagEntity>>> getSkillTag() {
+    public ResponseEntity<ApiResponse<List<SkillTagResponse>>> getSkillTag() {
         return tagService.getSkillTags();
     }
 
