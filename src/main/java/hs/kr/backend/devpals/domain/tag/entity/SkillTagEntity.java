@@ -38,5 +38,6 @@ public class SkillTagEntity {
         if (imgUrl != null) {
             this.img = imgUrl;
         }
+        this.updatedAt = LocalDateTime.now();
     }
 }
