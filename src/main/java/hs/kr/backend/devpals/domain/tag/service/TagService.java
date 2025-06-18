@@ -90,15 +90,25 @@ public class TagService {
         return ResponseEntity.ok(new ApiResponse<>(200, true, "포지션 태그 등록 성공", PositionTagResponse.fromEntity(saved)));
     }
 
-    public ResponseEntity<ApiResponse<List<SkillTagEntity>>> getSkillTags() {
+    public ResponseEntity<ApiResponse<List<SkillTagResponse>>> getSkillTags() {
         List<SkillTagEntity> skillTags = List.copyOf(skillTagCache.values());
-        ApiResponse<List<SkillTagEntity>> response = new ApiResponse<>(200, true, "스킬 태그 목록 가져오기 성공", skillTags);
+
+        List<SkillTagResponse> responseList = skillTags.stream()
+                .map(SkillTagResponse::fromEntity)
+                .toList();
+
+        ApiResponse<List<SkillTagResponse>> response = new ApiResponse<>(200, true, "스킬 태그 목록 가져오기 성공", responseList);
         return ResponseEntity.ok(response);
     }
 
-    public ResponseEntity<ApiResponse<List<PositionTagEntity>>> getPositionTag() {
+    public ResponseEntity<ApiResponse<List<PositionTagResponse>>> getPositionTag() {
         List<PositionTagEntity> positionTags = List.copyOf(positionTagCache.values());
-        ApiResponse<List<PositionTagEntity>> response = new ApiResponse<>(200, true, "포지션 태그 목록 가져오기 성공", positionTags);
+
+        List<PositionTagResponse> responseList = positionTags.stream()
+                .map(PositionTagResponse::fromEntity)
+                .toList();
+
+        ApiResponse<List<PositionTagResponse>> response = new ApiResponse<>(200, true, "포지션 태그 목록 가져오기 성공", responseList);
         return ResponseEntity.ok(response);
     }
 
@@ -228,7 +238,7 @@ public class TagService {
         }
 
         return skillEntities.stream()
-                .map(skill -> new SkillTagResponse(skill.getId(), skill.getName(), skill.getImg()))
+                .map(skill -> new SkillTagResponse(skill.getId(), skill.getName(), skill.getImg(), skill.getUpdatedAt()))
                 .collect(Collectors.toList());
     }
 
@@ -239,7 +249,7 @@ public class TagService {
         }
 
         return positionEntities.stream()
-                .map(position -> new PositionTagResponse(position.getId(), position.getName()))
+                .map(position -> new PositionTagResponse(position.getId(), position.getName(), position.getUpdatedAt()))
                 .collect(Collectors.toList());
     }
 
