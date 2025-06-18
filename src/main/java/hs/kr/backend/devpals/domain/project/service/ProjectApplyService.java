@@ -24,7 +24,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-public class ApplyService {
+public class ProjectApplyService {
 
     private final JwtTokenValidator jwtTokenValidator;
     private final UserRepository userRepository;
