@@ -1,7 +1,7 @@
 package hs.kr.backend.devpals.domain.project.controller;
 
 import hs.kr.backend.devpals.domain.project.dto.*;
-import hs.kr.backend.devpals.domain.project.service.ApplyService;
+import hs.kr.backend.devpals.domain.project.service.ProjectApplyService;
 import hs.kr.backend.devpals.global.common.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -18,9 +18,9 @@ import java.util.List;
 @RequestMapping("/project")
 @RequiredArgsConstructor
 @Tag(name = "Project Apply API", description = "프로젝트 지원 관련 API")
-public class ApplyController {
+public class ProjectApplyController {
 
-    private final ApplyService applicantService;
+    private final ProjectApplyService applicantService;
 
     @PostMapping("/{projectId}/apply")
     @Operation(summary = "프로젝트 지원", description = "프로젝트를 지원합니다.")
