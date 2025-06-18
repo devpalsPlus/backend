@@ -31,5 +31,6 @@ public class PositionTagEntity {
 
     public void update(String name) {
         this.name = name;
+        this.updatedAt = LocalDateTime.now();
     }
 }

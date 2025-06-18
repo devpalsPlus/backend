@@ -18,6 +18,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collections;
@@ -112,6 +113,7 @@ public class TagService {
         return ResponseEntity.ok(response);
     }
 
+    @Transactional
     public ResponseEntity<ApiResponse<SkillTagResponse>> updateSkillTag(Long id, SkillTagRequest request) {
         SkillTagEntity skillTag = skillTagRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorException.SKILL_NOT_FOUND));
@@ -137,6 +139,7 @@ public class TagService {
         return ResponseEntity.ok(new ApiResponse<>(200, true, "스킬 태그 수정 성공", SkillTagResponse.fromEntity(saved)));
     }
 
+    @Transactional
     public ResponseEntity<ApiResponse<PositionTagResponse>> updatePositionTag(Long id, PositionTagRequest request) {
         PositionTagEntity positionTag = positionTagRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorException.POSITION_NOT_FOUND));
