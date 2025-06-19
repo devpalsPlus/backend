@@ -166,4 +166,81 @@ public class UserProjectService {
 
         return ResponseEntity.ok(new ApiResponse<>(200, true, "내 프로젝트 조회 성공", projectAuthoredResponses));
     }
+
+    // 1. 본인이 작성한 프로젝트 (ProjectAuthoredResponse)
+    public List<ProjectAuthoredResponse> getMyProjectByAdmin(Long userId) {
+        List<ProjectEntity> projects = projectRepository.findProjectsByUserId(userId);
+        return projects.stream()
+                .map(project -> {
+                    boolean isAllEvaluated = evaluationService.isAllEvaluated(project.getId());
+                    return ProjectAuthoredResponse.fromEntity(
+                            project,
+                            tagService.getPositionTagByIds(project.getPositionTagIds()),
+                            tagService.getSkillTagsByIds(project.getSkillTagIds()),
+                            projectFacade.getMethodTypeById(project.getMethodTypeId()),
+                            isAllEvaluated
+                    );
+                })
+                .toList();
+    }
+
+    // 2. 상대방이 작성한 프로젝트 (ProjectMyResponse)
+    public List<ProjectMyResponse> getOnlyCreatedProjectsByAdmin(Long userId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
+
+        return projectRepository.findProjectsByUserId(user.getId()).stream()
+                .map(project -> {
+                    List<SkillTagResponse> skills = tagService.getSkillTagResponses(project.getSkillTagIds());
+                    boolean isAllEvaluated = evaluationService.isAllEvaluated(project.getId());
+                    return ProjectMyResponse.fromEntity(project, skills, isAllEvaluated);
+                })
+                .toList();
+    }
+
+    // 3. 상대방이 참여한 프로젝트 (ProjectMyResponse)
+    public List<ProjectMyResponse> getOnlyParticipatedProjectsByAdmin(Long userId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
+
+        return applicantRepository.findByUser(user).stream()
+                .filter(app -> app.getStatus() == ApplicantStatus.ACCEPTED)
+                .map(app -> {
+                    ProjectEntity project = app.getProject();
+                    List<SkillTagResponse> skills = tagService.getSkillTagResponses(project.getSkillTagIds());
+                    boolean isAllEvaluated = evaluationService.isAllEvaluated(project.getId());
+                    return ProjectMyResponse.fromEntity(project, skills, isAllEvaluated);
+                })
+                .toList();
+    }
+
+    // 4. 상대방이 지원한 프로젝트 (ProjectApplyResponse)
+    public List<ProjectApplyResponse> getMyProjectApplyByAdmin(Long userId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
+
+        return applicantRepository.findByUser(user).stream()
+                .map(application -> ProjectApplyResponse.fromEntity(
+                        application.getProject().getId(),
+                        application.getProject().getTitle(),
+                        application.getStatus()
+                ))
+                .toList();
+    }
+
+    // 5. 본인이 참여한 프로젝트 (ProjectMyResponse)
+    public List<ProjectMyResponse> getMyParticipatedProjectsByAdmin(Long userId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
+
+        return applicantRepository.findByUser(user).stream()
+                .filter(application -> application.getStatus() == ApplicantStatus.ACCEPTED)
+                .map(application -> {
+                    ProjectEntity project = application.getProject();
+                    List<SkillTagResponse> skillResponses = tagService.getSkillTagResponses(project.getSkillTagsAsList());
+                    boolean isAllEvaluated = evaluationService.isAllEvaluated(project.getId());
+                    return ProjectMyResponse.fromEntity(project, skillResponses, isAllEvaluated);
+                })
+                .toList();
+    }
 }

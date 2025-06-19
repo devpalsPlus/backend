@@ -182,4 +182,24 @@ public class UserProfileService {
         return ResponseEntity.ok(new ApiResponse<>(200, true, "작성한 문의글 목록입니다.", inquiryResponses));
     }
 
+
+    // 문의글 조회
+    public List<InquiryResponse> getMyInquiriesByAdmin(Long userId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
+
+        return inquiryRepository.findByUser(user).stream()
+                .map(InquiryResponse::fromEntity)
+                .toList();
+    }
+
+    // 댓글 조회
+    public List<MyCommentResponse> getMyCommentsByAdmin(Long userId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
+
+        return commentRepository.findByUser(user).stream()
+                .map(MyCommentResponse::fromEntity)
+                .toList();
+    }
 }
