@@ -18,10 +18,19 @@ public class PositionTagEntity {
     @Column(nullable = false, unique = true)
     private String name;
 
-    @Column(updatable = false)
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(nullable = false)
+    private LocalDateTime updatedAt = LocalDateTime.now();
+
 
     public PositionTagEntity(String name) {
         this.name = name;
+    }
+
+    public void update(String name) {
+        this.name = name;
+        this.updatedAt = LocalDateTime.now();
     }
 }

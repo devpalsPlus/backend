@@ -22,12 +22,22 @@ public class SkillTagEntity {
     @Column(columnDefinition = "TEXT")
     private String img;
 
-    @Column(updatable = false)
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(nullable = false)
+    private LocalDateTime updatedAt = LocalDateTime.now();
 
     public SkillTagEntity(String name, String img) {
         this.name = name;
         this.img = img;
     }
 
+    public void update(String name, String imgUrl) {
+        this.name = name;
+        if (imgUrl != null) {
+            this.img = imgUrl;
+        }
+        this.updatedAt = LocalDateTime.now();
+    }
 }
