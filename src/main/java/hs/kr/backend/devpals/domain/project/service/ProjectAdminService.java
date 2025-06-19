@@ -45,7 +45,7 @@ public class ProjectAdminService {
                 .map(ProjectApplicantResponse::fromEntity)
                 .collect(Collectors.toList());
 
-        ApplicantEntity targetApplicant = applicantRepository.findById(applicantId)
+        ApplicantEntity targetApplicant = applicantRepository.findByUserIdAndProjectId(applicantId, projectId)
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
         if (!Objects.equals(targetApplicant.getProject().getId(), projectId)) {
