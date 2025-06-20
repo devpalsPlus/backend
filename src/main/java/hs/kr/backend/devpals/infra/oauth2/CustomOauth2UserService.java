@@ -48,20 +48,18 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             throw new IllegalArgumentException("소셜 로그인 응답에서 email을 찾을 수 없습니다.");
         }
 
-        if (!"github-auth".equals(provider)) {
-            UserEntity user = userRepository.findByEmail(email)
-                    .orElseGet(() -> new UserEntity(email, "SOCIAL_LOGIN_USER", name, true));
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseGet(() -> new UserEntity(email, "SOCIAL_LOGIN_USER", name, true));
 
-            if ("github".equals(provider)) {
-                String githubUrl = oAuth2User.getAttribute("html_url");
-                user.updateGithub(githubUrl);
-            }
+        if ("github".equals(provider) || "github-auth".equals(provider)) {
+            String githubUrl = oAuth2User.getAttribute("html_url");
+            user.updateGithub(githubUrl);
+        }
 
-            try {
-                userRepository.save(user);
-            } catch (DataIntegrityViolationException e) {
-                throw new CustomException(ErrorException.DUPLICATE_NICKNAME);
-            }
+        try {
+            userRepository.save(user);
+        } catch (DataIntegrityViolationException e) {
+            throw new CustomException(ErrorException.DUPLICATE_NICKNAME);
         }
 
         Map<String, Object> attributesMap = new HashMap<>(oAuth2User.getAttributes());
@@ -102,7 +100,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
                 return oAuth2User.getAttribute("name");
             case "kakao":
                 Map<String, Object> kakaoAccount = oAuth2User.getAttribute("kakao_account");
-                if (kakaoAccount == null) return null;
+                if (kakaoAccount == null) return    null;
                 Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
                 return profile != null ? (String) profile.get("nickname") : null;
             case "naver":
