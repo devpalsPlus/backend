@@ -1,9 +1,12 @@
 package hs.kr.backend.devpals.domain.user.service;
 
+import hs.kr.backend.devpals.domain.Inquiry.dto.InquiryResponse;
 import hs.kr.backend.devpals.domain.faq.service.FaqAdminService;
+import hs.kr.backend.devpals.domain.project.dto.ProjectApplyResponse;
+import hs.kr.backend.devpals.domain.project.dto.ProjectAuthoredResponse;
+import hs.kr.backend.devpals.domain.project.dto.ProjectMyResponse;
 import hs.kr.backend.devpals.domain.tag.service.TagService;
-import hs.kr.backend.devpals.domain.user.dto.AdminUserListResponse;
-import hs.kr.backend.devpals.domain.user.dto.AdminUserResponse;
+import hs.kr.backend.devpals.domain.user.dto.*;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.common.ApiResponse;
@@ -13,7 +16,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import hs.kr.backend.devpals.domain.user.dto.UserAdminPreviewResponse;
 
 import java.util.List;
 
@@ -24,7 +26,8 @@ public class UserAdminService {
     private final UserRepository userRepository;
     private final TagService tagService;
     private final FaqAdminService faqAdminService;
-
+    private final UserProjectService userProjectService;
+    private final UserProfileService userProfileService;
 
     public ResponseEntity<ApiResponse<List<UserAdminPreviewResponse>>> getAllUsersPreview(String token) {
         faqAdminService.validateAdmin(token);
@@ -59,4 +62,41 @@ public class UserAdminService {
 
         return ResponseEntity.ok(new ApiResponse<>(200, true, "회원 전체 상세 조회 성공", response));
     }
+
+    public ResponseEntity<ApiResponse<AdminUserProjectOverviewResponse>> adminGetProjectOverview(String token, Long userId) {
+        faqAdminService.validateAdmin(token);
+
+        List<ProjectAuthoredResponse> authoredProjects = userProjectService.getMyProjectByAdmin(userId);
+        List<ProjectMyResponse> ownedProjects = userProjectService.getOnlyCreatedProjectsByAdmin(userId);
+        List<ProjectMyResponse> joinedProjects = userProjectService.getOnlyParticipatedProjectsByAdmin(userId);
+        List<ProjectApplyResponse> appliedProjects = userProjectService.getMyProjectApplyByAdmin(userId);
+        List<ProjectMyResponse> myJoinedProjects = userProjectService.getMyParticipatedProjectsByAdmin(userId);
+
+        AdminUserProjectOverviewResponse response = AdminUserProjectOverviewResponse.of(
+                authoredProjects,
+                ownedProjects,
+                joinedProjects,
+                appliedProjects,
+                myJoinedProjects
+        );
+
+        return ResponseEntity.ok(
+                new ApiResponse<>(200, true, "회원의 프로젝트 지원,참여 등 조회 성공 (관리자용)", response)
+        );
+    }
+
+    public ResponseEntity<ApiResponse<AdminUserActivityOverviewResponse>> adminGetUserActivity(String token, Long userId) {
+        faqAdminService.validateAdmin(token);
+
+        List<InquiryResponse> inquiries = userProfileService.getMyInquiriesByAdmin(userId);
+        List<MyCommentResponse> comments = userProfileService.getMyCommentsByAdmin(userId);
+
+        AdminUserActivityOverviewResponse response = AdminUserActivityOverviewResponse.builder()
+                .inquiries(inquiries)
+                .comments(comments)
+                .build();
+
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "회원 문의글/댓글 조회 성공 (관리자용)", response));
+    }
+
 }
