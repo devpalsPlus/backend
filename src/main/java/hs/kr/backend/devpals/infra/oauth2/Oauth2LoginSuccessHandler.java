@@ -1,3 +1,4 @@
+// Oauth2LoginSuccessHandler.java
 package hs.kr.backend.devpals.infra.oauth2;
 
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
@@ -21,6 +22,7 @@ public class Oauth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
+    private final OauthUserService oauthUserService; // 주입
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -37,11 +39,8 @@ public class Oauth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         if ("github-auth".equals(provider)) {
             String githubUrl = oAuth2User.getAttribute("html_url");
 
-            UserEntity user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
-
-            user.updateGithub(githubUrl);
-            userRepository.save(user);
+            // 트랜잭션 서비스 호출
+            oauthUserService.updateGithubUrl(email, githubUrl);
 
             response.sendRedirect("http://localhost:5173/oauth/github-success?githubUrl=" + githubUrl);
             return;

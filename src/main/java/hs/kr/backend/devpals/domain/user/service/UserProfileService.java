@@ -110,6 +110,7 @@ public class UserProfileService {
                 request.getBeginner(),
                 positionIds,
                 skillIds,
+                request.getGithub(),
                 request.getCareer()
         );
 
