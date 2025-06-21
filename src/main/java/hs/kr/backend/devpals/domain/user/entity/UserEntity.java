@@ -80,12 +80,14 @@ public class UserEntity {
 
     // 유저 업데이트
     public void updateUserInfo(String nickname, String bio, Boolean beginner,
-                               List<Long> positionIds, List<Long> skillIds, List<Map<String, Object>> career) {
+                               List<Long> positionIds, List<Long> skillIds,
+                               String github, List<Map<String, Object>> career) {
         if (nickname != null) { this.nickname = nickname; }
         if (bio != null) { this.bio = bio; }
         if (beginner != null) { this.beginner = beginner; }
         if (positionIds != null) { this.positionIds = new ArrayList<>(positionIds); }
         if (skillIds != null) { this.skillIds = new ArrayList<>(skillIds); }
+        if (github != null) { this.github = github; }
         if (career != null) {
             ObjectMapper objectMapper = new ObjectMapper();
             try {
