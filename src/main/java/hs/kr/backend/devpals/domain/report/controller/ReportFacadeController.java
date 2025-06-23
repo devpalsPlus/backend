@@ -1,5 +1,7 @@
 package hs.kr.backend.devpals.domain.report.controller;
 
+import hs.kr.backend.devpals.domain.report.dto.ReportDetailResponse;
+import hs.kr.backend.devpals.domain.report.dto.ReportSummaryResponse;
 import hs.kr.backend.devpals.domain.report.dto.ReportTagRequest;
 import hs.kr.backend.devpals.domain.report.entity.ReportTagEntity;
 import hs.kr.backend.devpals.domain.report.facade.ReportFacade;
@@ -68,6 +70,5 @@ public class ReportFacadeController {
     public ResponseEntity<ApiResponse<String>> deleteReportTag(@RequestParam Long reportTagId) {
         return reportFacade.deleteReportTag(reportTagId);
     }
-
 
 }
