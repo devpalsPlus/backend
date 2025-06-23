@@ -70,7 +70,7 @@ public class InquiryAdminService {
             LocalDateTime end = endDate.atTime(LocalTime.MAX);
 
             if (userId != null) {
-                inquiries = inquiryRepository.findInquiriesByUserIdAndDate(userId, start, end);
+                inquiries = inquiryRepository.findInquiriesByUserIdAndCreatedAtBetween(userId, start, end);
             } else {
                 inquiries = inquiryRepository.findInquiriesByDate(start, end);
             }
