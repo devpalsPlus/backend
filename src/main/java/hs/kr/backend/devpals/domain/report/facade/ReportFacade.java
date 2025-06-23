@@ -1,7 +1,7 @@
 package hs.kr.backend.devpals.domain.report.facade;
 
 import hs.kr.backend.devpals.domain.report.dto.ReportTagRequest;
-import hs.kr.backend.devpals.domain.report.entity.ReportTagEntity;
+import hs.kr.backend.devpals.domain.report.entity.ReportTagEntity;;
 import hs.kr.backend.devpals.domain.report.repository.ReportTagRepository;
 import hs.kr.backend.devpals.global.common.ApiResponse;
 import hs.kr.backend.devpals.global.exception.CustomException;
