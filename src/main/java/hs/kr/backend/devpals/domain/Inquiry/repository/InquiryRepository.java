@@ -13,7 +13,7 @@ public interface InquiryRepository extends JpaRepository<InquiryEntity, Long> {
     int countByUserId(Long userId);
     List<InquiryEntity> findByUserIdOrderByCreatedAtDesc(Long userId);
     List<InquiryEntity> findAllByOrderByCreatedAtDesc();
-    List<InquiryEntity> findInquiriesByUserIdAndDate(Long userId, LocalDateTime start, LocalDateTime end);
+    List<InquiryEntity> findInquiriesByUserIdAndCreatedAtBetween(Long userId, LocalDateTime start, LocalDateTime end);
     List<InquiryEntity> findByUser(UserEntity user);
 
 
