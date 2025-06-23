@@ -61,18 +61,18 @@ public class InquiryAdminController {
     @GetMapping
     @Operation(
             summary = "모든 문의글 조회",
-            description = "이메일, 기간으로 필터링된 문의글 목록을 최신순으로 조회합니다.",
+            description = "유저 ID와 기간으로 필터링된 문의글 목록을 최신순으로 조회합니다.",
             responses = {
                     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "문의글 조회 성공"),
                     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청")
             }
     )
     public ResponseEntity<ApiResponse<List<InquiryPreviewResponse>>> getAllInquiries(
-            @RequestParam(required = false) String email,
+            @RequestParam(required = false) Long userId,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate endDate
     ) {
-        return inquiryAdminService.getAllInquiries(email, startDate, endDate);
+        return inquiryAdminService.getAllInquiries(userId, startDate, endDate);
     }
 
     @GetMapping("/{inquiryId}")

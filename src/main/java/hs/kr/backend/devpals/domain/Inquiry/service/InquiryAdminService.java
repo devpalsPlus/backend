@@ -61,24 +61,22 @@ public class InquiryAdminService {
     }
 
     public ResponseEntity<ApiResponse<List<InquiryPreviewResponse>>> getAllInquiries(
-            String email, LocalDate startDate, LocalDate endDate) {
+            Long userId, LocalDate startDate, LocalDate endDate) {
 
         List<InquiryEntity> inquiries;
 
         if (startDate != null && endDate != null) {
-            // 날짜 범위 필터링
             LocalDateTime start = startDate.atStartOfDay();
             LocalDateTime end = endDate.atTime(LocalTime.MAX);
 
-            if (email != null && !email.isBlank()) {
-                inquiries = inquiryRepository.findInquiriesByEmailAndDate(email, start, end);
+            if (userId != null) {
+                inquiries = inquiryRepository.findInquiriesByUserIdAndDate(userId, start, end);
             } else {
                 inquiries = inquiryRepository.findInquiriesByDate(start, end);
             }
         } else {
-            // 날짜가 없으면 전체 조회
-            inquiries = (email != null && !email.isBlank())
-                    ? inquiryRepository.findByUserEmailOrderByCreatedAtDesc(email)
+            inquiries = (userId != null)
+                    ? inquiryRepository.findByUserIdOrderByCreatedAtDesc(userId)
                     : inquiryRepository.findAllByOrderByCreatedAtDesc();
         }
 
