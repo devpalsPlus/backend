@@ -52,6 +52,7 @@ public enum ErrorException {
     APPLICANT_NOT_FOUND(404, "해당 프로젝트에 참여자로 등록된 유저가 아닙니다."),
     NOT_FOUND_NOTICE(404, "공지사항을 찾을 수 없습니다."),
     ANSWER_NOT_FOUND(404, "해당 문의에 대한 답변이 존재하지 않습니다."),
+    REPORT_NOT_FOUND(404, "신고를 찾을 수 없습니다."),
 
     DUPLICATE_EMAIL(409, "중복된 이메일 입니다."),
     DUPLICATE_NICKNAME(409, "중복된 닉네임 입니다."),
