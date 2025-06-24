@@ -1,6 +1,7 @@
 package hs.kr.backend.devpals.infra.oauth2;
 
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
+import hs.kr.backend.devpals.domain.user.principal.CustomUserDetails;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
@@ -38,22 +39,12 @@ public class Oauth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
             OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
             String githubUrl = oAuth2User.getAttribute("html_url");
 
-            String email = oAuth2User.getAttribute("email");
+            CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            UserEntity user = userRepository.findById(userDetails.getId())
+                    .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
-            if (email == null || email.isBlank()) {
-                Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-                if (principal instanceof UserDetails userDetails) {
-                    email = userDetails.getUsername();
-                } else {
-                    email = SecurityContextHolder.getContext().getAuthentication().getName();
-                }
-            }
-
-            if (email == null || email.isBlank()) {
-                throw new CustomException(ErrorException.USER_NOT_FOUND);
-            }
-
-            oauthUserService.updateGithubUrl(email, githubUrl);
+            user.updateGithub(githubUrl);
+            userRepository.save(user);
 
             response.sendRedirect("http://localhost:5173/oauth/github-success?githubUrl=" + githubUrl);
             return;
@@ -71,7 +62,6 @@ public class Oauth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
         String accessToken = jwtTokenProvider.generateToken(user.getId());
-
         String redirectUrl = "http://localhost:5173/oauth-redirect?accessToken=" + accessToken;
         response.sendRedirect(redirectUrl);
     }

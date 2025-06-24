@@ -4,7 +4,6 @@ import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
-import hs.kr.backend.devpals.domain.user.principal.CustomUserDetails;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,12 +29,10 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
 
-    @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) {
         OAuth2User oAuth2User = super.loadUser(userRequest);
         String provider = userRequest.getClientRegistration().getRegistrationId();
 
-        // 요청에 provider 저장
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = attributes != null ? attributes.getRequest() : null;
         if (request != null) {
@@ -49,20 +46,8 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             throw new IllegalArgumentException("소셜 로그인 응답에서 email을 찾을 수 없습니다.");
         }
 
-        UserEntity user;
-
-        if ("github-auth".equals(provider) && request != null && request.getUserPrincipal() instanceof CustomUserDetails principal) {
-            user = userRepository.findById(principal.getId())
-                    .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
-        } else {
-            user = userRepository.findByEmail(email)
-                    .orElseGet(() -> new UserEntity(email, "SOCIAL_LOGIN_USER", name, true));
-        }
-
-        if ("github".equals(provider) || "github-auth".equals(provider)) {
-            String githubUrl = oAuth2User.getAttribute("html_url");
-            user.updateGithub(githubUrl);
-        }
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseGet(() -> new UserEntity(email, "SOCIAL_LOGIN_USER", name, true));
 
         try {
             userRepository.save(user);
@@ -71,7 +56,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         }
 
         Map<String, Object> attributesMap = new HashMap<>(oAuth2User.getAttributes());
-        attributesMap.put("email", email); // email 보장
+        attributesMap.put("email", email);
 
         return new DefaultOAuth2User(
                 Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")),
@@ -79,6 +64,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
                 "email"
         );
     }
+
 
     public static String extractEmail(String provider, OAuth2User oAuth2User, OAuth2UserRequest userRequest) {
         switch (provider) {
