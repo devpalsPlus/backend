@@ -150,4 +150,22 @@ public class UserProfileController {
         return userProfileService.getMyInquiries(token);
     }
 
+    @PatchMapping("/github")
+    @Operation(summary = "GitHub URL 수정", description = "본인의 GitHub URL을 수정합니다.")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Github URL 수정 성공")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "400",
+            description = "Github URL 수정 실패",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ApiResponse.class),
+                    examples = @ExampleObject(value = "{\"success\": false, \"message\": \"인증 권한이 없습니다.\", \"data\": null}")
+            )
+    )
+    public ResponseEntity<ApiResponse<String>> updateGithubUrl(
+            @RequestHeader("Authorization") String token,
+            @RequestParam("githubUrl") String githubUrl) {
+        return userProfileService.updateGithub(token, githubUrl);
+    }
+
 }

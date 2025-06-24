@@ -183,6 +183,19 @@ public class UserProfileService {
         return ResponseEntity.ok(new ApiResponse<>(200, true, "작성한 문의글 목록입니다.", inquiryResponses));
     }
 
+    @Transactional
+    public ResponseEntity<ApiResponse<String>> updateGithub(String token, String githubUrl) {
+        Long userId = jwtTokenValidator.getUserId(token);
+
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
+
+        user.updateGithub(githubUrl);
+        userRepository.save(user);
+
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "GitHub URL이 업데이트되었습니다.", null));
+    }
+
 
     // 문의글 조회
     public List<InquiryResponse> getMyInquiriesByAdmin(Long userId) {
