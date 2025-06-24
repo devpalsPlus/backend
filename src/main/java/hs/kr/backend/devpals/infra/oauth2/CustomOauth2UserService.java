@@ -4,6 +4,7 @@ import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
+import hs.kr.backend.devpals.domain.user.principal.CustomUserDetails;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,8 +37,8 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
         // 요청에 provider 저장
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (attributes != null) {
-            HttpServletRequest request = attributes.getRequest();
+        HttpServletRequest request = attributes != null ? attributes.getRequest() : null;
+        if (request != null) {
             request.setAttribute("provider", provider);
         }
 
@@ -48,8 +49,15 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             throw new IllegalArgumentException("소셜 로그인 응답에서 email을 찾을 수 없습니다.");
         }
 
-        UserEntity user = userRepository.findByEmail(email)
-                .orElseGet(() -> new UserEntity(email, "SOCIAL_LOGIN_USER", name, true));
+        UserEntity user;
+
+        if ("github-auth".equals(provider) && request != null && request.getUserPrincipal() instanceof CustomUserDetails principal) {
+            user = userRepository.findById(principal.getId())
+                    .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
+        } else {
+            user = userRepository.findByEmail(email)
+                    .orElseGet(() -> new UserEntity(email, "SOCIAL_LOGIN_USER", name, true));
+        }
 
         if ("github".equals(provider) || "github-auth".equals(provider)) {
             String githubUrl = oAuth2User.getAttribute("html_url");
@@ -100,7 +108,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
                 return oAuth2User.getAttribute("name");
             case "kakao":
                 Map<String, Object> kakaoAccount = oAuth2User.getAttribute("kakao_account");
-                if (kakaoAccount == null) return    null;
+                if (kakaoAccount == null) return null;
                 Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
                 return profile != null ? (String) profile.get("nickname") : null;
             case "naver":
@@ -131,18 +139,12 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
                 );
 
         List<Map<String, Object>> emailList = response.getBody();
-        if (emailList != null) {
-            for (Map<String, Object> emailInfo : emailList) {
-            }
-        } else {
-        }
+        if (emailList == null) return null;
 
-        String primaryEmail = emailList.stream()
+        return emailList.stream()
                 .filter(e -> Boolean.TRUE.equals(e.get("primary")) && Boolean.TRUE.equals(e.get("verified")))
                 .map(e -> (String) e.get("email"))
                 .findFirst()
                 .orElse(null);
-
-        return primaryEmail;
     }
 }
