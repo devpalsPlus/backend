@@ -1,6 +1,7 @@
 package hs.kr.backend.devpals.infra.oauth2;
 
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
+import hs.kr.backend.devpals.domain.user.principal.CustomUserDetails;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
@@ -10,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -27,7 +29,6 @@ public class Oauth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     private final OauthUserService oauthUserService;
 
     @Override
-    @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException {
 
@@ -37,10 +38,8 @@ public class Oauth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         if ("github-auth".equals(provider)) {
             String githubUrl = oAuth2User.getAttribute("html_url");
 
-            // ✅ 현재 로그인한 사용자 (이전 소셜/웹 로그인된 사용자 기준)
             Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
 
-            // ✅ JWT 인증이 완료된 상태여야 CustomUserDetails가 들어 있음
             if (currentAuth.getPrincipal() instanceof CustomUserDetails userDetails) {
                 Long currentUserId = userDetails.getId();
 
