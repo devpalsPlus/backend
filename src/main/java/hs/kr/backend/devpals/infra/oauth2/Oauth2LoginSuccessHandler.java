@@ -27,31 +27,43 @@ public class Oauth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     private final OauthUserService oauthUserService;
 
     @Override
+    @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException {
 
         String provider = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+
+        if ("github-auth".equals(provider)) {
+            String githubUrl = oAuth2User.getAttribute("html_url");
+
+            // ✅ 현재 로그인한 사용자 (이전 소셜/웹 로그인된 사용자 기준)
+            Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
+
+            // ✅ JWT 인증이 완료된 상태여야 CustomUserDetails가 들어 있음
+            if (currentAuth.getPrincipal() instanceof CustomUserDetails userDetails) {
+                Long currentUserId = userDetails.getId();
+
+                UserEntity user = userRepository.findById(currentUserId)
+                        .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
+
+                user.updateGithub(githubUrl);
+                userRepository.save(user);
+
+                response.sendRedirect("http://localhost:5173/oauth/github-success?githubUrl=" + githubUrl);
+                return;
+            } else {
+                throw new CustomException(ErrorException.UNAUTHORIZED);
+            }
+        }
+
+        // 일반 소셜 로그인 처리
         String email = oAuth2User.getAttribute("email");
 
         if (email == null || email.isBlank()) {
             throw new CustomException(ErrorException.USER_NOT_FOUND);
         }
 
-        if ("github-auth".equals(provider)) {
-            String githubUrl = oAuth2User.getAttribute("html_url");
-
-            UserEntity user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
-
-            user.updateGithub(githubUrl);
-            userRepository.save(user);
-
-            response.sendRedirect("http://localhost:5173/oauth/github-success?githubUrl=" + githubUrl);
-            return;
-        }
-
-        // 일반 소셜 로그인 처리
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
