@@ -46,7 +46,8 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable) // 폼 로그인 비활성화
                 .logout(AbstractHttpConfigurer::disable) // 로그아웃 비활성화
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/oauth-login").authenticated()
+                        .requestMatchers("/auth/oauth-login",
+                                "/oauth2/authorization/github-auth").authenticated()
                         .anyRequest().permitAll()
                 )
                 .oauth2Login(oauth2 -> oauth2
