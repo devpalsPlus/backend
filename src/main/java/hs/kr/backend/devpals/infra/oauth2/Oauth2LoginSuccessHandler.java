@@ -26,27 +26,28 @@ public class Oauth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException {
-
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-        String email = (String) oAuth2User.getAttributes().get("email");
         String provider = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
 
-        if (email == null) {
-            throw new CustomException(ErrorException.USER_NOT_FOUND);
-        }
-
         if ("github-auth".equals(provider)) {
-            String githubUrl = oAuth2User.getAttribute("html_url");
-
+            String githubUrl = (String) oAuth2User.getAttributes().get("html_url");
+            if (githubUrl == null) {
+                throw new CustomException(ErrorException.USER_NOT_FOUND);
+            }
             response.sendRedirect("http://localhost:5173/oauth/github-success?githubUrl=" + githubUrl);
             return;
+        }
+
+        // 그 외 소셜 로그인은 기존 방식 (JWT 발급)
+        String email = (String) oAuth2User.getAttributes().get("email");
+        if (email == null) {
+            throw new CustomException(ErrorException.USER_NOT_FOUND);
         }
 
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
         String accessToken = jwtTokenProvider.generateToken(user.getId());
-
         String redirectUrl = "http://localhost:5173/oauth-redirect?accessToken=" + accessToken;
         response.sendRedirect(redirectUrl);
     }
