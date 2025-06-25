@@ -34,13 +34,6 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         OAuth2User oAuth2User = super.loadUser(userRequest);
         String provider = userRequest.getClientRegistration().getRegistrationId();
 
-        // 요청에 provider 저장
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (attributes != null) {
-            HttpServletRequest request = attributes.getRequest();
-            request.setAttribute("provider", provider);
-        }
-
         String email = extractEmail(provider, oAuth2User, userRequest);
         String name = extractName(provider, oAuth2User);
 
@@ -51,7 +44,10 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         if (!"github-auth".equals(provider)) {
             UserEntity user = userRepository.findByEmail(email)
                     .orElseGet(() -> new UserEntity(email, "SOCIAL_LOGIN_USER", name, true));
-
+            if("github".equals(provider)) {
+                String githubUrl = oAuth2User.getAttribute("html_url");
+                user.updateGithub(githubUrl);
+            }
             try {
                 userRepository.save(user);
             } catch (DataIntegrityViolationException e) {
@@ -61,6 +57,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
         Map<String, Object> attributesMap = new HashMap<>(oAuth2User.getAttributes());
         attributesMap.put("email", email);
+        attributesMap.put("provider", provider);
 
         return new DefaultOAuth2User(
                 Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")),
