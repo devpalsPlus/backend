@@ -4,7 +4,6 @@ import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
@@ -17,8 +16,6 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.*;
 
@@ -34,13 +31,6 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         OAuth2User oAuth2User = super.loadUser(userRequest);
         String provider = userRequest.getClientRegistration().getRegistrationId();
 
-        // 요청에 provider 저장
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (attributes != null) {
-            HttpServletRequest request = attributes.getRequest();
-            request.setAttribute("provider", provider);
-        }
-
         String email = extractEmail(provider, oAuth2User, userRequest);
         String name = extractName(provider, oAuth2User);
 
@@ -53,7 +43,9 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
         if ("github".equals(provider) || "github-auth".equals(provider)) {
             String githubUrl = oAuth2User.getAttribute("html_url");
-            user.updateGithub(githubUrl);
+            if (githubUrl != null) {
+                user.updateGithub(githubUrl);
+            }
         }
 
         try {
@@ -100,7 +92,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
                 return oAuth2User.getAttribute("name");
             case "kakao":
                 Map<String, Object> kakaoAccount = oAuth2User.getAttribute("kakao_account");
-                if (kakaoAccount == null) return    null;
+                if (kakaoAccount == null) return null;
                 Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
                 return profile != null ? (String) profile.get("nickname") : null;
             case "naver":
@@ -131,18 +123,12 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
                 );
 
         List<Map<String, Object>> emailList = response.getBody();
-        if (emailList != null) {
-            for (Map<String, Object> emailInfo : emailList) {
-            }
-        } else {
-        }
+        if (emailList == null) return null;
 
-        String primaryEmail = emailList.stream()
+        return emailList.stream()
                 .filter(e -> Boolean.TRUE.equals(e.get("primary")) && Boolean.TRUE.equals(e.get("verified")))
                 .map(e -> (String) e.get("email"))
                 .findFirst()
                 .orElse(null);
-
-        return primaryEmail;
     }
 }
