@@ -45,14 +45,18 @@ public class ReportAdminService {
 
         ReportEntity report = reportRepository.findById(reportId)
                 .orElseThrow(() -> new CustomException(ErrorException.REPORT_NOT_FOUND));
-        UserEntity user = userRepository.findById(report.getReportTargetId())
-                .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
-        ReportDetailResponse detail = ReportDetailResponse.fromEntity(report, user);
+        UserEntity reportedUser = userRepository.findById(report.getReportTargetId())
+                .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
+        
+        UserEntity reporterUser = report.getReporter();
+
+        ReportDetailResponse detail = ReportDetailResponse.fromEntity(report, reporterUser, reportedUser);
 
         ApiResponse<ReportDetailResponse> response =
                 new ApiResponse<>(200, true, "신고 상세 조회 성공", detail);
 
         return ResponseEntity.ok(response);
     }
+
 }

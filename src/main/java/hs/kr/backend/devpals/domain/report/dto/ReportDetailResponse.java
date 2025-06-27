@@ -13,30 +13,33 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class ReportDetailResponse {
+
     private Long reportId;
-    private Long userId;
-    private String nickname;
-    private String profileImg;
+    private ReportUserResponse reporter;
+    private ReportUserResponse reportedUser;
     private LocalDateTime reportedAt;
     private String reason;
     private ReportFilter category;
     private String location;
     private Long locationId;
 
-    public static ReportDetailResponse fromEntity(ReportEntity report, UserEntity user) {
+    public static ReportDetailResponse fromEntity(
+            ReportEntity report,
+            UserEntity reporterUser,
+            UserEntity reportedUser
+    ) {
         String location = switch (report.getReportFilter()) {
-            case PROJECT -> "공고 상세 페이지";
-            case COMMENT -> "댓글";
-            case RECOMMENT -> "대댓글";
-            case USER -> "유저 프로필";
-            default -> "알 수 없음";
+            case PROJECT  -> "공고 상세 페이지";
+            case COMMENT  -> "댓글";
+            case RECOMMENT-> "대댓글";
+            case USER     -> "유저 프로필";
+            default       -> "알 수 없음";
         };
 
         return ReportDetailResponse.builder()
                 .reportId(report.getId())
-                .userId(user.getId())
-                .nickname(user.getNickname())
-                .profileImg(user.getProfileImg())
+                .reporter(ReportUserResponse.fromEntity(reporterUser))
+                .reportedUser(ReportUserResponse.fromEntity(reportedUser))
                 .reportedAt(report.getCreatedAt())
                 .reason(report.getDetail())
                 .category(report.getReportFilter())
@@ -44,5 +47,4 @@ public class ReportDetailResponse {
                 .locationId(report.getReportTargetId())
                 .build();
     }
-
 }
