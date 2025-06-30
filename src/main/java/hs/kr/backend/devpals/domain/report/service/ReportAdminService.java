@@ -66,4 +66,29 @@ public class ReportAdminService {
         return ResponseEntity.ok(response);
     }
 
+    @Transactional
+    public ResponseEntity<ApiResponse<Void>> imposeWarning(Long reportId, String token) {
+        faqAdminService.validateAdmin(token);
+
+        ReportEntity report = reportRepository.findById(reportId)
+                .orElseThrow(() -> new CustomException(ErrorException.REPORT_NOT_FOUND));
+
+        if (report.isImposed()) {
+            throw new CustomException(ErrorException.ALREADY_IMPOSED);
+        }
+
+        if (report.getReportFilter() != ReportFilter.USER) {
+            throw new CustomException(ErrorException.INVALID_REPORT_TYPE);
+        }
+
+        UserEntity user = userRepository.findById(report.getReportTargetId())
+                .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
+
+        user.increaseWarning();  // 경고 +1
+        report.impose();         // isImposed = true
+
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "경고 부여 성공", null));
+    }
+
+
 }
