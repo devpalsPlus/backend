@@ -4,15 +4,19 @@ import hs.kr.backend.devpals.domain.faq.service.FaqAdminService;
 import hs.kr.backend.devpals.domain.report.dto.ReportDetailResponse;
 import hs.kr.backend.devpals.domain.report.dto.ReportSummaryResponse;
 import hs.kr.backend.devpals.domain.report.entity.ReportEntity;
+import hs.kr.backend.devpals.domain.report.entity.ReportTagEntity;
 import hs.kr.backend.devpals.domain.report.repository.ReportRepository;
+import hs.kr.backend.devpals.domain.report.repository.ReportTagRepository;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.domain.user.repository.UserRepository;
 import hs.kr.backend.devpals.global.common.ApiResponse;
+import hs.kr.backend.devpals.global.common.enums.ReportFilter;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -20,6 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReportAdminService {
     private final ReportRepository reportRepository;
+    private final ReportTagRepository reportTagRepository;
     private final UserRepository userRepository;
     private final FaqAdminService faqAdminService;
 
@@ -27,12 +32,14 @@ public class ReportAdminService {
         faqAdminService.validateAdmin(token);
 
         List<ReportEntity> reports = reportRepository.findAll();
-        List<ReportSummaryResponse> result = reports.stream().map(report -> {
-            UserEntity user = userRepository.findById(report.getReportTargetId())
-                    .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
-            boolean isImposed = user.getWarning() > 0;
-            return ReportSummaryResponse.fromEntity(report, user, isImposed);
-        }).toList();
+
+        List<ReportSummaryResponse> result = reports.stream()
+                .map(report -> {
+                    UserEntity user = userRepository.findById(report.getReportTargetId())
+                            .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
+                    return ReportSummaryResponse.fromEntity(report, user);
+                })
+                .toList();
 
         ApiResponse<List<ReportSummaryResponse>> response =
                 new ApiResponse<>(200, true, "신고 목록 조회 성공", result);
@@ -48,7 +55,7 @@ public class ReportAdminService {
 
         UserEntity reportedUser = userRepository.findById(report.getReportTargetId())
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
-        
+
         UserEntity reporterUser = report.getReporter();
 
         ReportDetailResponse detail = ReportDetailResponse.fromEntity(report, reporterUser, reportedUser);

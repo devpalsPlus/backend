@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
@@ -18,20 +19,20 @@ public class ReportSummaryResponse {
     private String nickname;
     private String profileImg;
     private Integer warning;
-    private ReportFilter category;
+    private List<Long> category;
     private LocalDateTime reportedAt;
     private boolean isImposed;
 
-    public static ReportSummaryResponse fromEntity(ReportEntity report, UserEntity user, boolean isImposed) {
+    public static ReportSummaryResponse fromEntity(ReportEntity report, UserEntity user) {
         return ReportSummaryResponse.builder()
                 .reportId(report.getId())
                 .userId(user.getId())
                 .nickname(user.getNickname())
                 .profileImg(user.getProfileImg())
                 .warning(user.getWarning())
-                .category(report.getReportFilter())
+                .category(report.getReportTagIds())
                 .reportedAt(report.getCreatedAt())
-                .isImposed(isImposed)
+                .isImposed(report.isImposed())
                 .build();
     }
 }
