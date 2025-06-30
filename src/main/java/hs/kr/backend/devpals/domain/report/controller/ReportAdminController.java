@@ -56,6 +56,24 @@ public class ReportAdminController {
         return reportAdminService.getReportDetail(reportId, token);
     }
 
+    @PatchMapping("/report/{reportId}/impose")
+    @Operation(summary = "신고에 대해 경고 부여", description = "관리자가 특정 신고에 대해 경고를 부여합니다.")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "경고 부여 성공")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "400",
+            description = "경고 부여 실패",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ApiResponse.class),
+                    examples = @ExampleObject(value = "{\"success\": false, \"message\": \"이미 제재된 신고입니다.\", \"data\": null}")
+            )
+    )
+    public ResponseEntity<ApiResponse<Void>> imposeWarning(
+            @PathVariable Long reportId,
+            @RequestHeader("Authorization") String token
+    ) {
+        return reportAdminService.imposeWarning(reportId, token);
+    }
 
 }
 

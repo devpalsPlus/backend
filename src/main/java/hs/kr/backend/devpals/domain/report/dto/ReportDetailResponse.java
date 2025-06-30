@@ -2,12 +2,12 @@ package hs.kr.backend.devpals.domain.report.dto;
 
 import hs.kr.backend.devpals.domain.report.entity.ReportEntity;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
-import hs.kr.backend.devpals.global.common.enums.ReportFilter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
@@ -19,9 +19,10 @@ public class ReportDetailResponse {
     private ReportUserResponse reportedUser;
     private LocalDateTime reportedAt;
     private String reason;
-    private ReportFilter category;
+    private List<Long> category;
     private String location;
     private Long locationId;
+    private boolean isImposed;
 
     public static ReportDetailResponse fromEntity(
             ReportEntity report,
@@ -42,9 +43,10 @@ public class ReportDetailResponse {
                 .reportedUser(ReportUserResponse.fromEntity(reportedUser))
                 .reportedAt(report.getCreatedAt())
                 .reason(report.getDetail())
-                .category(report.getReportFilter())
+                .category(report.getReportTagIds())
                 .location(location)
                 .locationId(report.getReportTargetId())
+                .isImposed(report.isImposed())
                 .build();
     }
 }
