@@ -49,12 +49,19 @@ public class ReportEntity {
     @Column(nullable = false)
     private LocalDateTime updatedAt = LocalDateTime.now();
 
+    @Column(nullable = false)
+    private boolean imposed = false;
 
     public ReportEntity(ReportRequest request, List<Long> reportTagIds, UserEntity reporter) {
         this.reporter = reporter;
         this.reportFilter = ReportFilter.fromValue(request.getReportFilter());
-        this.reportTagIds = this.reportTagIds = (reportTagIds == null) ? new ArrayList<>() : new ArrayList<>(reportTagIds);;
+        this.reportTagIds = (reportTagIds == null) ? new ArrayList<>() : new ArrayList<>(reportTagIds);
         this.detail = request.getDetail();
         this.reportTargetId = request.getReportTargetId();
+    }
+
+    public void impose() {
+        this.imposed = true;
+        this.updatedAt = LocalDateTime.now();
     }
 }
