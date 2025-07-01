@@ -1,5 +1,6 @@
 package hs.kr.backend.devpals.domain.banner.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,7 +17,10 @@ public class BannerRequest {
     private String imageUrl;
     private boolean isVisible;
     private boolean isAlways;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime startDate;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime endDate;
 
     public BannerEntity toEntity() {

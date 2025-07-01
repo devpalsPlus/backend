@@ -50,4 +50,9 @@ public class BannerEntity {
         this.endDate = request.isAlways() ? null : request.getEndDate();
         this.updatedAt = LocalDateTime.now();
     }
+
+    public void setInvisible() {
+        this.isVisible = false;
+        this.updatedAt = LocalDateTime.now();
+    }
 }
