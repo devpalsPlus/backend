@@ -15,6 +15,7 @@ public interface InquiryRepository extends JpaRepository<InquiryEntity, Long> {
     List<InquiryEntity> findAllByOrderByCreatedAtDesc();
     List<InquiryEntity> findInquiriesByUserIdAndCreatedAtBetween(Long userId, LocalDateTime start, LocalDateTime end);
     List<InquiryEntity> findByUser(UserEntity user);
+    List<InquiryEntity> findTop10ByOrderByCreatedAtDesc();
 
 
     @Query("SELECT i FROM InquiryEntity i WHERE i.createdAt BETWEEN :startDate AND :endDate ORDER BY i.createdAt DESC")

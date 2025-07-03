@@ -97,4 +97,16 @@ public class InquiryAdminService {
         InquiryResponse inquiryResponse = InquiryResponse.fromEntity(inquiry);
         return ResponseEntity.ok(new ApiResponse<>(200, true, "문의 상세 조회 성공", inquiryResponse));
     }
+
+    @Transactional(readOnly = true)
+    public ResponseEntity<ApiResponse<List<InquiryPreviewResponse>>> getInquiryPreviews() {
+        List<InquiryEntity> recentInquiries = inquiryRepository
+                .findTop10ByOrderByCreatedAtDesc();
+
+        List<InquiryPreviewResponse> responses = recentInquiries.stream()
+                .map(InquiryPreviewResponse::fromEntity)
+                .toList();
+
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "문의 미리보기 조회 성공", responses));
+    }
 }
