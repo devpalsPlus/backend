@@ -88,4 +88,17 @@ public class InquiryAdminController {
         return inquiryAdminService.getInquiryDetail(inquiryId);
     }
 
+    @GetMapping("/preview")
+    @Operation(
+            summary = "미리보기용 문의글 10개 조회",
+            description = "최근 문의글을 10개 미리보기 형태로 조회합니다.",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "문의 미리보기 조회 성공"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "잘못된 요청 - 토큰 오류 등 발생")
+            }
+    )
+    public ResponseEntity<ApiResponse<List<InquiryPreviewResponse>>> getInquiryPreviewList() {
+        return inquiryAdminService.getInquiryPreviews();
+    }
+
 }
