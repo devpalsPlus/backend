@@ -36,7 +36,7 @@ public class BannerService {
 
         banner.update(request, imageUrl);
 
-        return ResponseEntity.ok(new ApiResponse<>(200, true, "배너 생성 성공", BannerResponse.from(banner)));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "배너 생성 성공", null));
     }
 
     @Transactional
@@ -51,10 +51,9 @@ public class BannerService {
             awsS3Client.delete(fileName);
             imageUrl = awsS3Client.upload(image, fileName);
         }
-
         banner.update(request, imageUrl);
 
-        return ResponseEntity.ok(new ApiResponse<>(200, true, "배너 수정 성공", BannerResponse.from(banner)));
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "배너 수정 성공", null));
     }
 
     @Transactional
