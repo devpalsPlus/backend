@@ -14,18 +14,18 @@ import java.time.LocalDateTime;
 @Builder
 public class BannerRequest {
 
-    private String imageUrl;
     private boolean isVisible;
     private boolean isAlways;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime startDate;
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime endDate;
 
     public BannerEntity toEntity() {
         return BannerEntity.builder()
-                .imageUrl(imageUrl)
+                .imageUrl(null)
                 .isVisible(isVisible)
                 .isAlways(isAlways)
                 .startDate(isAlways ? null : startDate)
