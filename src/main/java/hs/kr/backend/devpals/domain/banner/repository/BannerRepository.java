@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface BannerRepository extends JpaRepository<BannerEntity, Long> {
-    List<BannerEntity> findAllByIsVisibleTrue();
+    List<BannerEntity> findAllByVisibleTrue();
 
-    List<BannerEntity> findByEndDateBeforeAndIsVisibleTrue(LocalDateTime now);
+    List<BannerEntity> findByEndDateBeforeAndVisibleTrue(LocalDateTime now);
 }
