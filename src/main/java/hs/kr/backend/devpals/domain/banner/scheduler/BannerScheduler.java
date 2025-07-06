@@ -21,7 +21,7 @@ public class BannerScheduler {
     @Transactional
     public void updateExpiredBanners() {
         LocalDateTime now = LocalDateTime.now();
-        List<BannerEntity> expiredBanners = bannerRepository.findByEndDateBeforeAndIsVisibleTrue(now);
+        List<BannerEntity> expiredBanners = bannerRepository.findByEndDateBeforeAndVisibleTrue(now);
 
         for (BannerEntity banner : expiredBanners) {
             banner.setInvisible();

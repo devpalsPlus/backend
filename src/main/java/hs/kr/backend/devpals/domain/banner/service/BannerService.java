@@ -79,7 +79,7 @@ public class BannerService {
 
     @Transactional(readOnly = true)
     public ResponseEntity<ApiResponse<List<BannerResponse>>> getVisibleBanners() {
-        List<BannerResponse> list = bannerRepository.findAllByIsVisibleTrue().stream()
+        List<BannerResponse> list = bannerRepository.findAllByVisibleTrue().stream()
                 .map(BannerResponse::from)
                 .toList();
 

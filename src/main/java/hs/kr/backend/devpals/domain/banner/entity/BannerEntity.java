@@ -25,10 +25,10 @@ public class BannerEntity {
     private String imageUrl;
 
     @Column(nullable = false)
-    private boolean isVisible;
+    private boolean visible;
 
     @Column(nullable = false)
-    private boolean isAlways;
+    private boolean always;
 
     private LocalDateTime startDate;
 
@@ -44,15 +44,15 @@ public class BannerEntity {
         if (newImageUrl != null) {
             this.imageUrl = newImageUrl;
         }
-        this.isVisible = request.isVisible();
-        this.isAlways = request.isAlways();
+        this.visible = request.isVisible();
+        this.always = request.isAlways();
         this.startDate = request.isAlways() ? null : request.getStartDate();
         this.endDate = request.isAlways() ? null : request.getEndDate();
         this.updatedAt = LocalDateTime.now();
     }
 
     public void setInvisible() {
-        this.isVisible = false;
+        this.visible = false;
         this.updatedAt = LocalDateTime.now();
     }
 }
