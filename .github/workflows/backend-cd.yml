@@ -29,17 +29,6 @@ jobs:
             git pull origin main
             chmod +x ./gradlew
             ./gradlew build
-
-            pid=$(lsof -ti:8080)
-            if [ -n "$pid" ]; then
-              kill -9 $pid
-            fi
             
-            docker stop redis || true
-            docker rm redis || true
-            docker run -d --name redis -p 6379:6379 redis
-      
-            docker stop devpals-container || true
-            docker rm devpals-container || true
-            docker build -t devpals-app .
-            docker run -d -p 8080:8080 --name devpals-container --link redis devpals-app
+            docker compose down || true
+            docker compose up -d --build
