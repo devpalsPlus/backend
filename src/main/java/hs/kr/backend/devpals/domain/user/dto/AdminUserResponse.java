@@ -25,9 +25,10 @@ public class AdminUserResponse {
     private List<PositionTagResponse> positions;
     private List<SkillTagResponse> skills;
     private LocalDateTime createdAt;
+    private Boolean isOnline;
 
 
-    public static AdminUserResponse fromEntity(UserEntity user, TagService tagService) {
+    public static AdminUserResponse fromEntity(UserEntity user, TagService tagService, boolean isOnline) {
         List<Long> positionIds = Optional.ofNullable(user.getPositionIds()).orElse(List.of());
         List<Long> skillIds = Optional.ofNullable(user.getSkillIds()).orElse(List.of());
 
@@ -48,6 +49,7 @@ public class AdminUserResponse {
                 .positions(positionResponses)
                 .skills(skillResponses)
                 .createdAt(user.getCreatedAt())
+                .isOnline(isOnline)
                 .build();
     }
 }
