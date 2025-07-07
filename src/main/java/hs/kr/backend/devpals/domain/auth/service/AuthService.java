@@ -15,15 +15,19 @@ import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
 import hs.kr.backend.devpals.global.jwt.JwtTokenProvider;
 import hs.kr.backend.devpals.global.jwt.JwtTokenValidator;
+import hs.kr.backend.devpals.infra.redis.RedisConfig;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +37,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final JwtTokenValidator jwtTokenValidator;
-    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
+    private final RedisTemplate<String, String> redisTemplate;
 
     // 로그인
     @Transactional
@@ -54,6 +58,8 @@ public class AuthService {
         // RefreshToken을 DB에 저장
         user.updateRefreshToken(refreshToken);
         userRepository.save(user);
+
+        redisTemplate.opsForValue().set("online:" + user.getId(), "true", 30, TimeUnit.MINUTES);
 
         // RefreshToken을 HttpOnly Secure 쿠키에 저장
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
@@ -93,11 +99,11 @@ public class AuthService {
             Long userId = jwtTokenValidator.getUserId(token);
             UserEntity user = userRepository.findById(userId)
                     .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
-            user.updateRefreshToken(null); // RefreshToken 제거
+            user.updateRefreshToken(null);
             userRepository.save(user);
+            redisTemplate.delete("online:" + userId);
 
             ApiResponse<String> response = new ApiResponse<>(200, true, "로그아웃 되었습니다",null);
-
             return ResponseEntity.ok(response);
         } catch (CustomException e) {
             throw e;
