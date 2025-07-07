@@ -29,6 +29,9 @@ jobs:
             git pull origin main
             chmod +x ./gradlew
             ./gradlew build
-
-            docker compose down --remove-orphans || true
+          
+            docker rm -f devpals-container || true
+            docker rm -f redis || true
+          
+            docker compose down || true
             docker compose up -d --build
