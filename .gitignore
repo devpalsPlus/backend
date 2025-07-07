@@ -39,3 +39,4 @@ out/
 # Spring Boot 환경 설정 파일 제외
 application.properties
 src/main/resources/application.properties
+application.yml
