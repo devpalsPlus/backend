@@ -13,15 +13,16 @@ public class UserAdminPreviewResponse {
     private String nickname;
     private String email;
     private String profileImg;
-    // private Boolean isOnline;
+    private Boolean isOnline;
     private LocalDateTime createdAt;
 
-    public static UserAdminPreviewResponse from(UserEntity user) {
+    public static UserAdminPreviewResponse from(UserEntity user, boolean isOnline) {
         return UserAdminPreviewResponse.builder()
                 .id(user.getId())
                 .nickname(user.getNickname())
                 .email(user.getEmail())
                 .profileImg(user.getProfileImg())
+                .isOnline(isOnline)
                 .createdAt(user.getCreatedAt())
                 .build();
     }

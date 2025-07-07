@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -28,15 +29,15 @@ public class UserAdminService {
     private final FaqAdminService faqAdminService;
     private final UserProjectService userProjectService;
     private final UserProfileService userProfileService;
+    private final RedisTemplate<String, String> redisTemplate;
 
     public ResponseEntity<ApiResponse<List<UserAdminPreviewResponse>>> getAllUsersPreview(String token) {
         faqAdminService.validateAdmin(token);
 
         List<UserEntity> users = userRepository.findAll();
 
-        //boolean isOnline = userSessionManager.isOnline(user.getId());
         List<UserAdminPreviewResponse> result = users.stream()
-                .map(UserAdminPreviewResponse::from)
+                .map(user -> UserAdminPreviewResponse.from(user, isUserOnline(user.getId())))
                 .toList();
 
         return ResponseEntity.ok(new ApiResponse<>(200, true, "회원 미리보기 조회 성공", result));
@@ -55,7 +56,7 @@ public class UserAdminService {
         }
 
         List<AdminUserResponse> result = userPage.getContent().stream()
-                .map(user -> AdminUserResponse.fromEntity(user, tagService))
+                .map(user -> AdminUserResponse.fromEntity(user, tagService, isUserOnline(user.getId())))
                 .toList();
 
         AdminUserListResponse response = new AdminUserListResponse(result, userPage.getTotalPages());
@@ -97,6 +98,10 @@ public class UserAdminService {
                 .build();
 
         return ResponseEntity.ok(new ApiResponse<>(200, true, "회원 문의글/댓글 조회 성공 (관리자용)", response));
+    }
+
+    private boolean isUserOnline(Long userId) {
+        return Boolean.TRUE.equals(redisTemplate.hasKey("online:" + userId));
     }
 
 }
