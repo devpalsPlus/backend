@@ -30,5 +30,7 @@ jobs:
             chmod +x ./gradlew
             ./gradlew build
             
+            docker rm -f redis || true
+            
             docker-compose down || true
             docker-compose up -d --build
