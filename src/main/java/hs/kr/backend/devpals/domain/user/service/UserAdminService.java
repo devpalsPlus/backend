@@ -18,7 +18,11 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoField;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 @Service
 @RequiredArgsConstructor
@@ -98,6 +102,33 @@ public class UserAdminService {
                 .build();
 
         return ResponseEntity.ok(new ApiResponse<>(200, true, "회원 문의글/댓글 조회 성공 (관리자용)", response));
+    }
+
+    public ResponseEntity<ApiResponse<AdminVisitStatsResponse>> getVisitStats(String token) {
+        faqAdminService.validateAdmin(token);
+
+        Map<String, Long> daily = new TreeMap<>();
+        Map<String, Long> weekly = new TreeMap<>();
+        Map<String, Long> monthly = new TreeMap<>();
+
+        for (int i = 0; i < 30; i++) {
+            LocalDate date = LocalDate.now().minusDays(i);
+            String key = "visit:" + date;
+            String value = redisTemplate.opsForValue().get(key);
+            long count = (value != null) ? Long.parseLong(value) : 0;
+
+            daily.put(date.toString(), count);
+
+            String weekKey = date.getYear() + "-W" + String.format("%02d", date.get(ChronoField.ALIGNED_WEEK_OF_YEAR));
+            weekly.merge(weekKey, count, Long::sum);
+
+            String monthKey = date.getYear() + "-" + String.format("%02d", date.getMonthValue());
+            monthly.merge(monthKey, count, Long::sum);
+        }
+
+        AdminVisitStatsResponse response = AdminVisitStatsResponse.from(daily, weekly, monthly);
+
+        return ResponseEntity.ok(new ApiResponse<>(200, true, "접속 통계 조회 성공", response));
     }
 
     private boolean isUserOnline(Long userId) {
