@@ -7,11 +7,11 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import static hs.kr.backend.devpals.global.constants.AlarmFilterConstants.APPLIED_PROJECTS;
-import static hs.kr.backend.devpals.global.constants.AlarmFilterConstants.APPLIED_PROJECT_INT_VALUE;
+import static hs.kr.backend.devpals.global.constants.AlarmFilterConstants.APPLICANT_CHECK;
+import static hs.kr.backend.devpals.global.constants.AlarmFilterConstants.APPLICANT_CHECK_INT_VALUE;
 
 @Entity
-@DiscriminatorValue(APPLIED_PROJECTS)
+@DiscriminatorValue(APPLICANT_CHECK)
 @NoArgsConstructor
 @Table(name = "ApplicantAlarm") // 테이블 이름 지정
 public class ApplicantAlarmEntity extends AlarmEntity {
@@ -35,6 +35,6 @@ public class ApplicantAlarmEntity extends AlarmEntity {
     }
 
     public Integer getAlarmFilterIntValue() {
-        return APPLIED_PROJECT_INT_VALUE;
+        return APPLICANT_CHECK_INT_VALUE;
     }
 }
