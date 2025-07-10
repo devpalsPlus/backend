@@ -11,7 +11,7 @@ import org.hibernate.annotations.OnDeleteAction;
 import static hs.kr.backend.devpals.global.constants.AlarmFilterConstants.*;
 
 @Entity
-@DiscriminatorValue(APPLICANT_CHECK)
+@DiscriminatorValue(APPLIED_PROJECTS)
 @NoArgsConstructor
 @Table(name = "ProjectAlarm") // 테이블 이름 지정
 public class ProjectAlarmEntity extends AlarmEntity{
@@ -35,6 +35,6 @@ public class ProjectAlarmEntity extends AlarmEntity{
     }
 
     public Integer getAlarmFilterIntValue() {
-        return APPLICANT_CHECK_INT_VALUE;
+        return APPLIED_PROJECT_INT_VALUE;
     }
 }
