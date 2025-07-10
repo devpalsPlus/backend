@@ -37,7 +37,7 @@ public class AlarmService {
     private final AlarmRepository alarmRepository;
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
-
+    private final UserAlarmService userAlarmService;
 
     // 새 SSE 연결 생성
     public SseEmitter createEmitter(String token) {
@@ -79,15 +79,19 @@ public class AlarmService {
 
         List<ApplicantAlarmEntity> savedAlarmEntities = alarmRepository.saveAll(alarmEntities);
 
-        savedAlarmEntities.forEach(a ->
-                sendToUser(a.getReceiver().getId(), a)
-        );
+        savedAlarmEntities.forEach(a -> {
+            userAlarmService.refreshCacheUserAlarm(a.getReceiver().getId());
+            sendToUser(a.getReceiver().getId(), a);
+        });
     }
+
     //프로젝트 지원 신청시 프로젝트 작성자에게 알림전송
     public void sendAlarm(ProjectEntity project, ApplicantEntity applicant) {
         UserEntity author = userRepository.findById(project.getUserId()).orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
         String content = makeMessage(project, applicant);
         AlarmEntity saved = alarmRepository.save(new ProjectAlarmEntity(project, author, content,applicant));
+
+        userAlarmService.refreshCacheUserAlarm(author.getId());
         sendToUser(author.getId(),saved);
     }
 
@@ -97,6 +101,8 @@ public class AlarmService {
         UserEntity receiver = comment.getUser();
         CommentAlarmEntity commentAlarmEntity = new CommentAlarmEntity(comment, content, project, recomment,receiver);
         AlarmEntity saved = alarmRepository.save(commentAlarmEntity);
+
+        userAlarmService.refreshCacheUserAlarm(receiver.getId());
         sendToUser(receiver.getId(),saved);
     }
 
@@ -107,6 +113,8 @@ public class AlarmService {
         UserEntity receiver = userRepository.findById(project.getUserId()).orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
         CommentAlarmEntity commentAlarmEntity = new CommentAlarmEntity(comment, content, project, receiver);
         AlarmEntity saved = alarmRepository.save(commentAlarmEntity);
+
+        userAlarmService.refreshCacheUserAlarm(receiver.getId());
         sendToUser(project.getUserId(),saved);
     }
 
@@ -117,6 +125,8 @@ public class AlarmService {
 
         InquiryAlarmEntity alarm = new InquiryAlarmEntity(receiver, content, inquiry);
         alarmRepository.save(alarm);
+
+        userAlarmService.refreshCacheUserAlarm(receiver.getId());
         sendToUser(receiver.getId(), alarm);
     }
 
