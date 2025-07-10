@@ -5,7 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import static hs.kr.backend.devpals.global.common.enums.ReplierFilter.*;
+import static hs.kr.backend.devpals.global.common.enums.ReplierFilter.COMMENT;
+import static hs.kr.backend.devpals.global.common.enums.ReplierFilter.RECOMMENT;
 
 @Getter
 @NoArgsConstructor

@@ -3,6 +3,7 @@ package hs.kr.backend.devpals.domain.user.dto;
 import hs.kr.backend.devpals.domain.user.entity.alarm.AlarmEntity;
 import hs.kr.backend.devpals.domain.user.entity.alarm.CommentAlarmEntity;
 import hs.kr.backend.devpals.domain.user.dto.CommentAlarmDto;
+import hs.kr.backend.devpals.domain.user.entity.alarm.InquiryAlarmEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,6 +28,11 @@ public class AlarmDto {
         if (entity instanceof CommentAlarmEntity) {
             return new CommentAlarmDto((CommentAlarmEntity) entity);
         }
+
+        if (entity instanceof InquiryAlarmEntity) {
+            return new InquiryAlarmDto((InquiryAlarmEntity) entity);
+        }
+
         return AlarmDto.builder()
                 .id(entity.getId())
                 .routingId(entity.getRoutingId())

@@ -43,12 +43,11 @@ public class UserAlarmService {
 
         alarmRepository.save(alarm);
 
-
         ApiResponse<AlarmDto> response = new ApiResponse<>(200, true, "알람 수정 성공", AlarmDto.fromEntity(alarm));
         return ResponseEntity.ok(response);
     }
 
-    private void refreshCacheUserAlarm(Long receiverId) {
+    public void refreshCacheUserAlarm(Long receiverId) {
         List<AlarmEntity> byReceiverId = alarmRepository.findByReceiverId(receiverId);
         List<AlarmDto> cachedAlarm = byReceiverId.stream()
                 .map(AlarmDto::fromEntity)
