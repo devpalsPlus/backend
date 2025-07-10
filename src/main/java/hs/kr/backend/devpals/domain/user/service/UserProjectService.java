@@ -23,10 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -133,6 +130,7 @@ public class UserProjectService {
         }
 
         List<ProjectApplyResponse> myProjects = applications.stream()
+                .sorted(Comparator.comparing(app -> app.getProject().getCreatedAt(), Comparator.reverseOrder()))
                 .map(application -> ProjectApplyResponse.fromEntity(
                         application.getProject().getId(),
                         application.getProject().getTitle(),
@@ -148,7 +146,9 @@ public class UserProjectService {
     public ResponseEntity<ApiResponse<List<ProjectAuthoredResponse>>> getMyProject(String token) {
         Long userId = jwtTokenValidator.getUserId(token);
 
-        List<ProjectEntity> projects = projectRepository.findProjectsByUserId(userId);
+        List<ProjectEntity> projects = projectRepository.findProjectsByUserId(userId).stream()
+                .sorted(Comparator.comparing(ProjectEntity::getCreatedAt).reversed())
+                .toList();
 
         List<ProjectAuthoredResponse> projectAuthoredResponses = projects.stream()
                 .map(project -> {
