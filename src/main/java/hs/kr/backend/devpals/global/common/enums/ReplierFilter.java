@@ -13,9 +13,9 @@ public enum ReplierFilter {
 
     ALL("전체",0),
     COMMENT("댓글",1),
-    RECOMMENT("댓글 답글",2),
-    INQUIRY("문의 답글(현재 미구현)",3),
-    REPORT("신고 답글(현재 미구현)",4);
+    RECOMMENT("대댓글",2),
+    INQUIRY("문의 답글",3),
+    REPORT("신고 답글",4);
 
     private final String displayName;
     private final Integer value;

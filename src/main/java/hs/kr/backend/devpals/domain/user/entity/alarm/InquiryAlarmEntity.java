@@ -8,11 +8,11 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import static hs.kr.backend.devpals.global.constants.AlarmFilterConstants.COMMENT_AND_REPLY;
-import static hs.kr.backend.devpals.global.constants.AlarmFilterConstants.COMMENT_AND_REPLY_INT_VALUE;
+import static hs.kr.backend.devpals.global.constants.AlarmFilterConstants.INQUIRY;
+import static hs.kr.backend.devpals.global.constants.AlarmFilterConstants.INQUIRY_INT_VALUE;
 
 @Entity
-@DiscriminatorValue(COMMENT_AND_REPLY)
+@DiscriminatorValue(INQUIRY)
 @NoArgsConstructor
 @Getter
 @Table(name = "InquiryAlarm")
@@ -30,6 +30,6 @@ public class InquiryAlarmEntity extends AlarmEntity {
 
     @Override
     public Integer getAlarmFilterIntValue() {
-        return COMMENT_AND_REPLY_INT_VALUE;
+        return INQUIRY_INT_VALUE;
     }
 }
