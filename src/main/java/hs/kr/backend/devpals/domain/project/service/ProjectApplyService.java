@@ -44,6 +44,10 @@ public class ProjectApplyService {
         ProjectEntity project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new CustomException(ErrorException.PROJECT_NOT_FOUND));
 
+        if (project.getUserId().equals(user.getId())) {
+            throw new CustomException(ErrorException.CANNOT_APPLY_TO_OWN_PROJECT);
+        }
+
         Optional<ApplicantEntity> existingApplicant = applicantRepository.findByUserAndProject(user, project);
         if (existingApplicant.isPresent()) {
             throw new CustomException(ErrorException.ALREADY_APPLIED);

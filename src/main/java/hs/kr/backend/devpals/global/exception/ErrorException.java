@@ -22,6 +22,7 @@ public enum ErrorException {
     INVALID_DATE_RANGE(400, "조회 기간(startDate, endDate)은 필수입니다."),
     ALREADY_IMPOSED(400, "이미 제재된 신고입니다."),
     INVALID_REPORT_TYPE(400, "해당 신고는 유저를 대상으로 하지 않습니다."),
+    CANNOT_APPLY_TO_OWN_PROJECT(400, "자신이 생성한 프로젝트에는 지원할 수 없습니다."),
 
     UNAUTHORIZED(401, "인증 권한이 없습니다."),
     TOKEN_EXPIRED(401, "토큰이 만료되었습니다."),
