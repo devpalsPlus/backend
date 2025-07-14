@@ -90,7 +90,7 @@ public class AuthController {
     }
 
     @PostMapping("/email-send")
-    @Operation(summary = "이메일 인증 요청", description = "입력한 이메일로 인증 코드를 전송합니다. (현재 네이버만 가능)")
+    @Operation(summary = "이메일 인증 요청", description = "입력한 이메일로 인증 코드를 전송합니다.")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "이메일 인증 코드 전송 성공")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(
             responseCode = "400",
