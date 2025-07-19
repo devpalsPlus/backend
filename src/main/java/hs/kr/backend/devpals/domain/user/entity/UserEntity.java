@@ -139,4 +139,13 @@ public class UserEntity {
         this.nickname = nickname;
         this.beginner = beginner;
     }
+
+    public void applyBanIfNeededAfterWarning() {
+        if (this.warning == 3) {
+            this.bannedUntil = LocalDateTime.now().plusDays(7);
+        } else if (this.warning >= 5) {
+            this.isPermanentlyBanned = true;
+            this.bannedUntil = null;
+        }
+    }
 }

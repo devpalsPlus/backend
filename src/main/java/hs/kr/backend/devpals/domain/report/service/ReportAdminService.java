@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -84,11 +85,14 @@ public class ReportAdminService {
         UserEntity user = userRepository.findById(report.getReportTargetId())
                 .orElseThrow(() -> new CustomException(ErrorException.USER_NOT_FOUND));
 
-        user.increaseWarning();  // 경고 +1
-        report.impose();         // isImposed = true
+        user.increaseWarning();
+        user.applyBanIfNeededAfterWarning();
+
+        report.impose(); 
 
         return ResponseEntity.ok(new ApiResponse<>(200, true, "경고 부여 성공", null));
     }
+
 
 
 }
