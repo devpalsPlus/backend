@@ -77,6 +77,12 @@ public class UserEntity {
     @SQLRestriction("report_filter = 'USER'")  // @Where 대신 @SQLRestriction 사용
     private List<ReportEntity> receivedReports = new ArrayList<>();
 
+    @Column
+    private LocalDateTime bannedUntil; // 정지 만료일 (null이면 정지 아님)
+
+    @Column(nullable = false)
+    private boolean isPermanentlyBanned = false; // 영구 정지 여부
+
 
     // 유저 업데이트
     public void updateUserInfo(String nickname, String bio, Boolean beginner,
@@ -132,5 +138,14 @@ public class UserEntity {
         this.password = password;
         this.nickname = nickname;
         this.beginner = beginner;
+    }
+
+    public void applyBanIfNeededAfterWarning() {
+        if (this.warning == 3) {
+            this.bannedUntil = LocalDateTime.now().plusDays(7);
+        } else if (this.warning >= 5) {
+            this.isPermanentlyBanned = true;
+            this.bannedUntil = null;
+        }
     }
 }
