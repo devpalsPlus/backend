@@ -28,6 +28,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -50,6 +52,16 @@ public class AuthService {
         // 비밀번호 검증
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new CustomException(ErrorException.INVALID_PASSWORD);
+        }
+
+        if (user.isPermanentlyBanned()) {
+            throw new CustomException(ErrorException.PERMANENTLY_BANNED); // 메시지: 영구 정지된 계정입니다.
+        }
+
+        if (user.getBannedUntil() != null && user.getBannedUntil().isAfter(LocalDateTime.now())) {
+            String endTime = user.getBannedUntil().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+            throw new CustomException(ErrorException.TEMP_BANNED,
+                    "정지된 계정입니다. 해제일: " + endTime);
         }
 
         // AccessToken, RefreshToken 생성
