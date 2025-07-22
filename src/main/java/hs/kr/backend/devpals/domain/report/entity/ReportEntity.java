@@ -33,7 +33,7 @@ public class ReportEntity {
     private UserEntity reporter;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "reportFilter", nullable = false)
     private ReportFilter reportFilter;
 
     @Convert(converter = LongListConverter.class)

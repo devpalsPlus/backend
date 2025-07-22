@@ -55,7 +55,7 @@ public class InquiryEntity {
 
     @OneToMany(cascade = CascadeType.REMOVE,fetch = FetchType.LAZY)
     @JoinColumn(name = "reportTargetId", referencedColumnName = "id")
-    @SQLRestriction("report_filter = 'INQUIRY'")  // @Where 대신 @SQLRestriction 사용
+    @SQLRestriction("reportFilter = 'INQUIRY'")  // @Where 대신 @SQLRestriction 사용
     private List<ReportEntity> receivedReports = new ArrayList<>();
 
     @Column(nullable = false, updatable = false)

@@ -59,7 +59,7 @@ public class RecommentEntity {
 
     @OneToMany(cascade = CascadeType.REMOVE,fetch = FetchType.LAZY)
     @JoinColumn(name = "reportTargetId", referencedColumnName = "id")
-    @SQLRestriction("report_filter = 'RECOMMENT'")  // @Where 대신 @SQLRestriction 사용
+    @SQLRestriction("reportFilter = 'RECOMMENT'")  // @Where 대신 @SQLRestriction 사용
     private List<ReportEntity> receivedReports = new ArrayList<>();
 
     public void updateContent(String content) {
@@ -73,6 +73,7 @@ public class RecommentEntity {
                 .user(user)
                 .comment(comment)
                 .content(dto.getContent())
+                .warning(0)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
