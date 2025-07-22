@@ -18,7 +18,7 @@ public class CommentAlarmDto extends AlarmDto{
 
     public CommentAlarmDto(CommentAlarmEntity entity) {
         super(entity.getId(), entity.getRoutingId(), entity.getContent(), entity.isEnabled(), entity.getAlarmFilterIntValue(), entity.getCreatedAt());
-        this.replier = entity.getReplier() ? RECOMMENT.getValue() : COMMENT.getValue();
+        this.replier = Boolean.TRUE.equals(entity.getReplier()) ? RECOMMENT.getValue() : COMMENT.getValue();
         this.reCommentUserId = getReCommentUserIdIfNotNull(entity);
     }
 
