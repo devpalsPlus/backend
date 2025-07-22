@@ -83,7 +83,7 @@ public class ProjectEntity {
 
     @OneToMany(cascade = CascadeType.REMOVE,fetch = FetchType.LAZY)
     @JoinColumn(name = "reportTargetId", referencedColumnName = "id")
-    @SQLRestriction("report_filter = 'PROJECT'")  // @Where 대신 @SQLRestriction 사용
+    @SQLRestriction("reportFilter = 'PROJECT'")  // @Where 대신 @SQLRestriction 사용
     private List<ReportEntity> receivedReports = new ArrayList<>();
 
     // Request 보내줘야 하는 값

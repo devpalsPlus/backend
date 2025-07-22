@@ -51,7 +51,7 @@ public class CommentEntity {
 
     @OneToMany(cascade = CascadeType.REMOVE,fetch = FetchType.LAZY)
     @JoinColumn(name = "reportTargetId", referencedColumnName = "id")
-    @SQLRestriction("report_filter = 'COMMENT'")  // @Where 대신 @SQLRestriction 사용
+    @SQLRestriction("reportFilter = 'COMMENT'")  // @Where 대신 @SQLRestriction 사용
     private List<ReportEntity> receivedReports = new ArrayList<>();
 
     public void updateContent(String newContent) {

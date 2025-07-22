@@ -74,7 +74,7 @@ public class UserEntity {
     // 내가 신고당한 내역 (새로 추가)
     @OneToMany(cascade = CascadeType.REMOVE,fetch = FetchType.LAZY)
     @JoinColumn(name = "reportTargetId", referencedColumnName = "id")
-    @SQLRestriction("report_filter = 'USER'")  // @Where 대신 @SQLRestriction 사용
+    @SQLRestriction("reportFilter = 'USER'")  // @Where 대신 @SQLRestriction 사용
     private List<ReportEntity> receivedReports = new ArrayList<>();
 
     @Column
