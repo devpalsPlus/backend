@@ -19,7 +19,7 @@ import java.util.List;
 @AllArgsConstructor
 @RestController
 @RequestMapping
-@Tag(name = "MethodType API", description = "방식 종류를 가져오는 API")
+@Tag(name = "Project MethodType API", description = "방식 종류를 가져오는 API")
 public class ProjectFacadeController {
 
     private final ProjectFacade projectFacade;

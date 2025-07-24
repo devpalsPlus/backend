@@ -18,6 +18,7 @@ import hs.kr.backend.devpals.global.common.enums.ApplicantStatus;
 import hs.kr.backend.devpals.global.exception.CustomException;
 import hs.kr.backend.devpals.global.exception.ErrorException;
 import hs.kr.backend.devpals.global.jwt.JwtTokenValidator;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
@@ -46,43 +47,42 @@ public class ProjectService {
     @Qualifier("emailExecutor")
     private final Executor emailExecutor;
 
-    private final Map<Long, ProjectAllDto> projectAllCache = new LinkedHashMap<>();
+    private final Map<Long, ProjectAllDto> projectAllCache = Collections.synchronizedMap(new LinkedHashMap<>());
 
-    // 프로젝트 목록 조회
-    @Transactional
+    @PostConstruct
+    public void initializeProjectCache() {
+        List<ProjectEntity> projects = projectRepository.findAllByOrderByCreatedAtDesc();
+        for (ProjectEntity project : projects) {
+            projectAllCache.put(project.getId(), convertToDto(project));
+        }
+    }
+
+    // 캐시에서 필터링만 수행 (isEmpty() 조건 제거)
+    @Transactional(readOnly = true)
     public ResponseEntity<ApiResponse<ProjectListResponse>> getProjectAll(
             List<Long> skillTagId, Long positionTagId,
             Long methodTypeId, Boolean isBeginner,
             String keyword, int page) {
 
-        if (projectAllCache.isEmpty()) {
-            List<ProjectEntity> projects = projectRepository.findAllByOrderByCreatedAtDesc();
-            projects.forEach(project -> {
-                if (!projectAllCache.containsKey(project.getId())) {
-                    projectAllCache.put(project.getId(), convertToDto(project));
-                }
-            });
+        List<ProjectAllDto> filteredProjectsAll;
+        synchronized (projectAllCache) {
+            filteredProjectsAll = projectAllCache.values().stream()
+                    .filter(project -> !isBeginner || project.getIsBeginner())
+                    .filter(project -> keyword == null || keyword.isEmpty() ||
+                            project.getTitle().toLowerCase().contains(keyword.toLowerCase()) ||
+                            project.getDescription().toLowerCase().contains(keyword.toLowerCase()))
+                    .filter(project -> methodTypeId == null || methodTypeId <= 0L ||
+                            Objects.equals(project.getMethodTypeId(), methodTypeId))
+                    .filter(project -> positionTagId == null || positionTagId <= 0 ||
+                            project.getPositionTagIds().contains(positionTagId))
+                    .filter(project -> skillTagId == null || skillTagId.isEmpty() ||
+                            project.getSkillTagIds().stream().anyMatch(skillTagId::contains))
+                    .collect(Collectors.toList());
         }
 
-        // 전체 캐시에서 필터링 먼저 수행
-        List<ProjectAllDto> filteredProjectsAll = projectAllCache.values().stream()
-                .filter(project -> !isBeginner || project.getIsBeginner())
-                .filter(project -> keyword == null || keyword.isEmpty() ||
-                        project.getTitle().toLowerCase().contains(keyword.toLowerCase()) ||
-                        project.getDescription().toLowerCase().contains(keyword.toLowerCase()))
-                .filter(project -> methodTypeId == null || methodTypeId <= 0L ||
-                        Objects.equals(project.getMethodTypeId(), methodTypeId))
-                .filter(project -> positionTagId == null || positionTagId <= 0 ||
-                        project.getPositionTagIds().contains(positionTagId))
-                .filter(project -> skillTagId == null || skillTagId.isEmpty() ||
-                        project.getSkillTagIds().stream().anyMatch(skillTagId::contains))
-                .collect(Collectors.toList());
-
-        // 필터링된 결과 기준으로 total, lastPage 계산
         int totalProjects = filteredProjectsAll.size();
         int lastPage = (int) Math.ceil((double) totalProjects / 12);
 
-        // 페이지네이션 적용
         List<ProjectAllDto> filteredProjects = filteredProjectsAll.stream()
                 .skip((page - 1) * 12)
                 .limit(12)
