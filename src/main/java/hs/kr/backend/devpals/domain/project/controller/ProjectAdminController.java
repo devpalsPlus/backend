@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/admin/project")
-@Tag(name = "Admin Project API", description = "관리자 전용 프로젝트 관련 API")
+@Tag(name = "Project Admin API", description = "관리자 전용 프로젝트 관련 API")
 @RequiredArgsConstructor
 public class ProjectAdminController {
     private final ProjectAdminService projectAdminService;
