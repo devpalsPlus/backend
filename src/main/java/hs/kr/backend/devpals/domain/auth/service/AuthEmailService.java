@@ -4,7 +4,7 @@ import hs.kr.backend.devpals.domain.auth.dto.EmailRequest;
 import hs.kr.backend.devpals.domain.auth.dto.EmailVertificationRequest;
 import hs.kr.backend.devpals.domain.auth.dto.ResetPasswordRequest;
 import hs.kr.backend.devpals.domain.auth.entity.EmailVertificationEntity;
-import hs.kr.backend.devpals.domain.auth.repository.AuthenticodeRepository;
+import hs.kr.backend.devpals.domain.auth.repository.AuthRepository;
 import hs.kr.backend.devpals.domain.project.entity.ApplicantEntity;
 import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
 import hs.kr.backend.devpals.domain.user.entity.UserEntity;
@@ -36,7 +36,7 @@ import java.util.concurrent.Executor;
 public class AuthEmailService {
 
     private final JavaMailSender javaMailSender;
-    private final AuthenticodeRepository authenticodeRepository;
+    private final AuthRepository authRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     @Qualifier("emailExecutor")
@@ -48,7 +48,7 @@ public class AuthEmailService {
         String email = request.getEmail();
 
         // 기존 인증 코드 삭제 (중복 방지)
-        authenticodeRepository.deleteByUserEmail(email);
+        authRepository.deleteByUserEmail(email);
 
         // 새로운 인증 코드 생성
         String verificationCode = generateVerificationCode();
@@ -56,7 +56,7 @@ public class AuthEmailService {
 
         // DB에 저장
         EmailVertificationEntity authCode = new EmailVertificationEntity(email, verificationCode, expiresAt);
-        authenticodeRepository.save(authCode);
+        authRepository.save(authCode);
 
         // 이메일 전송
         try {
@@ -73,7 +73,7 @@ public class AuthEmailService {
         String email = request.getEmail();
         String code = request.getCode();
 
-        EmailVertificationEntity authCode = authenticodeRepository.findTopByUserEmailOrderByExpiresAtDesc(email)
+        EmailVertificationEntity authCode = authRepository.findTopByUserEmailOrderByExpiresAtDesc(email)
                 .orElseThrow(() -> new CustomException(ErrorException.EMAIL_SEND_FAILED));
 
         // 만료 시간 확인
@@ -88,7 +88,7 @@ public class AuthEmailService {
 
         // 인증 완료 처리
         authCode.useCode();
-        authenticodeRepository.save(authCode);
+        authRepository.save(authCode);
 
         return ResponseEntity.ok(new ApiResponse<>(200, true, "이메일 인증 성공", null));
     }
@@ -141,7 +141,7 @@ public class AuthEmailService {
         String newPassword = request.getNewPassword();
 
         // 인증 코드 확인
-        EmailVertificationEntity authCode = authenticodeRepository.findTopByUserEmailOrderByExpiresAtDesc(email)
+        EmailVertificationEntity authCode = authRepository.findTopByUserEmailOrderByExpiresAtDesc(email)
                 .orElseThrow(() -> new CustomException(ErrorException.INVALID_CODE));
 
         // 입력된 코드가 저장된 코드와 일치하는지 확인
@@ -164,7 +164,7 @@ public class AuthEmailService {
 
         // 인증 코드 사용 처리
         authCode.useCode();
-        authenticodeRepository.save(authCode);
+        authRepository.save(authCode);
 
         return ResponseEntity.ok(new ApiResponse<>(200, true, "비밀번호가 성공적으로 변경되었습니다.", null));
     }

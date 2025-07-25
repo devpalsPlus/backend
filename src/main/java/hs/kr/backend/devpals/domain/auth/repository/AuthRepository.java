@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface AuthenticodeRepository extends JpaRepository<EmailVertificationEntity, Long> {
+public interface AuthRepository extends JpaRepository<EmailVertificationEntity, Long> {
 
     Optional<EmailVertificationEntity> findTopByUserEmailOrderByExpiresAtDesc(String email);
 
