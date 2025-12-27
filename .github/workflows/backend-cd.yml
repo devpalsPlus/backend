@@ -25,13 +25,15 @@ jobs:
           key: ${{ secrets.REMOTE_SSH_KEY }}
           port: ${{ secrets.REMOTE_SSH_PORT }}
           script: |
-            cd /home/ec2-user/backend/
-            git pull origin main
+            set -e
+            cd /home/ec2-user/backend
+
+            git fetch origin main
+            git reset --hard origin/main
+            git clean -fd
+
             chmod +x ./gradlew
-            ./gradlew build
-          
-            docker rm -f devpals-container || true
-            docker rm -f redis || true
-          
-            docker compose down || true
+            ./gradlew clean build
+
+            docker compose down --remove-orphans || true
             docker compose up -d --build
