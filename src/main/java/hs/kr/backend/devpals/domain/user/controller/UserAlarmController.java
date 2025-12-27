@@ -112,7 +112,7 @@ public class UserAlarmController {
             )
     )
     @GetMapping(value = "/sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter connect(@RequestParam("accessToken") String token) {
+    public SseEmitter connect(@RequestHeader("Authorization") String token) {
         return alarmService.createEmitter(token);
     }
 
