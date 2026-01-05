@@ -2,6 +2,8 @@ package hs.kr.backend.devpals.domain.project.dto;
 
 import hs.kr.backend.devpals.domain.project.entity.ApplicantEntity;
 import hs.kr.backend.devpals.domain.user.dto.CareerDto;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,19 +15,41 @@ import java.util.List;
 @Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Schema(name = "ApplicantStatusUpdateResponse", description = "지원자 상태 변경 응답 DTO")
 public class ApplicantStatusUpdateResponse {
 
+    @Schema(description = "지원(신청) ID", example = "101")
     private Long id;
-    private Long userId;
-    private Long projectId;
-    private String message;
-    private String email;
-    private String phoneNumber;
-    private List<CareerDto> career;
-    private String status;
-    private LocalDateTime createAt;
-    private LocalDateTime updateAt;
 
+    @Schema(description = "지원자 유저 ID", example = "42")
+    private Long userId;
+
+    @Schema(description = "프로젝트 ID", example = "7")
+    private Long projectId;
+
+    @Schema(description = "지원 메시지", example = "열심히 참여하겠습니다.")
+    private String message;
+
+    @Schema(description = "이메일", example = "user@example.com")
+    private String email;
+
+    @Schema(description = "전화번호", example = "010-1234-5678")
+    private String phoneNumber;
+
+    @ArraySchema(
+            schema = @Schema(implementation = CareerDto.class),
+            arraySchema = @Schema(description = "경력 목록")
+    )
+    private List<CareerDto> career;
+
+    @Schema(description = "지원 상태", example = "ACCEPTED")
+    private String status;
+
+    @Schema(description = "생성일시", example = "2026-01-05T18:30:00")
+    private LocalDateTime createAt;
+
+    @Schema(description = "수정일시", example = "2026-01-05T18:31:10")
+    private LocalDateTime updateAt;
 
     public static ApplicantStatusUpdateResponse fromEntity(ApplicantEntity applicant){
         return ApplicantStatusUpdateResponse.builder()
