@@ -3,6 +3,8 @@ package hs.kr.backend.devpals.domain.project.dto;
 import hs.kr.backend.devpals.domain.project.entity.ApplicantEntity;
 import hs.kr.backend.devpals.domain.tag.service.TagService;
 import hs.kr.backend.devpals.global.common.enums.ApplicantStatus;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,16 +16,25 @@ import java.util.stream.Collectors;
 @Getter
 @Builder
 @AllArgsConstructor
+@Schema(name = "ProjectApplicantResultResponse", description = "프로젝트 지원자 결과 응답(상태별 분리)")
 public class ProjectApplicantResultResponse {
 
+    @ArraySchema(
+            schema = @Schema(implementation = ProjectApplicantResultDto.class),
+            arraySchema = @Schema(description = "수락(ACCEPTED)된 지원자 목록")
+    )
     private List<ProjectApplicantResultDto> accepted;
+
+    @ArraySchema(
+            schema = @Schema(implementation = ProjectApplicantResultDto.class),
+            arraySchema = @Schema(description = "거절(REJECTED)된 지원자 목록")
+    )
     private List<ProjectApplicantResultDto> rejected;
 
     public static ProjectApplicantResultResponse fromEntity(List<ApplicantEntity> applicants, TagService tagService) {
         Map<Boolean, List<ProjectApplicantResultDto>> partitioned = applicants.stream()
                 .map(applicant -> ProjectApplicantResultDto.fromEntity(applicant, tagService))
                 .collect(Collectors.partitioningBy(dto -> dto.getStatus().equals(ApplicantStatus.ACCEPTED)));
-
 
         return ProjectApplicantResultResponse.builder()
                 .accepted(partitioned.get(true))
@@ -32,24 +43,4 @@ public class ProjectApplicantResultResponse {
                         .collect(Collectors.toList()))
                 .build();
     }
-
-//    public static ProjectApplicantResultResponse fromEntity(List<ApplicantEntity> applicants) {
-//        List<ProjectApplicantResultDto> projectApplicantResultsAccepted = new ArrayList<>();
-//        List<ProjectApplicantResultDto> projectApplicantResultsRejected = new ArrayList<>();
-//        applicants.stream()
-//                .map(ProjectApplicantResultDto::fromEntity)
-//                .forEach(dto -> {
-//                    if (dto.getStatus().equals(ApplicantStatus.ACCEPTED)) { // dto 클래스의 a 값을 확인하는 메서드 (getter)
-//                        projectApplicantResultsAccepted.add(dto);
-//                    } else if (dto.getStatus().equals(ApplicantStatus.REJECTED)){
-//                        projectApplicantResultsRejected.add(dto);
-//                    }
-//                });
-//
-//        return ProjectApplicantResultResponse.builder()
-//                .accepted(projectApplicantResultsAccepted)
-//                .rejected(projectApplicantResultsRejected)
-//                .build();
-//    }
-
 }

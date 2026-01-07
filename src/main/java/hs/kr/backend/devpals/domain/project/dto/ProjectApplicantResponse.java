@@ -1,11 +1,11 @@
 package hs.kr.backend.devpals.domain.project.dto;
 
 import hs.kr.backend.devpals.domain.project.entity.ApplicantEntity;
-import hs.kr.backend.devpals.domain.project.entity.ProjectEntity;
 import hs.kr.backend.devpals.domain.user.dto.CareerDto;
 import hs.kr.backend.devpals.domain.user.dto.UserApplicantResponse;
-import hs.kr.backend.devpals.domain.user.entity.UserEntity;
 import hs.kr.backend.devpals.global.common.enums.ApplicantStatus;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -14,18 +14,43 @@ import java.util.List;
 
 @Getter
 @Builder
+@Schema(name = "ProjectApplicantResponse", description = "프로젝트 지원자 단건 조회 응답 DTO")
 public class ProjectApplicantResponse {
 
+    @Schema(description = "지원(신청) ID", example = "101")
     private Long id;
+
+    @Schema(description = "지원자 유저 ID", example = "42")
     private Long userId;
+
+    @Schema(description = "프로젝트 ID", example = "7")
     private Long projectId;
+
+    @Schema(description = "지원 메시지", example = "열심히 참여하겠습니다.")
     private String message;
+
+    @Schema(description = "이메일", example = "user@example.com")
     private String email;
+
+    @Schema(description = "전화번호", example = "010-1234-5678")
     private String phoneNumber;
+
+    @ArraySchema(
+            schema = @Schema(implementation = CareerDto.class),
+            arraySchema = @Schema(description = "경력 목록")
+    )
     private List<CareerDto> career;
+
+    @Schema(description = "지원 상태", example = "ACCEPTED")
     private ApplicantStatus status;
+
+    @Schema(description = "생성일시", example = "2026-01-05T18:30:00")
     private LocalDateTime createAt;
+
+    @Schema(description = "수정일시", example = "2026-01-05T18:31:10")
     private LocalDateTime updatedAt;
+
+    @Schema(description = "지원자 정보(프로필/태그 등)")
     private UserApplicantResponse user;
 
     public static ProjectApplicantResponse fromEntity(ApplicantEntity applicant){
@@ -36,29 +61,11 @@ public class ProjectApplicantResponse {
                 .message(applicant.getMessage())
                 .email(applicant.getEmail())
                 .phoneNumber(applicant.getPhoneNumber())
-                .career(applicant.getCareer()) // 공고 지원자 상세보기 반환 내용 참조
+                .career(applicant.getCareer())
                 .status(applicant.getStatus())
                 .createAt(applicant.getCreatedAt())
                 .updatedAt(applicant.getUpdatedAt())
                 .user(UserApplicantResponse.fromEntity(applicant.getUser()))
                 .build();
     }
-
-
-//   public static ProjectApplicantResponse fromEntity(ApplicantEntity applicant, UserEntity user, ProjectEntity project){
-//        return ProjectApplicantResponse.builder()
-//                .id(applicant.getId())
-//                .userId(user.getId())
-//                .projectId(project.getId())
-//                .message(applicant.getMessage())
-//                .email(applicant.getEmail())
-//                .phoneNumber(applicant.getPhoneNumber())
-//                .career(applicant.getCareer())
-//                .status(applicant.getStatus())
-//                .createAt(applicant.getCreatedAt())
-//                .updatedAt(applicant.getUpdatedAt())
-//                .user(UserApplicantResponse.fromEntity(user))
-//                .build();
-//    }
-
 }
